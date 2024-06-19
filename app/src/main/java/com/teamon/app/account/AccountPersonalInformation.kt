@@ -176,7 +176,9 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                             enabled = true,
                             singleLine = true,
                             trailingIcon = {
-                                Icon(Icons.Rounded.LocationOn, contentDescription = "Location")
+                                IconButton(enabled = profileViewModel!!.isEditing, onClick = {}) {
+                                    Icon(Icons.Rounded.LocationOn, contentDescription = "Location")
+                                }
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             value = profileViewModel!!.locationValue,
@@ -242,7 +244,7 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                             modifier = Modifier.fillMaxSize(),
                             readOnly = true,
                             enabled = true,
-                            value = profileViewModel.color.toString(),
+                            value = profileViewModel.color.toString().lowercase().capitalize(),
                             singleLine = true,
                             leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(profileViewModel.color.toInt())) {} },
                             trailingIcon = {
@@ -258,7 +260,7 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                             ProjectColors.entries.forEach {
                                 DropdownMenuItem(
                                     leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(it.toInt())) {} },
-                                    text = { Text(it.name) },
+                                    text = { Text(it.name.lowercase().capitalize()) },
                                     onClick = { profileViewModel.setColor(it.name) })
                             }
                         }
@@ -394,11 +396,13 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                         horizontalAlignment = Alignment.End
                     ) {
                         OutlinedTextField(
-                            readOnly = !profileViewModel!!.isEditing,
+                            readOnly = true,
                             enabled = false,
                             singleLine = true,
                             trailingIcon = {
-                                Icon(Icons.Rounded.LocationOn, contentDescription = "Location")
+                                IconButton(enabled = false, onClick = {}) {
+                                    Icon(Icons.Rounded.LocationOn, contentDescription = "Location")
+                                }
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             value = userVm.locationValue,
@@ -438,7 +442,7 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                             modifier = Modifier.fillMaxSize(),
                             readOnly = true,
                             enabled = false,
-                            value = userVm.color.toString(),
+                            value = userVm.color.toString().lowercase().capitalize(),
                             singleLine = true,
                             leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(userVm.color.toInt())) {} },
                             label = { Text("Color") },
@@ -573,7 +577,9 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
                     enabled = true,
                     singleLine = true,
                     trailingIcon = {
-                        Icon(Icons.Rounded.LocationOn, contentDescription = "Location")
+                        IconButton(enabled = true, onClick = {}) {
+                            Icon(Icons.Rounded.LocationOn, contentDescription = "Location")
+                        }
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     value = userVm.locationValue,
@@ -624,7 +630,7 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
                     modifier = Modifier.fillMaxSize(),
                     readOnly = true,
                     enabled = true,
-                    value = userVm.color.toString(),
+                    value = userVm.color.toString().lowercase().capitalize(),
                     singleLine = true,
                     leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(userVm.color.toInt())) {} },
                     trailingIcon = {
