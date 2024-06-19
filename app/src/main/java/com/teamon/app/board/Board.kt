@@ -61,6 +61,7 @@ import com.teamon.app.utils.graphics.AnimatedGrid
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.AppSurface
 import com.teamon.app.utils.graphics.Orientation
+import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.themes.teamon.TeamOnTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -70,7 +71,7 @@ import kotlinx.coroutines.flow.filter
 
 @Composable
 fun BoardView(actions: Actions) {
-    TeamOnTheme(applyToStatusBar = true) {
+    Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         val newProjectViewModel =
             viewModel<NewProjectViewModel>(factory = Factory(LocalContext.current.applicationContext))

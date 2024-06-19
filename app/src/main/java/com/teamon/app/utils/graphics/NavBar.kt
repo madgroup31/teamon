@@ -127,6 +127,7 @@ fun NavigationBar(scrollBehavior: BottomAppBarScrollBehavior, actions: Actions) 
                             uri = profileViewModel!!.profileImageUri,
                             name = profileViewModel!!.nameValue,
                             surname = profileViewModel!!.surnameValue,
+                            color = profileViewModel.color,
                             description = profileViewModel!!.nameValue + " " + profileViewModel!!.surnameValue + " profile image",
                         )
                     }
@@ -146,6 +147,7 @@ fun NavigationBar(scrollBehavior: BottomAppBarScrollBehavior, actions: Actions) 
                                 source = profileViewModel!!.profileImageSource,
                                 uri = profileViewModel!!.profileImageUri,
                                 name = profileViewModel!!.nameValue,
+                                color = profileViewModel.color,
                                 surname = profileViewModel!!.surnameValue,
                                 description = "My Profile picture"
                             )

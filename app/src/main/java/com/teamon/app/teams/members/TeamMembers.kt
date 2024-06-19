@@ -351,6 +351,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                                     uri = profileViewModel!!.profileImageUri,
                                                     name = profileViewModel!!.nameValue,
                                                     surname = profileViewModel!!.surnameValue,
+                                                    color = profileViewModel.color,
                                                     description = "My Profile picture"
                                                 )
 
@@ -367,6 +368,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                                     source = member.profileImageSource,
                                                     uri = member.profileImage?.toUri(),
                                                     name = member.name,
+                                                    color = member.color,
                                                     surname = member.surname,
                                                     description = member.name + " " + member.surname + " profile image",
                                                 )
@@ -674,6 +676,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                                         uri = profileViewModel!!.profileImageUri,
                                                         name = profileViewModel!!.nameValue,
                                                         surname = profileViewModel!!.surnameValue,
+                                                        color = profileViewModel.color,
                                                         description = "My Profile picture"
                                                     )
 
@@ -690,6 +693,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                                         source = member.profileImageSource,
                                                         uri = member.profileImage?.toUri(),
                                                         name = member.name,
+                                                        color = member.color,
                                                         surname = member.surname,
                                                         description = member.name + " " + member.surname + " profile image",
                                                     )

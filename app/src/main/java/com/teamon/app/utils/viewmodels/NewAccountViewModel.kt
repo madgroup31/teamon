@@ -22,6 +22,7 @@ import java.time.DateTimeException
 import java.util.Calendar
 import java.util.Locale
 import com.teamon.app.utils.graphics.ImageSource
+import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.UploadStatus
 import com.teamon.app.utils.graphics.toTimestamp
 import kotlinx.coroutines.async
@@ -148,6 +149,13 @@ class NewAccountViewModel(val model: Model): ViewModel() {
             return false
         }
     }
+
+    fun setColor(c: String) {
+        color = ProjectColors.valueOf(c)
+    }
+
+    var color by mutableStateOf(ProjectColors.PURPLE)
+    private set
 
     var profileImageUri: Uri by mutableStateOf(Uri.EMPTY)
         private set

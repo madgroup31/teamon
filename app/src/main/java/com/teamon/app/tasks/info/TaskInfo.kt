@@ -157,6 +157,7 @@ fun PartecipantCard(
                             uri = profileViewModel!!.profileImageUri,
                             name = profileViewModel!!.nameValue,
                             surname = profileViewModel!!.surnameValue,
+                            color = profileViewModel.color,
                             description = "My profile picture"
                         )
                     } else {
@@ -176,6 +177,7 @@ fun PartecipantCard(
                             uri = user.profileImage?.toUri(),
                             name = user.name,
                             surname = user.surname,
+                            color = user.color,
                             description = user.name + " " + user.surname + " profile image"
                         )
                     }

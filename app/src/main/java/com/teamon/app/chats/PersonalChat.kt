@@ -76,7 +76,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun PersonalChatView(actions: Actions, chatVm: ChatViewModel) {
 
-    TeamOnTheme(applyToStatusBar = true) {
+    Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         var landscape by remember { mutableStateOf(false) }
         landscape =
@@ -199,6 +199,7 @@ fun PortraitView(
                         name = addressee.name,
                         surname = addressee.surname,
                         uri = addressee.profileImage?.toUri(),
+                        color = addressee.color,
                         description =
                         addressee.name + " " + addressee.surname + " profile picture"
                     )
@@ -431,6 +432,7 @@ fun LandscapeView(
                         name = addressee.name,
                         surname = addressee.surname,
                         uri = addressee.profileImage?.toUri(),
+                        color = addressee.color,
                         description =
                         addressee.name + " " + addressee.surname + " profile picture"
                     )

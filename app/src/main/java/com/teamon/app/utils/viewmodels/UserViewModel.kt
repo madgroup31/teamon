@@ -18,6 +18,7 @@ import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.graphics.ImageSource
+import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.graphics.currentTimeSeconds
 import kotlinx.coroutines.launch
@@ -41,6 +42,7 @@ class UserViewModel(val model: Model, userId: String) : ViewModel() {
                 locationValue = it.location
                 birthdateValue = it.birthdate.asDate()
                 bioValue = it.biography
+                color = it.color
                 it.profileImage?.let { profileImage = it }
                 lastUpdate = it.lastUpdate
                 profileImageSource = it.profileImageSource
@@ -85,6 +87,9 @@ class UserViewModel(val model: Model, userId: String) : ViewModel() {
             "Feedback cannot be blank"
         } else ""
     }
+
+    var color by mutableStateOf(ProjectColors.PURPLE)
+    private set
 
     var newFeedbackRating by mutableStateOf(5)
         private set

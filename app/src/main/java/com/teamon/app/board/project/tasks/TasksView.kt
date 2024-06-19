@@ -2,21 +2,13 @@ package com.teamon.app.board.project.tasks
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,35 +16,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.teamon.app.Actions
-import com.teamon.app.R
-import com.teamon.app.tasks.ExpansibleTasksBox
+import com.teamon.app.tasks.RecursiveTasksBox
 import com.teamon.app.utils.viewmodels.ProjectViewModel
 import com.teamon.app.tasks.NewTaskBottomSheetContent
 import com.teamon.app.utils.viewmodels.NewTaskViewModel
 import com.teamon.app.tasks.TaskCard
-import com.teamon.app.teamOnViewModel
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.graphics.AnimatedGrid
-import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.TasksDeadlineFilteringOptions
 import com.teamon.app.utils.graphics.TasksFilteringOptionsDropdownMenu
 import com.teamon.app.utils.graphics.Orientation
@@ -205,7 +186,7 @@ fun LandscapeTasksView(
                 ) { it, index ->
                     val t = (it as List<Task>).sortedBy { it.endDate }
                     if (t.size > 1)
-                        ExpansibleTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                        RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
                     else
                         TaskCard(
                             orientation = Orientation.PORTRAIT,
@@ -253,7 +234,7 @@ fun LandscapeTasksView(
             ) { it, index ->
                 val t = (it as List<Task>).sortedBy { it.endDate }
                 if (t.size > 1)
-                    ExpansibleTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                    RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
                 else
                     TaskCard(
                         orientation = Orientation.PORTRAIT,
@@ -349,7 +330,7 @@ fun PortraitTasksView(
                 ) { it, index ->
                     val t = (it as List<Task>).sortedBy { it.endDate }
                     if (t.size > 1)
-                        ExpansibleTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                        RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
                     else
                         TaskCard(
                             orientation = Orientation.PORTRAIT,
@@ -396,7 +377,7 @@ fun PortraitTasksView(
             ) { it, index ->
                 val t = (it as List<Task>).sortedBy { it.endDate }
                 if (t.size > 1)
-                    ExpansibleTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                    RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
                 else
                     TaskCard(
                         orientation = Orientation.PORTRAIT,

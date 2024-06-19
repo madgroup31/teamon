@@ -30,30 +30,34 @@ fun generateMonogramLetters(name: String, surname: String): String {
 fun Monogram(
     name: String,
     surname: String,
+    color: ProjectColors,
     modifier: Modifier = Modifier,
 ) {
-    var monogram : Bitmap? by remember { mutableStateOf(null) }
+    Theme(color = color, applyToStatusBar = false) {
 
-    val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-    val contentColor = MaterialTheme.colorScheme.primary
+        var monogram: Bitmap? by remember { mutableStateOf(null) }
 
-    LaunchedEffect(name, surname) {
-        withContext(Dispatchers.IO) {
-            monogram = createMonogramBitmap(
-                name,
-                surname,
-                containerColor =  containerColor,
-                contentColor = contentColor
-            )
+        val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        val contentColor = MaterialTheme.colorScheme.primary
+
+        LaunchedEffect(name, surname) {
+            withContext(Dispatchers.IO) {
+                monogram = createMonogramBitmap(
+                    name,
+                    surname,
+                    containerColor = containerColor,
+                    contentColor = contentColor
+                )
+            }
         }
-    }
 
-    monogram?.let {
-        Image(
-            modifier = modifier,
-            bitmap = it.asImageBitmap(),
-            contentDescription = "Monogram"
-        )// Draw the bitmap on the screen
+        monogram?.let {
+            Image(
+                modifier = modifier,
+                bitmap = it.asImageBitmap(),
+                contentDescription = "Monogram"
+            )// Draw the bitmap on the screen
+        }
     }
 }
 

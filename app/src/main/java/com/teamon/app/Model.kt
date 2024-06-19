@@ -629,7 +629,6 @@ class Model(val context: Context) {
     }
 
     fun getUser(userId: String): Flow<User> = callbackFlow {
-        //Log.d("user", userId)
         val listener = db
             .collection("users")
             .document(userId)
@@ -661,6 +660,7 @@ class Model(val context: Context) {
                     "location" to user.location,
                     "birthdate" to user.birthdate,
                     "biography" to user.biography,
+                    "color" to user.color,
                     "lastUpdate" to user.lastUpdate,
                     "profileImageSource" to user.profileImageSource,
                     "profileImage" to user.profileImage,

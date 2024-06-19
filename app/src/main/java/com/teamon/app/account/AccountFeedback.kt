@@ -432,6 +432,7 @@ fun FeedbackCard(actions: Actions, feedback: Feedback)
                                     .blur(if (feedback.anonymous) 15.dp else 0.dp),
                                 uri = user.profileImage?.toUri(),
                                 source = user.profileImageSource,
+                                color = user.color,
                                 name = user.name,
                                 surname = user.surname,
                                 description = user.name + " " + user.surname + " profile image",

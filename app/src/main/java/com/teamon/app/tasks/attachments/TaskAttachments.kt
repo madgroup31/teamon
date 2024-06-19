@@ -184,6 +184,7 @@ fun TaskAttachmentInfo(attachment: Attachment, actions: Actions) {
                                         uri = author.profileImage?.toUri(),
                                         name = author.name,
                                         surname = author.surname,
+                                        color = author.color,
                                         description = author.name + " " + author.surname + " profile image"
                                     )
 

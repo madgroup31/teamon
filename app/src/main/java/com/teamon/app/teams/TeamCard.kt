@@ -172,6 +172,7 @@ fun TeamCard(
                                         uri = user.profileImage?.toUri(),
                                         name = user.name,
                                         surname = user.surname,
+                                        color = user.color,
                                         description = user.name + " " + user.surname + " profile image"
                                     )
                                     Spacer(modifier = Modifier.width(2.dp))
@@ -222,6 +223,7 @@ fun TeamCard(
                     name = team.name,
                     surname = "",
                     uri = team.image.toUri(),
+                    color = team.color,
                     contentScale = ContentScale.FillHeight,
                     description = "Team image"
                 )

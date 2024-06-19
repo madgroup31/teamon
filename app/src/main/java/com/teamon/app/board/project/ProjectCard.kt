@@ -453,6 +453,7 @@ fun ProjectCard(
                                     modifier = Modifier.size(24.dp).clip(CircleShape),
                                     source = team.imageSource,
                                     name = team.name,
+                                    color = team.color,
                                     surname = "",
                                     uri = team.image.toUri(),
                                     description = team.name + " profile image",

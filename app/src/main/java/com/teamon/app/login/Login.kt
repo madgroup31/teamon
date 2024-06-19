@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.teamon.app.R
 import com.teamon.app.utils.graphics.ImageSource
+import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.themes.teamon.TeamOnTheme
 import kotlinx.coroutines.delay
@@ -125,6 +126,7 @@ fun Login(
                             TeamOnImage(
                                 modifier = Modifier.size(24.dp),
                                 source = ImageSource.REMOTE,
+                                color = ProjectColors.PURPLE,
                                 uri =
                                 "https://www.deliverlogic.com/wp-content/uploads/2021/04/google-logo-png-webinar-optimizing-for-success-google-business-webinar-13.png".toUri(),
                                 description = "Google logo"

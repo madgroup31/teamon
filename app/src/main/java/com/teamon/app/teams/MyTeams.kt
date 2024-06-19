@@ -77,6 +77,7 @@ import com.teamon.app.utils.graphics.TeamsFilteringOptionsDropdownMenu
 import com.teamon.app.utils.graphics.TeamsSortingOption
 import com.teamon.app.utils.graphics.TeamsSortingOptionsDropdownMenu
 import com.teamon.app.utils.graphics.TeamsViewDropdownMenu
+import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.prepare
 import com.teamon.app.utils.themes.teamon.TeamOnTheme
 import kotlinx.coroutines.CoroutineScope
@@ -93,7 +94,7 @@ enum class JoinRequest { Accepted, Rejected, AlreadyPartecipating, NotFound, Req
 @Composable
 fun TeamsView(actions: Actions, joinRequest: String? = null) {
 
-    TeamOnTheme(applyToStatusBar = true) {
+    Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         var snackbarHostState = remember { SnackbarHostState() }
 

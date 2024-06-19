@@ -3,6 +3,7 @@ package com.teamon.app.utils.classes
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.teamon.app.utils.graphics.ImageSource
+import com.teamon.app.utils.graphics.ProjectColors
 
 data class User (
     @DocumentId
@@ -19,5 +20,6 @@ data class User (
     val biography: String = "",
     val feedbacks: List<String> = emptyList(),
     val favorites: List<String> = emptyList(),
+    val color: ProjectColors = ProjectColors.entries.toTypedArray().random(),
 )
 

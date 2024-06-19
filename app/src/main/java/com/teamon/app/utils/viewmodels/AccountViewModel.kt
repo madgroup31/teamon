@@ -33,6 +33,7 @@ import java.time.DateTimeException
 import java.util.Calendar
 import java.util.Locale
 import com.teamon.app.utils.graphics.ImageSource
+import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.UploadStatus
 import com.teamon.app.utils.graphics.saveBitmapAsJpeg
 import com.teamon.app.utils.graphics.toTimestamp
@@ -110,6 +111,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
                 locationValue = it.location
                 birthdateValue = it.birthdate.asDate()
                 bioValue = it.biography
+                color = it.color
                 it.profileImage?.let { profileImageUri = it.toUri() }
                 lastUpdate = it.lastUpdate
                 profileImageSource = it.profileImageSource
@@ -142,6 +144,12 @@ class ProfileViewModel(val model: Model) : ViewModel() {
         }
     }
 
+    var color by mutableStateOf(ProjectColors.PURPLE)
+    private set
+
+    fun setColor(c: String) {
+        color = ProjectColors.valueOf(c)
+    }
 
     var favoritesProjects = mutableStateListOf<String>()
         private set
@@ -191,6 +199,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
                             location = locationValue,
                             birthdate = birthdateValue.toTimestamp(),
                             biography = bioValue,
+                            color = color,
                             profileImage = profileImageUri.toString(),
                             profileImageSource = profileImageSource,
                             lastUpdate = Timestamp.now(),
