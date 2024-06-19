@@ -180,7 +180,6 @@ fun List<Task>.prepare(
     priorityFilter: String,
     tagQuery: String,
     memberQuery: String,
-    showRecursive: Boolean,
     query: String
 ): List<Task> {
     var tasks = this.asSequence()

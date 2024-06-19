@@ -67,8 +67,6 @@ fun TasksActions(
     onTagQueryChange: (String) -> Unit,
     memberQuery: String,
     onMemberQueryChange: (String) -> Unit,
-    showRecursive: Boolean,
-    onShowRecursiveChange: (Boolean) -> Unit,
     onSearchActiveChange: (Boolean) -> Unit
 ) {
     IconButton(onClick = { onSearchActiveChange(true) }) {
@@ -158,7 +156,6 @@ fun LandscapeTasksView(
                     priorityFilter,
                     tagQuery,
                     memberQuery,
-                    showRecursive,
                     query
                 )
             if (tasks.isEmpty())
@@ -209,7 +206,6 @@ fun LandscapeTasksView(
                 priorityFilter,
                 tagQuery,
                 memberQuery,
-                showRecursive,
                 ""
             )
         if (tasks.isEmpty())
@@ -279,7 +275,6 @@ fun PortraitTasksView(
     priorityFilter: String,
     tagQuery: String,
     memberQuery: String,
-    showRecursive: Boolean,
     onTaskDelete: (String) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
@@ -305,7 +300,6 @@ fun PortraitTasksView(
                     priorityFilter,
                     tagQuery,
                     memberQuery,
-                    showRecursive,
                     query
                 )
             if (tasks.isEmpty())
@@ -352,7 +346,6 @@ fun PortraitTasksView(
                 priorityFilter,
                 tagQuery,
                 memberQuery,
-                showRecursive,
                 ""
             )
         if (tasks.isEmpty())

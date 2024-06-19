@@ -68,6 +68,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -221,6 +222,7 @@ fun TaskCard(
                         .fillMaxSize()
                         .padding(15.dp),
                     verticalArrangement = Arrangement.Center
+
                 ) {
                     Row(
                         modifier = Modifier
@@ -252,55 +254,41 @@ fun TaskCard(
                             }
                         }
                         Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(1.5f),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-
-                                Text(
-                                    text = "Priority: ",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                                Text(
-                                    text = task.priority.toString(),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = when (task.priority.toString()) {
-                                        "High" -> MaterialTheme.typography.titleSmall
-                                        "Low" -> MaterialTheme.typography.bodySmall
-                                        else -> MaterialTheme.typography.bodyMedium
-                                    },
-                                    fontWeight = when (task.priority.toString()) {
-                                        "High" -> FontWeight.Bold
-                                        "Low" -> FontWeight.Light
-                                        else -> FontWeight.Normal
-                                    }
-                                )
-                            }
-                        }
-                        Column(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1.5f),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.End
                         ) {
                             Row(
-                                modifier = Modifier
-                                    .align(Alignment.End),
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.End
                             ) {
+                                    Text(
+                                        text = "Priority: ",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                    Text(
+                                        text = task.priority.toString(),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = when (task.priority.toString()) {
+                                            "High" -> MaterialTheme.typography.titleSmall
+                                            "Low" -> MaterialTheme.typography.bodySmall
+                                            else -> MaterialTheme.typography.bodyMedium
+                                        },
+                                        fontWeight = when (task.priority.toString()) {
+                                            "High" -> FontWeight.Bold
+                                            "Low" -> FontWeight.Light
+                                            else -> FontWeight.Normal
+                                        }
+                                    )
 
-
-                                    if (true) {
+                                Spacer(modifier = Modifier.width(5.dp))
+                                    if (overdue) {
                                         IconButton(
                                             modifier = Modifier.size(24.dp),
                                             colors = IconButtonDefaults.iconButtonColors(
-                                                contentColor = MaterialTheme.colorScheme.primary
+                                                contentColor = MaterialTheme.colorScheme.error
                                             ),
                                             onClick = {
                                                 CoroutineScope(Dispatchers.Main).launch {
@@ -309,7 +297,6 @@ fun TaskCard(
                                                 }
                                             }) {
                                             Image(
-                                                modifier = Modifier.size(22.dp),
                                                 colorFilter = ColorFilter.tint(if (!alreadyShowed && animate) animation.value else MaterialTheme.colorScheme.error),
                                                 painter = painterResource(R.drawable.round_error_24),
                                                 contentDescription = "Overdue task icon"
@@ -319,7 +306,7 @@ fun TaskCard(
 
 
 
-                                    if (task.recurringType == RecurringType.Recursive)
+                                    if (task.recurringType == RecurringType.Recursive) {
                                         IconButton(
                                             modifier = Modifier.size(24.dp),
                                             colors = IconButtonDefaults.iconButtonColors(
@@ -330,13 +317,12 @@ fun TaskCard(
                                                     snackbarHostState.showSnackbar("This task is part of a recurring tasks set.")
                                                 }
                                             }) {
-                                            Image(
-                                                modifier = Modifier.size(24.dp),
-                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                            Icon(
                                                 painter = painterResource(R.drawable.baseline_loop_24),
                                                 contentDescription = "Recursive task icon"
                                             )
                                         }
+                                    }
 
 
 

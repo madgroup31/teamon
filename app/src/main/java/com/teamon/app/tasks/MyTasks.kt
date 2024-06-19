@@ -82,7 +82,7 @@ fun TasksView(
             mutableStateOf(TasksSortingOption.Deadline.title)
         }
         var deadlineFilter by remember {
-            mutableStateOf(TasksDeadlineFilteringOptions.InTime.title)
+            mutableStateOf(TasksDeadlineFilteringOptions.All.title)
         }
         var statusFilter by rememberSaveable {
             mutableStateOf(TasksStatusFilteringOptions.All.title)
@@ -349,7 +349,6 @@ fun LandscapeView(
                         priorityFilter,
                         tagQuery,
                         memberQuery,
-                        showRecursive,
                         query
                     )
                 if (tasks.isEmpty())
@@ -395,7 +394,6 @@ fun LandscapeView(
                     priorityFilter,
                     tagQuery,
                     memberQuery,
-                    showRecursive,
                     ""
                 )
             if (tasks.isEmpty())
@@ -598,7 +596,6 @@ fun PortraitView(
                         priorityFilter,
                         tagQuery,
                         memberQuery,
-                        showRecursive,
                         query
                     )
                 if (tasks.isEmpty())
@@ -644,7 +641,6 @@ fun PortraitView(
                     priorityFilter,
                     tagQuery,
                     memberQuery,
-                    showRecursive,
                     ""
                 )
             if (tasks.isEmpty())

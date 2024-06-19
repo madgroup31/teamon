@@ -99,7 +99,7 @@ fun ProjectView(actions: Actions, projectVM: ProjectViewModel, startingTab: Stri
             mutableStateOf(TasksSortingOption.Deadline.title)
         }
         var deadlineFilter by rememberSaveable {
-            mutableStateOf(TasksDeadlineFilteringOptions.InTime.title)
+            mutableStateOf(TasksDeadlineFilteringOptions.All.title)
         }
         var statusFilter by rememberSaveable {
             mutableStateOf(TasksStatusFilteringOptions.All.title)
@@ -220,7 +220,6 @@ fun ProjectView(actions: Actions, projectVM: ProjectViewModel, startingTab: Stri
                 teamSearchActive = teamSearchActive,
                 onTeamSearchActiveChange = onTeamSearchActiveChange,
                 showRecursive = showRecursive,
-                onShowRecursiveChange = onShowRecursiveChange
             )
             else PortraitView(
                 query = query,
@@ -260,8 +259,6 @@ fun ProjectView(actions: Actions, projectVM: ProjectViewModel, startingTab: Stri
                 onTeamQueryChange = onTeamQueryChange,
                 teamSearchActive = teamSearchActive,
                 onTeamSearchActiveChange = onTeamSearchActiveChange,
-                showRecursive = showRecursive,
-                onShowRecursiveChange = onShowRecursiveChange
             )
 
     }
@@ -309,7 +306,6 @@ fun LandscapeView(
     teamSearchActive: Boolean,
     onTeamSearchActiveChange: (Boolean) -> Unit,
     showRecursive: Boolean,
-    onShowRecursiveChange: (Boolean) -> Unit
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -374,8 +370,6 @@ fun LandscapeView(
                         memberQuery = taskMemberQuery,
                         onMemberQueryChange = onTaskMemberQueryChange,
                         onSearchActiveChange = onTaskSearchActiveChange,
-                        showRecursive = showRecursive,
-                        onShowRecursiveChange = onShowRecursiveChange
                     )
                 }
 
@@ -610,8 +604,6 @@ fun PortraitView(
     onTeamQueryChange: (String) -> Unit,
     teamSearchActive: Boolean,
     onTeamSearchActiveChange: (Boolean) -> Unit,
-    showRecursive: Boolean,
-    onShowRecursiveChange: (Boolean) -> Unit
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -681,8 +673,6 @@ fun PortraitView(
                         memberQuery = memberQuery,
                         onMemberQueryChange = onMemberQueryChange,
                         onSearchActiveChange = onSearchActiveChange,
-                        showRecursive = showRecursive,
-                        onShowRecursiveChange = onShowRecursiveChange
                     )
                 }
 
@@ -848,7 +838,6 @@ fun PortraitView(
                             tagQuery = tagQuery,
                             memberQuery = memberQuery,
                             onTaskDelete = onTaskDelete,
-                            showRecursive = showRecursive,
                         )
                     }
 

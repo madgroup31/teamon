@@ -521,9 +521,9 @@ fun Timestamp.asCompactPastRelativeDateTime(): String {
     val instantDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
 
     return when {
-        duration.seconds < 60 -> "Just now"
-        duration.toMinutes() < 60 -> "${duration.toMinutes()} minutes ago"
-        duration.toHours() < 24 -> "${duration.toHours()} hours ago"
+        duration.seconds < 60 -> "Now"
+        duration.toMinutes() < 60 -> "${duration.toMinutes()} mins ago"
+        duration.toHours() < 24 -> "${duration.toHours()} h ago"
         duration.toDays() < 2 -> RelativeDateTimeFormatter.getInstance().format(
             RelativeDateTimeFormatter.Direction.LAST,
             RelativeDateTimeFormatter.AbsoluteUnit.DAY
@@ -531,14 +531,14 @@ fun Timestamp.asCompactPastRelativeDateTime(): String {
             DateTimeFormatter.ofPattern("HH:mm").format(instantDateTime)
         }"
 
-        duration.toDays() < 7 -> DateTimeFormatter.ofPattern("EEEE, HH:mm").format(instantDateTime)
+        duration.toDays() < 7 -> DateTimeFormatter.ofPattern("EEE, HH:mm").format(instantDateTime)
             .lowercase().replaceFirstChar { it.uppercase() }
 
         duration.toDays() < 30 -> "${duration.toDays()} days ago, ${
             DateTimeFormatter.ofPattern("HH:mm").format(instantDateTime)
         }"
 
-        duration.toDays() < 365 -> DateTimeFormatter.ofPattern("d LLLL").format(instantDateTime)
+        duration.toDays() < 365 -> DateTimeFormatter.ofPattern("d LLL").format(instantDateTime)
         else -> DateTimeFormatter.ofPattern("d LLL yyyy").format(instantDateTime)
     }
 }

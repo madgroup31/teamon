@@ -12,14 +12,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -34,9 +39,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -99,6 +106,7 @@ fun SentTeamMessageCard(
     query: String,
     isQuerying: () -> Boolean,
     message: Message,
+    partecipants: Int,
 ) {
     Theme(color = profileViewModel.color, applyToStatusBar = false) {
         var isShowingOptions by remember { mutableStateOf(false) }
@@ -190,29 +198,44 @@ fun SentTeamMessageCard(
                     ),
                     colors = CardDefaults.cardColors(containerColor = containerColor),
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(vertical = 10.dp, horizontal = 15.dp),
+                    Column(
+                        modifier = Modifier.wrapContentWidth(Alignment.Start)
+                            .padding(vertical = 10.dp, horizontal = 15.dp)
                     ) {
-                        Column {
 
+                        Text(
+                            text = annotatedString,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = Int.MAX_VALUE, // Allows text to expand vertically
+                        )
+                        Spacer(modifier = Modifier.height(4.dp)) // Adds space between text and date
+
+                        Row(
+                            modifier = Modifier.align(Alignment.End),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val readBy = partecipants - message.unread.size - 1
                             Text(
-                                text = annotatedString,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyLarge,
-                                overflow = TextOverflow.Ellipsis
+                                text = readBy.toString(),
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             )
-
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.align(Alignment.Bottom)) {
+                            Icon(
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .alpha(0.75f),
+                                painter = painterResource(R.drawable.outline_remove_red_eye_24),
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                modifier = Modifier,
                                 text = formattedDate,
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             )
-
                         }
                     }
                 }
@@ -328,44 +351,39 @@ fun ReceivedTeamMessageCard(
                     shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 5.dp, topEnd = 20.dp, bottomEnd = 20.dp),
                     colors = CardDefaults.outlinedCardColors(containerColor = containerColor),
                 ) {
-                    Row(modifier = Modifier.padding(top = 10.dp, start = 15.dp)) {
-                            Text(
-                                modifier = Modifier.clickable {
-                                    actions.openProfile(
-                                        selectedNavItem,
-                                        author.userId
-                                    )
-                                },
-                                text = author.name + " " + author.surname,
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
-                            )
-
-
-                    }
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 5.dp, bottom = 10.dp, start = 15.dp, end = 15.dp),
+                    Column(
+                        modifier = Modifier.wrapContentWidth(Alignment.Start)
+                            .padding(vertical = 10.dp, horizontal = 15.dp)
                     ) {
-                        Column {
-
+                        Text(
+                            modifier = Modifier.clickable {
+                                actions.openProfile(
+                                    selectedNavItem,
+                                    author.userId
+                                )
+                            },
+                            text = author.name + " " + author.surname,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                        )
+                        Text(
+                            text = annotatedString,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = Int.MAX_VALUE, // Allows text to expand vertically
+                        )
+                        Spacer(modifier = Modifier.height(2.dp)) // Adds space between text and date
+                        Row(
+                            modifier = Modifier.align(Alignment.End),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
                             Text(
-                                text = annotatedString,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyLarge,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.align(Alignment.Bottom)) {
-                            Text(
-                                modifier = Modifier,
                                 text = formattedDate,
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             )
-
                         }
                     }
                 }

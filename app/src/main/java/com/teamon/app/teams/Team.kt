@@ -3,6 +3,7 @@ package com.teamon.app.myteams
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.util.Log
@@ -80,10 +81,10 @@ import kotlinx.coroutines.withContext
 @Composable
 fun TeamActions(teamId: String) {
     val team by teamsViewModel.getTeam(teamId).collectAsState(initial = Team())
-    val uri = "teamon.app/teams/${teamId}/join".toUri()
+    val uri = "https://teamon.app/teams/${teamId}/join".toUri()
     val context = LocalContext.current
     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newRawUri("Invitation Link", uri)
+    val clip = ClipData.newRawUri("TeamOn Invitation Link", uri)
     var qrCode: Bitmap? by remember { mutableStateOf(null) }
     var showQRCode by remember { mutableStateOf(false) }
 

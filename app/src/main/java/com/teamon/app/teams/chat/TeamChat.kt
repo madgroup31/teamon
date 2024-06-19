@@ -155,7 +155,8 @@ fun PortraitTeamChatView(
                                         profileViewModel!!.userId -> SentTeamMessageCard(
                                             message = message,
                                             query = query,
-                                            isQuerying = isQuerying
+                                            isQuerying = isQuerying,
+                                            partecipants = teamVm.users.size
                                         )
 
                                         else ->
@@ -263,7 +264,8 @@ fun LandscapeTeamChatView(
                                         profileViewModel!!.userId -> SentTeamMessageCard(
                                             message = message,
                                             query = query,
-                                            isQuerying = isQuerying
+                                            isQuerying = isQuerying,
+                                            partecipants = teamVm.users.size
                                         )
 
                                         else ->
