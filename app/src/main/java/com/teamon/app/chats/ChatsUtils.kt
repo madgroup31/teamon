@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -76,6 +77,7 @@ import com.teamon.app.chatsViewModel
 import com.teamon.app.profileViewModel
 import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
+import com.teamon.app.utils.classes.Chat
 import com.teamon.app.utils.classes.Message
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.classes.User
@@ -95,12 +97,16 @@ fun Chats(  //TODO: Move from here
 ) {
 
     val team by teamsViewModel!!.getTeam(teamId).collectAsState(initial = Team())
-    val userChats by chatsViewModel!!.getUserChats(teamId).collectAsState(initial = emptyMap())
+    //val userChats by chatsViewModel!!.getUserChats(teamId).collectAsState(initial = emptyMap())
 
+    val unreadTeamChatMessages by chatsViewModel!!.getUnreadTeamChatMessages(teamId).collectAsState(initial = 0)
     val unreadMessages by chatsViewModel!!.getUnreadMessages(teamId).collectAsState(initial = emptyMap())
+    val lastMessages by chatsViewModel.getLastMessages(teamId).collectAsState(initial = emptyMap())
 
-    Log.d("chat", "userChats: $userChats")
+    //Log.d("chat", "userChats: $userChats")
     Log.d("chat", "unreadMessages: $unreadMessages")
+    Log.d("chat", "lastMessages: $lastMessages")
+
 
     var isExpanded by remember { mutableStateOf(true) }
 
@@ -116,8 +122,8 @@ fun Chats(  //TODO: Move from here
                 Modifier
                     .padding(8.dp)
                     .height(
-                        if (userChats.size > 2) 448.dp
-                        else (userChats.size * 80 + 225).dp
+                        if (lastMessages.size > 2) 448.dp
+                        else (lastMessages.size * 80 + 225).dp
                     )
                     .verticalScroll(rememberScrollState())
                     //.wrapContentHeight()
@@ -203,15 +209,13 @@ fun Chats(  //TODO: Move from here
                         content = {
                             BadgedBox(
                                 badge = {
-                                    /*if (unreadTeamChatMessages > 0) {
+                                    if (unreadTeamChatMessages > 0) {
                                         Badge(modifier = Modifier.offset(x = 10.dp)) {
                                             Text(
                                                 text = unreadTeamChatMessages.toString(),
                                             )
                                         }
                                     }
-
-                                     */
                                 }
                             ) {
                                 Text(
@@ -351,7 +355,7 @@ fun Chats(  //TODO: Move from here
                             }
                         }
                     }
-                    if (userChats.isNotEmpty()) {
+                    if (lastMessages.isNotEmpty()) {
                         Column(
                             modifier = Modifier
                             //.weight(0.3f)
@@ -407,13 +411,13 @@ fun Chats(  //TODO: Move from here
                     ) {
                         Column(
                             modifier = Modifier
-                                .height(if (userChats.size > 2) 215.dp else (userChats.size * 80).dp)
+                                .height(if (lastMessages.size > 2) 215.dp else (lastMessages.size * 80).dp)
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            userChats
+                            lastMessages
                                 .entries
-                                //.sortedByDescending { it.key.maxBy { message -> message.timestamp }.timestamp }
-                                .forEachIndexed { index, (chatId, chat) ->
+                                .sortedByDescending { it.value.timestamp }
+                                .forEachIndexed { index, (chatId, message) ->
                                     Box(
                                         modifier = Modifier
                                             .padding(horizontal = 0.dp, vertical = 2.dp)
@@ -423,20 +427,21 @@ fun Chats(  //TODO: Move from here
                                         //.border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
                                     )
                                     {
-                                        val userId = chat.userIds.first { id -> id != profileViewModel!!.userId }
+                                        //val userId = chat.userIds.first { id -> id != profileViewModel!!.userId }
                                         PersonalChatCard(
                                             actions = actions,
                                             chatId = chatId,
-                                            userId = userId,
+                                            //userId = userId,
                                             //userId = profileViewModel!!.userId,
-                                            teamId = teamId,
-                                            zombie = !team.users.contains(userId),
+                                            team = team,
+                                            //lastMessage = message.messageId,
+                                            //zombie = !team.users.contains(userId),
                                             //userId = chat.userIds.first { id -> id != profileViewModel!!.userId },
                                             //lastMessage = chat.messages.maxBy { message -> message.timestamp },
                                             //unread = chat.messages.count { message -> message.unread },
                                         )
                                     }
-                                    if (index != userChats.size - 1) {
+                                    if (index != lastMessages.size - 1) {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth(),
@@ -464,18 +469,21 @@ fun Chats(  //TODO: Move from here
 @Composable
 fun PersonalChatCard(
     actions: Actions,
+    //lastMessage: Message,
     chatId: String,
-    userId: String,
-    teamId: String,
-    zombie: Boolean,
+    //userId: String,
+    team: Team,
+    //zombie: Boolean,
     //unread: Int
 ) {
-
+    //val chat by chatsViewModel.getChat(chatId).collectAsState(initial = Chat())
     val lastMessage by chatsViewModel!!.getLastChatMessage(chatId).collectAsState(initial = Message())
     val unreadMessages by chatsViewModel!!.getUnreadMessagesInChat(chatId).collectAsState(initial = 0)
-    val user by usersViewModel!!.getUser(userId).collectAsState(initial = User())
+    val user by chatsViewModel!!.getCorrespondent(chatId).collectAsState(initial = User())
 
-    Log.d("chat", "unread: $unreadMessages")
+    val zombie = !team.users.contains(user.userId)
+
+    //Log.d("chat", "unread: $unreadMessages")
 
     Row(
         modifier = Modifier
@@ -500,7 +508,7 @@ fun PersonalChatCard(
                     modifier = Modifier
                         .clickable(onClick = {
                             //if(!zombie)
-                                actions.openProfile(selectedNavItem, userId)
+                                actions.openProfile(selectedNavItem, user.userId)
                         })
                         .size(50.dp)
                         .clip(CircleShape),
@@ -539,7 +547,7 @@ fun PersonalChatCard(
                 Column(
                     modifier = Modifier
                         .weight(0.6f)
-                        .clickable(onClick = { actions.openProfile(selectedNavItem, userId) })
+                        .clickable(onClick = { actions.openProfile(selectedNavItem, user.userId) })
                 ) {
                     Text(
                         text = "${user.name} ${user.surname}",
@@ -564,7 +572,8 @@ fun PersonalChatCard(
             }
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clickable(onClick = { actions.openPersonalChat(user.userId, team.teamId) }),
                 horizontalArrangement = Arrangement.Center,
             )
             {
@@ -572,11 +581,11 @@ fun PersonalChatCard(
                 Column(
                     modifier = Modifier
                         .weight(0.7f)
-                        .clickable(onClick = { actions.openPersonalChat(userId, teamId) })
+                        //.clickable(onClick = { actions.openPersonalChat(user.userId, team.teamId) })
                 ) {
                     var content = lastMessage.content
                     if (lastMessage.senderId == profileViewModel!!.userId) {
-                        val isMessageRead by chatsViewModel!!.isMessageRead(lastMessage.messageId, userId).collectAsState(initial = false)
+                        val isMessageRead by chatsViewModel!!.isMessageRead(lastMessage.messageId, user.userId).collectAsState(initial = false)
                         if (isMessageRead) {
                             content += " ✓✓"
                         }
@@ -598,7 +607,7 @@ fun PersonalChatCard(
                 ) {
                     Box {
                         IconButton(
-                            onClick = { actions.openPersonalChat(userId, teamId) },
+                            onClick = { actions.openPersonalChat(user.userId, team.teamId) },
                             colors = IconButtonDefaults.iconButtonColors(
                                 contentColor = MaterialTheme.colorScheme.primary
                             )

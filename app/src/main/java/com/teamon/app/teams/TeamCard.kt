@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
+import com.teamon.app.chatsViewModel
 import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Team
@@ -60,6 +61,7 @@ fun TeamCard(
     val selectedNavItem =
         actions.navCont.currentBackStackEntry?.destination?.route?.split("/")?.first().toString()
 
+    val unreadTeamChatMessages by chatsViewModel!!.getUnreadTeamChatMessages(team.teamId).collectAsState(initial = 0)
 
     Theme(
         applyToStatusBar = false,
@@ -201,7 +203,14 @@ fun TeamCard(
                                     contentDescription = null,
                                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
                                 )
-                                Badge(modifier = Modifier.offset(x = 0.dp, y = (-10).dp))
+                                if (unreadTeamChatMessages > 0) {
+                                    Badge(modifier = Modifier.offset(x = 0.dp, y = (-10).dp)) {
+                                        Text(
+                                            text = unreadTeamChatMessages.toString(),
+                                        )
+                                    }
+                                }
+                                //Badge(modifier = Modifier.offset(x = 0.dp, y = (-10).dp))
                             }
                         }
                     }
