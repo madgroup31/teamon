@@ -243,6 +243,7 @@ class Model(val context: Context) {
                         "priority" to task.priority,
                         "listUser" to task.listUser,
                         "history" to task.history,
+                        "recurringSet" to task.recurringSet,
                         "endRepeat" to task.endRepeat,
                         "endDate" to task.endDate,
                         "description" to task.description,

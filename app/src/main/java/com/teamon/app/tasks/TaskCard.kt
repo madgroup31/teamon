@@ -142,6 +142,7 @@ fun TaskCard(
     orientation: Orientation,
     taskId: String,
     actions: Actions,
+    setView: ((Boolean) -> Unit)? = null,
     snackbarHostState: SnackbarHostState,
     onTaskDelete: (String) -> Unit,
 ) {
@@ -194,10 +195,13 @@ fun TaskCard(
                 ),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
-                    val selectedNavItem =
-                        actions.navCont.currentBackStackEntry?.destination?.route?.split("/")
-                            ?.first().toString()
-                    actions.openTask(selectedNavItem, taskId)
+                    if(setView == null) {
+                        val selectedNavItem =
+                            actions.navCont.currentBackStackEntry?.destination?.route?.split("/")
+                                ?.first().toString()
+                        actions.openTask(selectedNavItem, taskId)
+                    }
+                    else setView(true)
                 },
                 modifier = Modifier
                     .fillMaxSize()

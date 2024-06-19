@@ -34,6 +34,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Calendar
 import java.util.Locale
+import java.util.UUID
 
 class NewTaskViewModel(val model: Model, projectId: String, userId: String) : ViewModel() {
     var selectedCollaborators = mutableStateMapOf<User, Boolean>()
@@ -398,6 +399,7 @@ class NewTaskViewModel(val model: Model, projectId: String, userId: String) : Vi
 
                 RecurringType.Recursive -> {
                     val tasks = mutableListOf<Task>()
+                    val recurringSet = UUID.randomUUID().toString()
                     val current = Instant.now()
                     val currentDateTime: LocalDateTime = LocalDateTime.ofInstant(current, ZoneId.systemDefault())
                     val duration = taskEndDate.toTimestamp().toInstant().epochSecond - currentDateTime.atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant().epochSecond
@@ -413,6 +415,7 @@ class NewTaskViewModel(val model: Model, projectId: String, userId: String) : Vi
                             endDate = Timestamp(
                                 recurringTaskCreationDate.toInstant().epochSecond + duration, 0
                             ),
+                            recurringSet = recurringSet,
                             status = taskStatus,
                             priority = taskPriority,
                             listUser = selectedCollaborators.filter { it.value }.keys.map { it.userId }

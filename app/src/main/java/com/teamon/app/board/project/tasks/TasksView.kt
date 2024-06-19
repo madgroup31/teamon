@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.teamon.app.Actions
 import com.teamon.app.R
+import com.teamon.app.tasks.ExpansibleTasksBox
 import com.teamon.app.utils.viewmodels.ProjectViewModel
 import com.teamon.app.tasks.NewTaskBottomSheetContent
 import com.teamon.app.utils.viewmodels.NewTaskViewModel
@@ -196,19 +197,24 @@ fun LandscapeTasksView(
 
             else
 
-        
+
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
                     columns = GridCells.Adaptive(minSize = 350.dp),
-                    items = tasks
+                    items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                 ) { it, index ->
-                    TaskCard(
-                        orientation = Orientation.PORTRAIT,
-                        actions = actions,
-                        taskId = (it as Task).taskId,
-                        onTaskDelete = onTaskDelete,
-                        snackbarHostState = snackbarHostState
-                    )
+                    val t = (it as List<Task>).sortedBy { it.endDate }
+                    if (t.size > 1)
+                        ExpansibleTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                    else
+                        TaskCard(
+                            orientation = Orientation.PORTRAIT,
+                            actions = actions,
+                            taskId = (t.first()).taskId,
+                            onTaskDelete = onTaskDelete,
+                            snackbarHostState = snackbarHostState
+                        )
+
                 }
         }
     else {
@@ -243,15 +249,19 @@ fun LandscapeTasksView(
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
                 columns = GridCells.Adaptive(minSize = 350.dp),
-                items = tasks
+                items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
             ) { it, index ->
-                TaskCard(
-                    orientation = Orientation.PORTRAIT,
-                    actions = actions,
-                    taskId = (it as Task).taskId,
-                    onTaskDelete = onTaskDelete,
-                    snackbarHostState = snackbarHostState
-                )
+                val t = (it as List<Task>).sortedBy { it.endDate }
+                if (t.size > 1)
+                    ExpansibleTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                else
+                    TaskCard(
+                        orientation = Orientation.PORTRAIT,
+                        actions = actions,
+                        taskId = (t.first()).taskId,
+                        onTaskDelete = onTaskDelete,
+                        snackbarHostState = snackbarHostState
+                    )
 
             }
     }
@@ -335,15 +345,20 @@ fun PortraitTasksView(
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
                     columns = GridCells.Adaptive(minSize = 350.dp),
-                    items = tasks
+                    items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                 ) { it, index ->
-                    TaskCard(
-                        orientation = Orientation.PORTRAIT,
-                        actions = actions,
-                        taskId = (it as Task).taskId,
-                        onTaskDelete = onTaskDelete,
-                        snackbarHostState = snackbarHostState
-                    )
+                    val t = (it as List<Task>).sortedBy { it.endDate }
+                    if (t.size > 1)
+                        ExpansibleTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                    else
+                        TaskCard(
+                            orientation = Orientation.PORTRAIT,
+                            actions = actions,
+                            taskId = (t.first()).taskId,
+                            onTaskDelete = onTaskDelete,
+                            snackbarHostState = snackbarHostState
+                        )
+
                 }
         }
     else {
@@ -377,15 +392,19 @@ fun PortraitTasksView(
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
                 columns = GridCells.Adaptive(minSize = 350.dp),
-                items = tasks
+                items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
             ) { it, index ->
-                TaskCard(
-                    orientation = Orientation.PORTRAIT,
-                    actions = actions,
-                    taskId = (it as Task).taskId,
-                    onTaskDelete = onTaskDelete,
-                    snackbarHostState = snackbarHostState
-                )
+                val t = (it as List<Task>).sortedBy { it.endDate }
+                if (t.size > 1)
+                    ExpansibleTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                else
+                    TaskCard(
+                        orientation = Orientation.PORTRAIT,
+                        actions = actions,
+                        taskId = (t.first()).taskId,
+                        onTaskDelete = onTaskDelete,
+                        snackbarHostState = snackbarHostState
+                    )
 
             }
     }
