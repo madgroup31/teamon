@@ -223,6 +223,7 @@ fun AccountQuickInfo(
                                                 source = profileViewModel!!.profileImageSource,
                                                 uri = profileViewModel!!.profileImageUri,
                                                 name = profileViewModel!!.nameValue,
+                                                color = profileViewModel.color,
                                                 surname = profileViewModel!!.surnameValue,
                                                 description = "My Profile picture"
                                             )
@@ -426,6 +427,7 @@ fun AccountQuickInfo(
                                         source = profileViewModel!!.profileImageSource,
                                         uri = profileViewModel!!.profileImageUri,
                                         name = profileViewModel!!.nameValue,
+                                        color = profileViewModel.color,
                                         surname = profileViewModel!!.surnameValue,
                                         description = "My Profile picture"
                                     )
@@ -600,6 +602,7 @@ fun AccountQuickInfo(
                                             source = userVm.profileImageSource,
                                             uri = userVm.profileImage.toUri(),
                                             name = userVm.nameValue,
+                                            color = userVm.color,
                                             surname = userVm.surnameValue,
                                             description = userVm.nameValue + " " + userVm.surnameValue + " profile picture"
                                         )
@@ -663,6 +666,7 @@ fun AccountQuickInfo(
                                         uri = userVm.profileImage.toUri(),
                                         name = userVm.nameValue,
                                         surname = userVm.surnameValue,
+                                        color = userVm.color,
                                         description = userVm.nameValue + " " + userVm.surnameValue + " profile picture"
                                     )
                                 }
@@ -804,6 +808,7 @@ fun NewAccountQuickInfo(orientation: Orientation, newUserVm: NewAccountViewModel
                                         uri = newUserVm.profileImageUri,
                                         name = newUserVm.nameValue,
                                         surname = newUserVm.surnameValue,
+                                        color = newUserVm.color,
                                         description = "My Profile picture"
                                     )
 
@@ -989,6 +994,7 @@ fun NewAccountQuickInfo(orientation: Orientation, newUserVm: NewAccountViewModel
                                 uri = newUserVm.profileImageUri,
                                 name = newUserVm.nameValue,
                                 surname = newUserVm.surnameValue,
+                                color = newUserVm.color,
                                 description = "My Profile picture"
                             )
 

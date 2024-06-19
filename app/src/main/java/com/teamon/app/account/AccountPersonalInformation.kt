@@ -9,24 +9,35 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,7 +45,9 @@ import androidx.compose.ui.unit.dp
 import com.teamon.app.R
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.graphics.Orientation
+import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.convertMillisToDate
+import com.teamon.app.utils.graphics.toInt
 import com.teamon.app.utils.viewmodels.NewAccountViewModel
 import com.teamon.app.utils.viewmodels.UserViewModel
 import java.text.SimpleDateFormat
@@ -200,10 +213,8 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                             trailingIcon = {
                                 IconButton(enabled = profileViewModel!!.isEditing,
                                     onClick = { profileViewModel!!.setDatePickerDialog() }) {
-                                    Image(
-                                        modifier = Modifier.size(24.dp),
+                                    Icon(
                                         painter = painterResource(id = R.drawable.round_calendar_today_24),
-                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
                                         contentDescription = "Date picker"
                                     )
                                 }
@@ -219,6 +230,37 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.labelSmall
                             )
+                        }
+                    }
+                    var colorExpanded by remember { mutableStateOf(false) }
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(2.dp)
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxSize(),
+                            readOnly = true,
+                            enabled = true,
+                            value = profileViewModel.color.toString(),
+                            singleLine = true,
+                            leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(profileViewModel.color.toInt())) {} },
+                            trailingIcon = {
+                                IconButton(enabled = profileViewModel.isEditing,
+                                    onClick = { colorExpanded = !colorExpanded  }) {
+                                    Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null)
+                                }
+                            },
+                            label = { Text("Color") },
+                            onValueChange = {  },
+                        )
+                        DropdownMenu(expanded = colorExpanded, onDismissRequest = { colorExpanded = false }) {
+                            ProjectColors.entries.forEach {
+                                DropdownMenuItem(
+                                    leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(it.toInt())) {} },
+                                    text = { Text(it.name) },
+                                    onClick = { profileViewModel.setColor(it.name) })
+                            }
                         }
                     }
 
@@ -385,6 +427,22 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             label = { Text("Birthdate") },
                             onValueChange = { }
+                        )
+                    }
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(2.dp)
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxSize(),
+                            readOnly = true,
+                            enabled = false,
+                            value = userVm.color.toString(),
+                            singleLine = true,
+                            leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(userVm.color.toInt())) {} },
+                            label = { Text("Color") },
+                            onValueChange = {  },
                         )
                     }
 
@@ -555,6 +613,37 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
                     label = { Text("Birthdate") },
                     onValueChange = { birthdate -> userVm.setBirthdate(birthdate) },
                 )
+            }
+            var colorExpanded by remember { mutableStateOf(false) }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(2.dp)
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxSize(),
+                    readOnly = true,
+                    enabled = true,
+                    value = userVm.color.toString(),
+                    singleLine = true,
+                    leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(userVm.color.toInt())) {} },
+                    trailingIcon = {
+                        IconButton(enabled = true,
+                            onClick = { colorExpanded = !colorExpanded  }) {
+                            Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null)
+                        }
+                    },
+                    label = { Text("Color") },
+                    onValueChange = {  },
+                )
+                DropdownMenu(expanded = colorExpanded, onDismissRequest = { colorExpanded = false }) {
+                    ProjectColors.entries.forEach {
+                        DropdownMenuItem(
+                            leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(it.toInt())) {} },
+                            text = { Text(it.name) },
+                            onClick = { userVm.setColor(it.name) })
+                    }
+                }
             }
 
         }

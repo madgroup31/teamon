@@ -110,6 +110,7 @@ fun NavRail(actions: Actions) {
                             uri = profileViewModel.profileImageUri,
                             name = profileViewModel.nameValue,
                             surname = profileViewModel.surnameValue,
+                            color = profileViewModel.color,
                             description = "My Profile picture")
                     }
 
@@ -128,6 +129,7 @@ fun NavRail(actions: Actions) {
                             uri = profileViewModel.profileImageUri,
                             name = profileViewModel.nameValue,
                             surname = profileViewModel.surnameValue,
+                            color = profileViewModel.color,
                             description = "My Profile picture")
                         }
                     if (item.badgeCounter > 0) Badge(

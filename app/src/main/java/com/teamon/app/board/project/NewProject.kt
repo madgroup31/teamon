@@ -452,6 +452,7 @@ fun Collaborator(
                 uri = team.image.toUri(),
                 name = team.name,
                 description = team.name + " profile image",
+                color = team.color,
                 source = team.imageSource
             )
         },

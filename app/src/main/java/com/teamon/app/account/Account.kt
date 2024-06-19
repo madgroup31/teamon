@@ -50,6 +50,7 @@ import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.AppSurface
 import com.teamon.app.utils.graphics.LoadingOverlay
 import com.teamon.app.utils.graphics.Orientation
+import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.UploadStatus
 import com.teamon.app.utils.themes.teamon.TeamOnTheme
 import com.teamon.app.utils.viewmodels.UserViewModel
@@ -61,7 +62,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AccountView(actions: Actions, userVm: UserViewModel? = null, signUp: Boolean = false) {
 
-    TeamOnTheme(applyToStatusBar = true) {
+    Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         var landscape by remember { mutableStateOf(false) }
         landscape =

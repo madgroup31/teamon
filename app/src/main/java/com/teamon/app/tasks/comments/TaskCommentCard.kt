@@ -220,6 +220,7 @@ fun CommentCard(
                         uri = author.profileImage?.toUri(),
                         name = author.name,
                         surname = author.surname,
+                        color = author.color,
                         description = author.name + " " + author.surname + " profile image")
 
                 }

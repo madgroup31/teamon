@@ -1,5 +1,13 @@
 package com.teamon.app.utils.graphics
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
@@ -38,7 +46,6 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -49,14 +56,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
@@ -602,6 +612,44 @@ fun Timestamp.asFutureRelativeDate(): String {
     }
 }
 
+fun Timestamp.asCompactFutureRelativeDate(): String {
+    val instant = Instant.ofEpochSecond(this.toInstant().epochSecond)
+    val now = Instant.now()
+    val duration = java.time.Duration.between(now, instant)
+
+    val instantDate = instant.atZone(ZoneId.systemDefault()).toLocalDate()
+    RelativeDateTimeFormatter.getInstance().format(
+        RelativeDateTimeFormatter.Direction.NEXT,
+        RelativeDateTimeFormatter.AbsoluteUnit.DAY
+    )
+
+    return when {
+        duration.toHours() < 24 -> {
+            RelativeDateTimeFormatter.getInstance().format(
+                RelativeDateTimeFormatter.Direction.THIS,
+                RelativeDateTimeFormatter.AbsoluteUnit.DAY
+            ).lowercase().replaceFirstChar { it.uppercase() }
+        }
+
+        duration.toDays() < 1 -> RelativeDateTimeFormatter.getInstance().format(
+            RelativeDateTimeFormatter.Direction.NEXT,
+            RelativeDateTimeFormatter.AbsoluteUnit.DAY
+        ).lowercase().replaceFirstChar { it.uppercase() }
+
+        duration.toDays() < 2 -> RelativeDateTimeFormatter.getInstance().format(
+            RelativeDateTimeFormatter.Direction.NEXT,
+            RelativeDateTimeFormatter.AbsoluteUnit.DAY
+        ).lowercase().replaceFirstChar { it.uppercase() }
+
+        duration.toDays() < 7 -> DateTimeFormatter.ofPattern("EEEE").format(instantDate).lowercase()
+            .replaceFirstChar { it.uppercase() }
+
+        duration.toDays() < 30 -> DateTimeFormatter.ofPattern("d MMMM").format(instantDate)
+        else -> DateTimeFormatter.ofPattern("d MMM yyyy").format(instantDate)
+
+    }
+}
+
 fun String.toTimestamp(): Timestamp {
     return Timestamp(this.toEpochSeconds(), 0)
 }
@@ -760,6 +808,7 @@ fun TeamOnImage(
     source: ImageSource,
     name: String = "",
     surname: String = "",
+    color: ProjectColors,
     uri: Uri? = null,
     contentScale: ContentScale = ContentScale.Crop,
     description: String
@@ -769,6 +818,7 @@ fun TeamOnImage(
             Monogram(
                 name = name,
                 surname = surname,
+                color = color,
                 modifier = modifier
             )
         }

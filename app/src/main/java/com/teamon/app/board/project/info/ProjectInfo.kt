@@ -365,6 +365,7 @@ fun PortraitProjectInfoView(
                                                     uri = profileViewModel!!.profileImageUri,
                                                     name = profileViewModel!!.nameValue,
                                                     surname = profileViewModel!!.surnameValue,
+                                                    color = profileViewModel.color,
                                                     description = "My Profile Picture"
                                                 )
                                             } else {
@@ -384,6 +385,7 @@ fun PortraitProjectInfoView(
                                                     uri = user.profileImage?.toUri(),
                                                     name = user.name,
                                                     surname = user.surname,
+                                                    color = user.color,
                                                     description = user.name + " " + user.surname + " profile image"
                                                 )
                                             }
@@ -437,6 +439,7 @@ fun PortraitProjectInfoView(
                                                 source = it.imageSource,
                                                 name = it.name,
                                                 surname = "",
+                                                color = it.color,
                                                 uri = it.image.toUri(),
                                                 description = it.name + " profile image",
                                             )
@@ -544,6 +547,7 @@ fun PortraitProjectInfoView(
                                                                     .size(50.dp)
                                                                     .clip(CircleShape),
                                                                 source = profileViewModel!!.profileImageSource,
+                                                                color = profileViewModel.color,
                                                                 uri = profileViewModel!!.profileImageUri,
                                                                 name = profileViewModel!!.nameValue,
                                                                 surname = profileViewModel!!.surnameValue,
@@ -563,6 +567,7 @@ fun PortraitProjectInfoView(
                                                                     .size(50.dp)
                                                                     .clip(CircleShape),
                                                                 source = user.profileImageSource,
+                                                                color = user.color,
                                                                 uri = user.profileImage?.toUri(),
                                                                 name = user.name,
                                                                 surname = user.surname,
@@ -612,6 +617,7 @@ fun PortraitProjectInfoView(
                                                             modifier = Modifier.size(24.dp).clip(CircleShape),
                                                             source = team.imageSource,
                                                             name = team.name,
+                                                            color = team.color,
                                                             surname = "",
                                                             uri = team.image.toUri(),
                                                             description = team.name + " profile image",
@@ -972,6 +978,7 @@ fun PortraitProjectInfoView(
                                                             .size(50.dp)
                                                             .clip(CircleShape),
                                                         source = profileViewModel!!.profileImageSource,
+                                                        color = profileViewModel.color,
                                                         uri = profileViewModel!!.profileImageUri,
                                                         name = profileViewModel!!.nameValue,
                                                         surname = profileViewModel!!.surnameValue,
@@ -994,6 +1001,7 @@ fun PortraitProjectInfoView(
                                                         uri = user.profileImage?.toUri(),
                                                         name = user.name,
                                                         surname = user.surname,
+                                                        color = user.color,
                                                         description = user.name + " " + user.surname + " profile image"
                                                     )
                                                 }
@@ -1046,6 +1054,7 @@ fun PortraitProjectInfoView(
                                                     modifier = Modifier.size(24.dp).clip(CircleShape),
                                                     source = it.imageSource,
                                                     name = it.name,
+                                                    color = it.color,
                                                     surname = "",
                                                     uri = it.image.toUri(),
                                                     description = it.name + " profile image",
@@ -1155,6 +1164,7 @@ fun PortraitProjectInfoView(
                                                                         .clip(CircleShape),
                                                                     source = profileViewModel!!.profileImageSource,
                                                                     uri = profileViewModel!!.profileImageUri,
+                                                                    color = profileViewModel.color,
                                                                     name = profileViewModel!!.nameValue,
                                                                     surname = profileViewModel!!.surnameValue,
                                                                     description = "My Profile Picture"
@@ -1174,6 +1184,7 @@ fun PortraitProjectInfoView(
                                                                         .clip(CircleShape),
                                                                     source = user.profileImageSource,
                                                                     uri = user.profileImage?.toUri(),
+                                                                    color = user.color,
                                                                     name = user.name,
                                                                     surname = user.surname,
                                                                     description = "${user.name} ${user.surname} profile image"
@@ -1222,6 +1233,7 @@ fun PortraitProjectInfoView(
                                                                 modifier = Modifier.size(24.dp).clip(CircleShape),
                                                                 source = team.imageSource,
                                                                 name = team.name,
+                                                                color = team.color,
                                                                 surname = "",
                                                                 uri = team.image.toUri(),
                                                                 description = team.name + " profile image",

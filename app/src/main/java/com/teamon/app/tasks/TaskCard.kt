@@ -94,7 +94,9 @@ import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.TaskCardDropdownMenu
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.Theme
+import com.teamon.app.utils.graphics.asCompactFutureRelativeDate
 import com.teamon.app.utils.graphics.asDate
+import com.teamon.app.utils.graphics.asFutureRelativeDate
 import com.teamon.app.utils.graphics.currentTimeSeconds
 import com.teamon.app.utils.graphics.toTimestamp
 import kotlinx.coroutines.CoroutineScope
@@ -142,6 +144,7 @@ fun TaskCard(
     orientation: Orientation,
     taskId: String,
     actions: Actions,
+    setView: ((Boolean) -> Unit)? = null,
     snackbarHostState: SnackbarHostState,
     onTaskDelete: (String) -> Unit,
 ) {
@@ -152,7 +155,9 @@ fun TaskCard(
     val creationDate = task.creationDate.asDate().toTimestamp().toInstant().epochSecond
     val endDate = task.endDate.asDate().toTimestamp().toInstant().epochSecond
     val now = Timestamp.now().toInstant().epochSecond
-    val progressValue = ((now - creationDate).toFloat() / (endDate - creationDate).toFloat()).takeIf { (endDate - creationDate).toFloat() != 0f }?:0f
+    val progressValue =
+        ((now - creationDate).toFloat() / (endDate - creationDate).toFloat()).takeIf { (endDate - creationDate).toFloat() != 0f }
+            ?: 0f
 
     val animate = prefs.getBoolean("animate", true)
 
@@ -194,10 +199,12 @@ fun TaskCard(
                 ),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
-                    val selectedNavItem =
-                        actions.navCont.currentBackStackEntry?.destination?.route?.split("/")
-                            ?.first().toString()
-                    actions.openTask(selectedNavItem, taskId)
+                    if (setView == null) {
+                        val selectedNavItem =
+                            actions.navCont.currentBackStackEntry?.destination?.route?.split("/")
+                                ?.first().toString()
+                        actions.openTask(selectedNavItem, taskId)
+                    } else setView(true)
                 },
                 modifier = Modifier
                     .fillMaxSize()
@@ -218,14 +225,12 @@ fun TaskCard(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1.3f),
+                            .weight(1.5f),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column(
-                            modifier = Modifier
-                                .weight(6f)
-                                .fillMaxWidth(),
+                            modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.Start
                         ) {
@@ -247,27 +252,53 @@ fun TaskCard(
                             }
                         }
                         Column(
-                            modifier = Modifier
-                                .weight(2f)
-                                .fillMaxWidth(),
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(1.5f),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+
+                                Text(
+                                    text = "Priority: ",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Text(
+                                    text = task.priority.toString(),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = when (task.priority.toString()) {
+                                        "High" -> MaterialTheme.typography.titleSmall
+                                        "Low" -> MaterialTheme.typography.bodySmall
+                                        else -> MaterialTheme.typography.bodyMedium
+                                    },
+                                    fontWeight = when (task.priority.toString()) {
+                                        "High" -> FontWeight.Bold
+                                        "Low" -> FontWeight.Light
+                                        else -> FontWeight.Normal
+                                    }
+                                )
+                            }
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.End
                         ) {
                             Row(
                                 modifier = Modifier
-                                    .fillMaxWidth()
                                     .align(Alignment.End),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.End
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxWidth(),
-                                    horizontalAlignment = Alignment.End
-                                ) {
-                                    if (overdue) {
+
+
+                                    if (true) {
                                         IconButton(
+                                            modifier = Modifier.size(24.dp),
                                             colors = IconButtonDefaults.iconButtonColors(
                                                 contentColor = MaterialTheme.colorScheme.primary
                                             ),
@@ -285,15 +316,12 @@ fun TaskCard(
                                             )
                                         }
                                     }
-                                }
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxWidth(),
-                                    horizontalAlignment = Alignment.End
-                                ) {
+
+
+
                                     if (task.recurringType == RecurringType.Recursive)
                                         IconButton(
+                                            modifier = Modifier.size(24.dp),
                                             colors = IconButtonDefaults.iconButtonColors(
                                                 contentColor = MaterialTheme.colorScheme.primary
                                             ),
@@ -309,20 +337,16 @@ fun TaskCard(
                                                 contentDescription = "Recursive task icon"
                                             )
                                         }
-                                }
-                                if (task.listUser.contains(profileViewModel.userId) || admins.contains(
-                                        profileViewModel.userId
-                                    )
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .fillMaxWidth(),
-                                        horizontalAlignment = Alignment.End
+
+
+
+                                    if (task.listUser.contains(profileViewModel.userId) || admins.contains(
+                                            profileViewModel.userId
+                                        )
                                     ) {
                                         var expanded by remember { mutableStateOf(false) }
                                         IconButton(
-                                            modifier = Modifier.size(25.dp),
+                                            modifier = Modifier.size(24.dp),
                                             colors = IconButtonDefaults.iconButtonColors(
                                                 contentColor = MaterialTheme.colorScheme.primary
                                             ),
@@ -349,7 +373,6 @@ fun TaskCard(
                                                 expanded = false
                                             }
                                         )
-                                    }
                                 }
 
                             }
@@ -396,35 +419,35 @@ fun TaskCard(
                             horizontalAlignment = Alignment.Start
                         ) {
 
-                                Slider(modifier = Modifier.fillMaxWidth(),
-                                    value = progress ,
-                                    onValueChange = {},
-                                    colors = SliderDefaults.colors(activeTrackColor = if (progress > 0.9f && task.status != TaskStatus.Completed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary),
-                                    thumb = {
-                                        if (task.creationDate < Timestamp.now())
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(20.dp)
-                                                    .zIndex(200f)
-                                                    .offset(x = 0.dp, y = (-12).dp),
-                                                contentAlignment = Alignment.TopEnd
-                                            ) {
-                                                val icon = when (task.status) {
-                                                    TaskStatus.Pending -> R.drawable.rounded_pending_24
-                                                    TaskStatus.Progress -> R.drawable.outline_pending_24
-                                                    TaskStatus.Hold -> R.drawable.round_on_hold_24
-                                                    TaskStatus.Completed -> R.drawable.round_check_circle_outline_24
-                                                    TaskStatus.Overdue -> R.drawable.round_error_outline_24
-                                                }
-                                                Image(
-                                                    modifier = Modifier.size(24.dp),
-                                                    painter = painterResource(icon),
-                                                    colorFilter = ColorFilter.tint(if (progress > 0.9f && task.status != TaskStatus.Completed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary),
-                                                    contentDescription = null
-                                                )
+                            Slider(modifier = Modifier.fillMaxWidth(),
+                                value = progress,
+                                onValueChange = {},
+                                colors = SliderDefaults.colors(activeTrackColor = if (progress > 0.9f && task.status != TaskStatus.Completed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary),
+                                thumb = {
+                                    if (task.creationDate < Timestamp.now())
+                                        Box(
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                                .zIndex(200f)
+                                                .offset(x = 0.dp, y = (-12).dp),
+                                            contentAlignment = Alignment.TopEnd
+                                        ) {
+                                            val icon = when (task.status) {
+                                                TaskStatus.Pending -> R.drawable.rounded_pending_24
+                                                TaskStatus.Progress -> R.drawable.outline_pending_24
+                                                TaskStatus.Hold -> R.drawable.round_on_hold_24
+                                                TaskStatus.Completed -> R.drawable.round_check_circle_outline_24
+                                                TaskStatus.Overdue -> R.drawable.round_error_outline_24
                                             }
+                                            Image(
+                                                modifier = Modifier.size(24.dp),
+                                                painter = painterResource(icon),
+                                                colorFilter = ColorFilter.tint(if (progress > 0.9f && task.status != TaskStatus.Completed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary),
+                                                contentDescription = null
+                                            )
+                                        }
 
-                                    })
+                                })
 
 
                         }
@@ -443,36 +466,15 @@ fun TaskCard(
                             )
                         }
 
-                        Spacer(modifier = Modifier.weight(0.2f))
+                        Spacer(modifier = Modifier.weight(0.1f))
 
                         Column(modifier = Modifier.weight(1.5f)) {
-                            Row {
-                                Column(
-                                    modifier = Modifier.weight(1.5f),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-
-                                    Text(
-                                        text = "Priority",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                    Text(
-                                        text = task.priority.toString(),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        style = when (task.priority.toString()) {
-                                            "High" -> MaterialTheme.typography.titleSmall
-                                            "Low" -> MaterialTheme.typography.bodySmall
-                                            else -> MaterialTheme.typography.bodyMedium
-                                        },
-                                        fontWeight = when (task.priority.toString()) {
-                                            "High" -> FontWeight.Bold
-                                            "Low" -> FontWeight.Light
-                                            else -> FontWeight.Normal
-                                        }
-                                    )
-                                }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    task.endDate.asCompactFutureRelativeDate(),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                                 Spacer(modifier = Modifier.weight(0.1f))
                                 Column(
                                     modifier = Modifier.weight(1.2f),
@@ -494,6 +496,7 @@ fun TaskCard(
                                                 uri = profileViewModel!!.profileImageUri,
                                                 name = profileViewModel!!.nameValue,
                                                 surname = profileViewModel!!.surnameValue,
+                                                color = profileViewModel.color,
                                                 description = "Profile picture"
                                             )
                                         } else {
@@ -508,6 +511,7 @@ fun TaskCard(
                                                     uri = profileViewModel!!.profileImageUri,
                                                     name = profileViewModel!!.nameValue,
                                                     surname = profileViewModel!!.surnameValue,
+                                                    color = profileViewModel.color,
                                                     description = "Profile picture"
                                                 )
                                             } else {
@@ -523,6 +527,7 @@ fun TaskCard(
                                                         source = user.profileImageSource,
                                                         uri = user.profileImage?.toUri(),
                                                         name = user.name,
+                                                        color = user.color,
                                                         surname = user.surname,
                                                         description = user.name + " " + user.surname + "profile picture"
                                                     )

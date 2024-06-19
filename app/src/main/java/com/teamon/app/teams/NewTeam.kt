@@ -259,6 +259,7 @@ fun ModalBottomSheetContentTeam(actions: Actions, newTeamVM: NewTeamViewModel) {
                                 .fillMaxSize()
                                 .clip(CircleShape),
                             source = newTeamVM.teamImageSource,
+                            color = newTeamVM.teamColor,
                             name = newTeamVM.teamName.takeIf { it.isNotBlank() }?:"Team",
                             surname = "",
                             description = "Team image")
@@ -564,6 +565,7 @@ fun MemberTeam(
                     source = profileViewModel!!.profileImageSource,
                     uri = profileViewModel!!.profileImageUri,
                     name = profileViewModel!!.nameValue,
+                    color = profileViewModel.color,
                     surname = profileViewModel!!.surnameValue,
                     description = profileViewModel!!.nameValue + " " + profileViewModel!!.surnameValue + " profile image")
             }
@@ -575,6 +577,7 @@ fun MemberTeam(
                         .clip(CircleShape),
                     source = user.profileImageSource,
                     uri = user.profileImage.toUri(),
+                    color = user.color,
                     name = user.name,
                     surname = user.surname,
                     description = user.name + " " + user.surname + " profile image")

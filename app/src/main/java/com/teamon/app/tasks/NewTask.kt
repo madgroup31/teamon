@@ -936,6 +936,7 @@ fun Collaborator(
                 uri = user.profileImage?.toUri(),
                 name = user.name,
                 surname = user.surname,
+                color = user.color,
                 description = user.name + " " + user.surname + " profile image"
             )
         },

@@ -3,9 +3,6 @@ package com.teamon.app.tasks
 import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,11 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,15 +28,12 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -55,16 +46,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teamon.app.Actions
 import com.teamon.app.utils.viewmodels.Factory
 import com.teamon.app.R
-import com.teamon.app.board.project.ProjectCard
 import com.teamon.app.profileViewModel
 import com.teamon.app.projectsViewModel
 import com.teamon.app.tasksViewModel
-import com.teamon.app.teamOnViewModel
-import com.teamon.app.teamsViewModel
-import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.graphics.AnimatedGrid
-import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.AppSurface
 import com.teamon.app.utils.graphics.TasksDeadlineFilteringOptions
 import com.teamon.app.utils.graphics.TasksFilteringOptionsDropdownMenu
@@ -75,6 +61,7 @@ import com.teamon.app.utils.graphics.TasksSortingOptionsDropdownMenu
 import com.teamon.app.utils.graphics.TasksStatusFilteringOptions
 import com.teamon.app.utils.graphics.TasksSortingOption
 import com.teamon.app.utils.graphics.TasksViewDropdownMenu
+import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.prepare
 import com.teamon.app.utils.themes.teamon.TeamOnTheme
 import com.teamon.app.utils.viewmodels.TasksViewModel
@@ -86,7 +73,7 @@ fun TasksView(
     myTasksViewModel: TasksViewModel,
     actions: Actions
 ) {
-    TeamOnTheme(applyToStatusBar = true) {
+    Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         var sortingOrder by rememberSaveable {
             mutableStateOf(false)
@@ -137,8 +124,8 @@ fun TasksView(
             { tagQuery = it }
         val onMemberQueryChange: (String) -> Unit =
             { memberQuery = it }
-        val onShowRecursiveChange: (Boolean)->Unit =
-            {showRecursive = !showRecursive}
+        val onShowRecursiveChange: (Boolean) -> Unit =
+            { showRecursive = !showRecursive }
 
         val onTaskDelete: (String) -> Unit = { taskId ->
 
@@ -148,8 +135,14 @@ fun TasksView(
         val myID = profileViewModel.userId
         val projects by projectsViewModel.getProjects().collectAsState(initial = emptyMap())
         val userTasks by tasksViewModel.getUserTasks().collectAsState(initial = emptyMap())
-        val newTaskViewModel = if(projects.isNotEmpty())
-            viewModel<NewTaskViewModel>(factory = Factory(LocalContext.current.applicationContext, projectId = "", userId = myID))
+        val newTaskViewModel = if (projects.isNotEmpty())
+            viewModel<NewTaskViewModel>(
+                factory = Factory(
+                    LocalContext.current.applicationContext,
+                    projectId = "",
+                    userId = myID
+                )
+            )
         else null
 
         var landscape by remember { mutableStateOf(false) }
@@ -236,7 +229,7 @@ fun LandscapeView(
     memberQuery: String,
     onMemberQueryChange: (String) -> Unit,
     showRecursive: Boolean,
-    onShowRecursiveChange : (Boolean) -> Unit,
+    onShowRecursiveChange: (Boolean) -> Unit,
     actions: Actions,
     data: List<Task>,
     onTaskDelete: (String) -> Unit,
@@ -301,35 +294,37 @@ fun LandscapeView(
             )
         },
         floatingActionButton =
-        { if(newTaskViewModel!=null) {
-            FloatingActionButton(
-                onClick = {},
-                content = {
-                    Box(modifier = Modifier.size(24.dp)) {
-                        Box(modifier = Modifier.align(Alignment.Center)) {
-                            Image(
-                                painter = painterResource(R.drawable.round_calendar_today_24),
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-                                contentDescription = null
-                            )
+        {
+            if (newTaskViewModel != null) {
+                FloatingActionButton(
+                    onClick = {},
+                    content = {
+                        Box(modifier = Modifier.size(24.dp)) {
+                            Box(modifier = Modifier.align(Alignment.Center)) {
+                                Image(
+                                    painter = painterResource(R.drawable.round_calendar_today_24),
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+                                    contentDescription = null
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(top = 4.dp)
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(15.dp),
+                                    imageVector = Icons.Rounded.Add,
+                                    contentDescription = null
+                                )
+                            }
                         }
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .padding(top = 4.dp)
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(15.dp),
-                                imageVector = Icons.Rounded.Add,
-                                contentDescription = null
-                            )
-                        }
-                    }
 
-                },
-                modifier = Modifier
-            )
-        } else {}
+                    },
+                    modifier = Modifier
+                )
+            } else {
+            }
         }
     ) {
 
@@ -374,15 +369,20 @@ fun LandscapeView(
                     AnimatedGrid(
                         modifier = Modifier.fillMaxSize(),
                         columns = GridCells.Adaptive(minSize = 350.dp),
-                        items = tasks
+                        items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                     ) { it, index ->
-                        TaskCard(
-                            orientation = Orientation.PORTRAIT,
-                            actions = actions,
-                            taskId = (it as Task).taskId,
-                            onTaskDelete = onTaskDelete,
-                            snackbarHostState = snackbarHostState
-                        )
+                        val t = (it as List<Task>).sortedBy { it.endDate }
+                        if (t.size > 1)
+                            RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                        else
+                            TaskCard(
+                                orientation = Orientation.PORTRAIT,
+                                actions = actions,
+                                taskId = (t.first()).taskId,
+                                onTaskDelete = onTaskDelete,
+                                snackbarHostState = snackbarHostState
+                            )
+
                     }
             }
         else {
@@ -415,15 +415,19 @@ fun LandscapeView(
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
                     columns = GridCells.Adaptive(minSize = 350.dp),
-                    items = tasks
+                    items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                 ) { it, index ->
-                    TaskCard(
-                        orientation = Orientation.PORTRAIT,
-                        actions = actions,
-                        taskId = (it as Task).taskId,
-                        onTaskDelete = onTaskDelete,
-                        snackbarHostState = snackbarHostState
-                    )
+                    val t = (it as List<Task>).sortedBy { it.endDate }
+                    if (t.size > 1)
+                        RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                    else
+                        TaskCard(
+                            orientation = Orientation.PORTRAIT,
+                            actions = actions,
+                            taskId = (t.first()).taskId,
+                            onTaskDelete = onTaskDelete,
+                            snackbarHostState = snackbarHostState
+                        )
 
                 }
 
@@ -439,7 +443,12 @@ fun LandscapeView(
                 sheetState = sheetState
             ) {
                 // Sheet content
-                NewTaskBottomSheetContent(newTaskVM = newTaskViewModel, projectVM = null, myTasksViewModel = myTasksViewModel, snackbarHostState = snackbarHostState)
+                NewTaskBottomSheetContent(
+                    newTaskVM = newTaskViewModel,
+                    projectVM = null,
+                    myTasksViewModel = myTasksViewModel,
+                    snackbarHostState = snackbarHostState
+                )
             }
         }
     }
@@ -468,7 +477,7 @@ fun PortraitView(
     memberQuery: String,
     onMemberQueryChange: (String) -> Unit,
     showRecursive: Boolean,
-    onShowRecursiveChange : (Boolean) -> Unit,
+    onShowRecursiveChange: (Boolean) -> Unit,
     actions: Actions,
     data: List<Task>,
     onTaskDelete: (String) -> Unit,
@@ -535,9 +544,10 @@ fun PortraitView(
             )
         },
         floatingActionButton =
-        { if(newTaskViewModel!=null) {
+        {
+            if (newTaskViewModel != null) {
                 FloatingActionButton(
-                    onClick = {newTaskViewModel.toggleShow()},
+                    onClick = { newTaskViewModel.toggleShow() },
                     content = {
                         Box(modifier = Modifier.size(24.dp)) {
                             Box(modifier = Modifier.align(Alignment.Center)) {
@@ -563,7 +573,8 @@ fun PortraitView(
                     },
                     modifier = Modifier
                 )
-            } else {}
+            } else {
+            }
         }
     ) {
 
@@ -607,15 +618,20 @@ fun PortraitView(
                     AnimatedGrid(
                         modifier = Modifier.fillMaxSize(),
                         columns = GridCells.Adaptive(minSize = 350.dp),
-                        items = tasks
+                        items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                     ) { it, index ->
-                        TaskCard(
-                            orientation = Orientation.PORTRAIT,
-                            actions = actions,
-                            taskId = (it as Task).taskId,
-                            onTaskDelete = onTaskDelete,
-                            snackbarHostState = snackbarHostState
-                        )
+                        val t = (it as List<Task>).sortedBy { it.endDate }
+                        if (t.size > 1)
+                            RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                        else
+                            TaskCard(
+                                orientation = Orientation.PORTRAIT,
+                                actions = actions,
+                                taskId = (t.first()).taskId,
+                                onTaskDelete = onTaskDelete,
+                                snackbarHostState = snackbarHostState
+                            )
+
                     }
             }
         else {
@@ -648,12 +664,16 @@ fun PortraitView(
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
                     columns = GridCells.Adaptive(minSize = 350.dp),
-                    items = tasks
+                    items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                 ) { it, index ->
+                    val t = (it as List<Task>).sortedBy { it.endDate }
+                    if (t.size > 1)
+                        RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                    else
                     TaskCard(
                         orientation = Orientation.PORTRAIT,
                         actions = actions,
-                        taskId = (it as Task).taskId,
+                        taskId = (t.first()).taskId,
                         onTaskDelete = onTaskDelete,
                         snackbarHostState = snackbarHostState
                     )
@@ -671,7 +691,12 @@ fun PortraitView(
                 sheetState = sheetState
             ) {
                 // Sheet content
-                NewTaskBottomSheetContent(newTaskVM = newTaskViewModel, projectVM = null, myTasksViewModel = myTasksViewModel, snackbarHostState = snackbarHostState)
+                NewTaskBottomSheetContent(
+                    newTaskVM = newTaskViewModel,
+                    projectVM = null,
+                    myTasksViewModel = myTasksViewModel,
+                    snackbarHostState = snackbarHostState
+                )
             }
         }
     }

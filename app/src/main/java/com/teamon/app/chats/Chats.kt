@@ -105,7 +105,7 @@ import java.util.UUID
 
 @Composable
 fun ChatsView(actions: Actions) {
-    TeamOnTheme(applyToStatusBar = true) {
+    Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         var landscape by remember { mutableStateOf(false) }
         landscape =

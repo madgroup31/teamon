@@ -87,6 +87,7 @@ fun TaskHistoryCard(entry: History){
                 uri = user.profileImage?.toUri(),
                 name = user.name,
                 surname = user.surname,
+                color = user.color,
                 description = user.name + " " + user.surname + " profile image")
         }
     }

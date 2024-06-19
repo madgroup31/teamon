@@ -22,6 +22,7 @@ data class Task(
     val listUser: List<String> = emptyList(),
     val tag: String = "",
     val recurringType: RecurringType = RecurringType.Fixed,
+    val recurringSet: String? = null,
     val repeat: Repeat? = null,
     val endRepeat: Timestamp = Timestamp.now(),
     var attachments: List<String> = listOf(),

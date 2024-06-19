@@ -202,6 +202,7 @@ fun TeamInfo(teamVM: TeamViewModel, snackbarHostState: SnackbarHostState) {
                                     surname = "",
                                     uri = teamVM.teamImage,
                                     contentScale = ContentScale.Crop,
+                                    color = teamVM.teamColor,
                                     description = "Team Picture"
                                 )
 

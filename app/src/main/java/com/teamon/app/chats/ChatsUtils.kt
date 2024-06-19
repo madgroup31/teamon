@@ -167,6 +167,7 @@ fun Chats(  //TODO: Move from here
                                 name = team.name,
                                 surname = "",
                                 uri = team.image.toUri(),
+                                color = team.color,
                                 description = "Team image"
                             )
                         }
@@ -523,6 +524,7 @@ fun PersonalChatCard(
                         uri = user.profileImage?.toUri(),
                         name = user.name,
                         surname = user.surname,
+                        color = user.color,
                         description = "User profile image",
                     )
                 }
@@ -759,6 +761,7 @@ fun PartecipantCard_(
                     uri = user.profileImage?.toUri(),
                     name = user.name,
                     surname = user.surname,
+                    color = user.color,
                     description = "User profile image",
                 )
             }
