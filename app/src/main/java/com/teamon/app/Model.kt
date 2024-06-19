@@ -351,11 +351,13 @@ class Model(val context: Context) {
         teamRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
                 // Fetch all projects that include this team
-                db.collection("projects").get()
+                db.collection("projects")
+                    .whereArrayContains("teams", teamId)
+                    .get()
                     .addOnSuccessListener { result ->
                         val projects = result.documents.mapNotNull { documentSnapshot ->
                             documentSnapshot.toObject(Project::class.java)
-                        }.filter { it.teams.contains(teamId) }
+                        }
 
                         // Fetch all chats associated with the team
                         db.collection("chats")
@@ -364,6 +366,8 @@ class Model(val context: Context) {
                             .addOnSuccessListener { chatSnapshots ->
                                 val chatIds = chatSnapshots.documents.map { it.id }
 
+                                if(chatIds.isNotEmpty())
+                                {
                                 // Fetch all messages associated with the chats
                                 db.collection("messages")
                                     .whereIn("chatId", chatIds)
@@ -402,6 +406,33 @@ class Model(val context: Context) {
                                     .addOnFailureListener { e ->
                                         Log.e("Firestore", "Error fetching messages", e)
                                     }
+                                    }
+                                else {
+                                    // Create a batch to perform all deletions and updates
+                                    val batch = db.batch()
+
+                                    // Remove the team from the projects
+                                    for (project in projects) {
+                                        val newTeams = project.teams.filter { it != teamId }
+                                        val projectRef = db.collection("projects").document(project.projectId)
+                                        batch.update(projectRef, "teams", newTeams)
+                                    }
+
+                                    // Delete all chats associated with the team
+                                    for (chat in chatSnapshots.documents) {
+                                        batch.delete(chat.reference)
+                                    }
+
+                                    // Delete the team itself
+                                    batch.delete(teamRef)
+
+                                    // Commit the batch
+                                    batch.commit().addOnSuccessListener {
+                                        Log.d("Firestore", "Successfully deleted team, chats, messages, and updated projects")
+                                    }.addOnFailureListener { e ->
+                                        Log.w("Firestore", "Error deleting team, chats, messages, or updating projects", e)
+                                    }
+                                }
                             }
                             .addOnFailureListener { e ->
                                 Log.e("Firestore", "Error fetching chats", e)

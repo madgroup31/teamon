@@ -115,7 +115,7 @@ fun PersonalChatView(actions: Actions, chatVm: ChatViewModel) {
         val toggleShowingDeleteChat = {
             isShowingDeleteChat = !isShowingDeleteChat
         }
-        val onConfirmDeleteChat : () -> Unit = {
+        val onConfirmDeleteChat: () -> Unit = {
             chatVm.deleteChat()
             isShowingDeleteChat = false
             actions.navCont.popBackStack()
@@ -264,8 +264,7 @@ fun PortraitView(
                             )
                         }
                     }
-                }
-                else {
+                } else {
                     Row(
                         modifier = Modifier
                             .height(60.dp)
@@ -294,91 +293,92 @@ fun PortraitView(
                 }
             }
         ) {
-
-            if (search) {
-                Row {
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                    ) {
-                        OutlinedTextField(
-                            value = query,
-                            maxLines = 1,
-                            shape = RoundedCornerShape(20.dp),
-                            onValueChange = { onQueryChange(it) },
-                            label = { Text("Search in messages") },
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    onSearchChange(false)
-                                    onQueryChange("")
-                                }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Clear,
-                                        contentDescription = "Stop Search",
-                                    )
-                                }
-                            },
+            Column {
+                if (search) {
+                    Row {
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 8.dp)
-                        )
+                                .align(Alignment.CenterVertically)
+                        ) {
+                            OutlinedTextField(
+                                value = query,
+                                maxLines = 1,
+                                shape = RoundedCornerShape(20.dp),
+                                onValueChange = { onQueryChange(it) },
+                                label = { Text("Search in messages") },
+                                trailingIcon = {
+                                    IconButton(onClick = {
+                                        onSearchChange(false)
+                                        onQueryChange("")
+                                    }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Clear,
+                                            contentDescription = "Stop Search",
+                                        )
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 8.dp)
+                            )
+                        }
                     }
                 }
-            }
-            Row {
-                if (chatVm.messages.isNotEmpty()) {
-                    LaunchedEffect(chatVm.messages.size) {
-                        listState.animateScrollToItem(chatVm.messages.size - 1, 2)
-                    }
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            //.fillMaxHeight(0.8f)
-                            .padding(5.dp)
-                            .padding(bottom = 80.dp)
-                    ) {
-                        items(chatVm.messages.sortedBy { it.timestamp }
-                            .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()) {
-                            DayHeader(it.first().timestamp.asPastRelativeDate())
-                            it.forEach { message ->
-                                when (message.senderId) {
-                                    profileViewModel!!.userId -> SentPersonalMessageCard(
-                                        message = message,
-                                        query = query,
-                                        isQuerying = isQuerying,
-                                    )
+                Row {
+                    if (chatVm.messages.isNotEmpty()) {
+                        LaunchedEffect(chatVm.messages.size) {
+                            listState.animateScrollToItem(chatVm.messages.size - 1, 2)
+                        }
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                //.fillMaxHeight(0.8f)
+                                .padding(5.dp)
+                                .padding(bottom = 80.dp)
+                        ) {
+                            items(chatVm.messages.sortedBy { it.timestamp }
+                                .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()) {
+                                DayHeader(it.first().timestamp.asPastRelativeDate())
+                                it.forEach { message ->
+                                    when (message.senderId) {
+                                        profileViewModel!!.userId -> SentPersonalMessageCard(
+                                            message = message,
+                                            query = query,
+                                            isQuerying = isQuerying,
+                                        )
 
-                                    else -> ReceivedPersonalMessageCard(
-                                        message = message,
-                                        query = query,
-                                        isQuerying = isQuerying,
-                                    )
+                                        else -> ReceivedPersonalMessageCard(
+                                            message = message,
+                                            query = query,
+                                            isQuerying = isQuerying,
+                                        )
+                                    }
                                 }
                             }
                         }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "No messages yet in this chat!",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontStyle = FontStyle.Italic
+                            )
+                        }
                     }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "No messages yet in this chat!",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontStyle = FontStyle.Italic
-                        )
-                    }
-                }
 
-            }
-            if (isShowingDeleteChat) {
-                ChatDeleteDialog(
-                    onDismiss = { toggleShowingDeleteChat() },
-                    onConfirm = { onConfirmDeleteChat() }
-                )
+                }
+                if (isShowingDeleteChat) {
+                    ChatDeleteDialog(
+                        onDismiss = { toggleShowingDeleteChat() },
+                        onConfirm = { onConfirmDeleteChat() }
+                    )
+                }
             }
         }
     }
@@ -495,8 +495,7 @@ fun LandscapeView(
                             )
                         }
                     }
-                }
-                else {
+                } else {
                     Row(
                         modifier = Modifier
                             .height(60.dp)
@@ -514,88 +513,89 @@ fun LandscapeView(
                 }
             }
         ) {
-
-            if (search) {
-                Row {
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                    ) {
-                        OutlinedTextField(
-                            value = query,
-                            maxLines = 1,
-                            shape = RoundedCornerShape(20.dp),
-                            onValueChange = { onQueryChange(it) },
-                            label = { Text("Search in messages") },
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    onSearchChange(false)
-                                    onQueryChange("")
-                                }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Clear,
-                                        contentDescription = "Stop Search",
-                                    )
-                                }
-                            },
+            Column {
+                if (search) {
+                    Row {
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 8.dp)
-                        )
+                                .align(Alignment.CenterVertically)
+                        ) {
+                            OutlinedTextField(
+                                value = query,
+                                maxLines = 1,
+                                shape = RoundedCornerShape(20.dp),
+                                onValueChange = { onQueryChange(it) },
+                                label = { Text("Search in messages") },
+                                trailingIcon = {
+                                    IconButton(onClick = {
+                                        onSearchChange(false)
+                                        onQueryChange("")
+                                    }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Clear,
+                                            contentDescription = "Stop Search",
+                                        )
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 8.dp)
+                            )
+                        }
                     }
                 }
-            }
-            Row {
-                if (chatVm.messages.isNotEmpty()) {
-                    LaunchedEffect(chatVm.messages.size) {
-                        listState.animateScrollToItem(chatVm.messages.size - 1, 2)
-                    }
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            //.fillMaxHeight(0.8f)
-                            .padding(5.dp)
-                            .padding(bottom = 80.dp)
-                    ) {
-                        items(chatVm.messages.sortedBy { it.timestamp }
-                            .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()) {
-                            DayHeader(it.first().timestamp.asPastRelativeDate())
-                            it.forEach { message ->
-                                when (message.senderId) {
-                                    profileViewModel!!.userId -> SentPersonalMessageCard(
-                                        message = message,
-                                        query = query,
-                                        isQuerying = isQuerying,
-                                    )
+                Row {
+                    if (chatVm.messages.isNotEmpty()) {
+                        LaunchedEffect(chatVm.messages.size) {
+                            listState.animateScrollToItem(chatVm.messages.size - 1, 2)
+                        }
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                //.fillMaxHeight(0.8f)
+                                .padding(5.dp)
+                                .padding(bottom = 80.dp)
+                        ) {
+                            items(chatVm.messages.sortedBy { it.timestamp }
+                                .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()) {
+                                DayHeader(it.first().timestamp.asPastRelativeDate())
+                                it.forEach { message ->
+                                    when (message.senderId) {
+                                        profileViewModel!!.userId -> SentPersonalMessageCard(
+                                            message = message,
+                                            query = query,
+                                            isQuerying = isQuerying,
+                                        )
 
-                                    else -> ReceivedPersonalMessageCard(
-                                        message = message,
-                                        query = query,
-                                        isQuerying = isQuerying,
-                                    )
+                                        else -> ReceivedPersonalMessageCard(
+                                            message = message,
+                                            query = query,
+                                            isQuerying = isQuerying,
+                                        )
+                                    }
                                 }
                             }
                         }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "No messages yet in this chat!",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontStyle = FontStyle.Italic
+                            )
+                        }
                     }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "No messages yet in this chat!",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontStyle = FontStyle.Italic
-                        )
-                    }
+
                 }
 
+
             }
-
-
         }
     }
 }
