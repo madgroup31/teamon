@@ -79,7 +79,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun TeamActions(teamId: String) {
+fun TeamActions(teamId: String, snackbarHostState: SnackbarHostState) {
     val team by teamsViewModel.getTeam(teamId).collectAsState(initial = Team())
     val uri = "https://teamon.app/teams/${teamId}/join".toUri()
     val context = LocalContext.current
@@ -87,6 +87,7 @@ fun TeamActions(teamId: String) {
     val clip = ClipData.newRawUri("TeamOn Invitation Link", uri)
     var qrCode: Bitmap? by remember { mutableStateOf(null) }
     var showQRCode by remember { mutableStateOf(false) }
+    var copying by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -99,7 +100,12 @@ fun TeamActions(teamId: String) {
         }
     }
 
-    IconButton(onClick = { clipboardManager.setPrimaryClip(clip) }) {
+    LaunchedEffect(key1 = copying) {
+        if(copying) snackbarHostState.showSnackbar("Invitation link copied to clipboard!")
+        copying = false
+    }
+
+    IconButton(onClick = { clipboardManager.setPrimaryClip(clip); copying = true }) {
         Image(
             painter = painterResource(id = R.drawable.round_link_24),
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
@@ -271,7 +277,7 @@ fun LandscapeViewTeam(
                 }
             },
             trailingTopBarActions = {
-                TeamActions(teamId = teamVM.teamId)
+                TeamActions(teamId = teamVM.teamId, snackbarHostState = snackbarHostState)
                 IconButton(onClick = { onSearchChange(true) }) {
                     Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
                 }
@@ -469,7 +475,7 @@ fun PortraitViewTeam(
                 }
             },
             trailingTopBarActions = {
-                TeamActions(teamId = teamVM.teamId)
+                TeamActions(teamId = teamVM.teamId, snackbarHostState = snackbarHostState)
                 IconButton(onClick = { onSearchChange(true) }) {
                     Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
                 }
