@@ -1040,7 +1040,7 @@ class Model(val context: Context) {
         val auth = Firebase.auth
         val listener = db
             .collection("tasks")
-            .whereArrayContains("listUser", auth.currentUser!!.uid)
+            .whereArrayContains("listUser", profileViewModel.userId)
             .addSnapshotListener { result, error ->
                 if (result != null) {
                     val tasks =

@@ -1228,7 +1228,6 @@ fun NavGraphBuilder.signUpGraph(actions: Actions) {
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 fun NavGraphBuilder.mainGraph(actions: Actions) {
 
-
     navigation(startDestination = NavigationItem.Board.title, route = Screen.Main.route) {
         boardGraph(actions)
         tasksGraph(actions)

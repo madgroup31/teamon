@@ -1,14 +1,26 @@
 package com.teamon.app
 
+import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
+import com.google.firebase.messaging.messaging
 import com.teamon.app.utils.classes.FirestoreMessageListener
 import com.teamon.app.utils.viewmodels.AttachmentsViewModel
 import com.teamon.app.utils.viewmodels.ProfileViewModel
@@ -39,6 +51,7 @@ lateinit var firestoreMessageListener: FirestoreMessageListener
 
 
 class MainActivity : ComponentActivity() {
+    private val REQUEST_CODE_POST_NOTIFICATIONS = 1
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,11 +72,11 @@ class MainActivity : ComponentActivity() {
             chatsViewModel =
                 viewModel<ChatsViewModel>(factory = Factory(LocalContext.current.applicationContext))
             usersViewModel =
-                    viewModel<UsersViewModel>(factory = Factory(LocalContext.current.applicationContext))
+                viewModel<UsersViewModel>(factory = Factory(LocalContext.current.applicationContext))
             feedbacksViewModel =
-                    viewModel<FeedbacksViewModel>(factory = Factory(LocalContext.current.applicationContext))
+                viewModel<FeedbacksViewModel>(factory = Factory(LocalContext.current.applicationContext))
             tasksViewModel =
-                    viewModel<TasksViewModel>(factory = Factory(LocalContext.current.applicationContext))
+                viewModel<TasksViewModel>(factory = Factory(LocalContext.current.applicationContext))
             //TO SWITCH BETWEEN LOGGED IN USERS, CHANGE THE USER ID BELOW
             profileViewModel =
                 viewModel<ProfileViewModel>(factory = Factory(LocalContext.current.applicationContext))
@@ -74,6 +87,7 @@ class MainActivity : ComponentActivity() {
 
 
 
+            MessagingService.initialize(this, this)
             Navigator()
         }
     }

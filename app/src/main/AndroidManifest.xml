@@ -22,6 +22,8 @@
          or higher if your app targets Android 14 (API level 34) or higher.  -->
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
+
+
     <application
         android:name=".TeamOn"
         android:enableOnBackInvokedCallback="true"
@@ -34,6 +36,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UserProfile"
         tools:targetApi="tiramisu">
+
+        <service android:name=".MessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"

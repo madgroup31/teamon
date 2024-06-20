@@ -13,3 +13,4 @@
 .externalNativeBuild
 .cxx
 local.properties
+/notification_server/node_modules/

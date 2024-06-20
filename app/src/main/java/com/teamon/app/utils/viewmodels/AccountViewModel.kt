@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.teamon.app.MessagingService
 import com.teamon.app.Model
 import com.teamon.app.feedbacksViewModel
 import com.teamon.app.login.SignInResult
@@ -115,7 +116,6 @@ class ProfileViewModel(val model: Model) : ViewModel() {
     private var updatingFeedbacks: Job? = null
     private var updatingTasks: Job? = null
 
-
     private fun startCollectingUser(userId: String) {
         updatingUser = viewModelScope.launch {
             usersViewModel.getUser(userId).collect {
@@ -158,6 +158,9 @@ class ProfileViewModel(val model: Model) : ViewModel() {
     private fun startCollectingTasks(userId: String) {
         updatingTasks = viewModelScope.launch {
             tasksViewModel!!.getUserTasks().collect {
+                it.values.forEach { task ->
+                    MessagingService.subscribe(task.taskId)
+                }
                 tasks.clear()
                 tasks.addAll(it.values)
             }
