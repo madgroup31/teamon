@@ -97,9 +97,6 @@ class NewAccountViewModel(val model: Model): ViewModel() {
                 emailValue =  auth.currentUser?.email?:"Not Found"
                 nicknameValue = auth.currentUser?.displayName?.lowercase(Locale.ROOT)?.replace(" ", "")?.trim() ?: ""
             }
-            else {
-                emailValue = "user_" + auth.currentUser!!.uid.take(5) + "@teamon.app"
-            }
         }
     }
 

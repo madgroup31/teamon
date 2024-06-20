@@ -4,9 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
-import androidx.collection.emptyLongSet
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,32 +25,28 @@ import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.classes.User
-import com.teamon.app.utils.graphics.asDate
-import java.text.SimpleDateFormat
-import java.time.DateTimeException
-import java.util.Calendar
-import java.util.Locale
 import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.UploadStatus
+import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.graphics.saveBitmapAsJpeg
 import com.teamon.app.utils.graphics.toTimestamp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.text.SimpleDateFormat
+import java.time.DateTimeException
+import java.util.Calendar
+import java.util.Locale
+import kotlin.math.absoluteValue
 
 class ProfileViewModel(val model: Model) : ViewModel() {
 
-    private val _state = MutableStateFlow(SignInState())
+    private val _state = MutableStateFlow(SignInState(isAnonymous = true))
     val state = _state.asStateFlow()
 
     var userId by mutableStateOf("")
@@ -76,16 +70,37 @@ class ProfileViewModel(val model: Model) : ViewModel() {
 
     fun onSignInResult(result: SignInResult) {
         val auth = Firebase.auth
-        if (result.data != null) {
+        if (result.data != null && !result.isAnonymous) {
             userId = result.data
             emailValue = auth.currentUser?.email?: ""
             startCollectingUser(userId)
             startCollectingFeedbacks(userId)
             startCollectingTasks(userId)
         }
+        if(result.data != null && result.isAnonymous) {
+            viewModelScope.launch {
+                val anonymousUser = User(
+                    name = "User",
+                    surname = auth.currentUser!!.uid.hashCode().absoluteValue.toString().take(5),
+                    nickname = "user_" + auth.currentUser!!.uid.hashCode().absoluteValue.toString().take(5),
+                    email = "user_" + auth.currentUser!!.uid.hashCode().absoluteValue.toString().take(5) + "@teamon.app",
+                    birthdate = "01-01-1970".toTimestamp(),
+                    location = "N/D",
+                    biography = "N/D",
+                    color = ProjectColors.entries.toTypedArray().random()
+                )
+                if(usersViewModel.updateUser(result.data, anonymousUser)) {
+                    userId = result.data
+                    startCollectingUser(userId)
+                    startCollectingFeedbacks(userId)
+                    startCollectingTasks(userId)
+                }
+            }
+        }
         _state.update {
             it.copy(
                 isSignInSuccessful = result.data != null,
+                isAnonymous = result.isAnonymous,
                 signInError = result.errorMessage
             )
         }
@@ -135,6 +150,11 @@ class ProfileViewModel(val model: Model) : ViewModel() {
         }
     }
 
+    private fun stopCollectingFeedbacks() {
+        updatingFeedbacks?.cancel()
+        updatingFeedbacks = null
+    }
+
     private fun startCollectingTasks(userId: String) {
         updatingTasks = viewModelScope.launch {
             tasksViewModel!!.getUserTasks().collect {
@@ -142,6 +162,11 @@ class ProfileViewModel(val model: Model) : ViewModel() {
                 tasks.addAll(it.values)
             }
         }
+    }
+
+    private fun stopCollectingTasks() {
+        updatingTasks?.cancel()
+        updatingTasks = null
     }
 
     var color by mutableStateOf(ProjectColors.PURPLE)
@@ -235,6 +260,21 @@ class ProfileViewModel(val model: Model) : ViewModel() {
         }
         val auth = Firebase.auth
         auth.signOut()
+        stopCollectingUser()
+        stopCollectingTasks()
+        stopCollectingFeedbacks()
+        reset()
+    }
+
+    fun reset() {
+        userId = "null"
+        nameValue = ""
+        surnameValue = ""
+        birthdateValue = ""
+        bioValue = ""
+        locationValue = ""
+        color = ProjectColors.entries.toTypedArray().random()
+            nicknameValue = ""
     }
 
     fun deleteAccount() {

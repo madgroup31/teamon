@@ -58,6 +58,7 @@ import com.teamon.app.utils.classes.Attachment
 import com.teamon.app.utils.classes.FirestoreMessageListener
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
+import com.teamon.app.utils.graphics.LoadingOverlay
 import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.TabItem
 import com.teamon.app.utils.viewmodels.Factory
@@ -1145,6 +1146,7 @@ fun NavGraphBuilder.loginGraph(actions: Actions) {
                     oneTapClient = Identity.getSignInClient(context)
                 )
             val state by profileViewModel.state.collectAsState()
+            var loading by remember { mutableStateOf(false) }
 
             val launcher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.StartIntentSenderForResult(),
@@ -1163,7 +1165,11 @@ fun NavGraphBuilder.loginGraph(actions: Actions) {
             LaunchedEffect(key1 = state.isSignInSuccessful) {
                 if (state.isSignInSuccessful != null) {
                     if (!usersViewModel.exists(profileViewModel.userId)) {
-                        actions.navCont.navigate(Screen.SignUp.route)
+                        if(!state.isAnonymous)
+                            actions.navCont.navigate(Screen.SignUp.route)
+                        else {
+                            actions.navCont.navigate(Screen.Main.route)
+                        }
                     } else {
                         Toast.makeText(
                             context,
@@ -1172,14 +1178,19 @@ fun NavGraphBuilder.loginGraph(actions: Actions) {
                         ).show()
                         actions.navCont.navigate(Screen.Main.route)
                     }
+                    loading = false
                 } else {
                     googleAuthUiClient.signOut()
                 }
             }
 
+            if(loading)
+                LoadingOverlay(isLoading = loading)
+
             Login(state = state,
                 onSignInClick = {
                     CoroutineScope(Dispatchers.Main).launch {
+                        loading = true
                         val signInIntentSender = googleAuthUiClient.signIn()
                         launcher.launch(
                             IntentSenderRequest.Builder(
@@ -1190,6 +1201,7 @@ fun NavGraphBuilder.loginGraph(actions: Actions) {
                 },
                 onAnonymousSignInClick = {
                     CoroutineScope(Dispatchers.Main).launch {
+                        loading = true
                         val signInResult = googleAuthUiClient.signInAnonymously()
                         profileViewModel.onSignInResult(signInResult)
                     }

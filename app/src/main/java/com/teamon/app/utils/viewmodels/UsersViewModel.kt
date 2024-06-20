@@ -52,6 +52,8 @@ class UsersViewModel(val model: Model) : ViewModel() {
         awaitClose { /* Close resources if needed */ }
     }
 
+    suspend fun addUser(user: User) = model.addUser(user)
+
     suspend fun updateUser(userId: String, user: User) =
         model.updateUser(userId = userId, user = user)
 

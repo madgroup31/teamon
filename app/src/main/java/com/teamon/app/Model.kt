@@ -676,6 +676,38 @@ class Model(val context: Context) {
         awaitClose { listener.remove() }
     }
 
+    suspend fun addUser(user: User): String? {
+        val userRef = db.collection("users").document()
+
+        return try {
+            db.runTransaction(TransactionOptions.Builder().setMaxAttempts(1).build()) {
+                val snapShot = it.get(userRef)
+
+                val userMap = mapOf(
+                    "name" to user.name,
+                    "surname" to user.surname,
+                    "nickname" to user.nickname,
+                    "email" to user.email,
+                    "location" to user.location,
+                    "birthdate" to user.birthdate,
+                    "biography" to user.biography,
+                    "color" to user.color,
+                    "lastUpdate" to user.lastUpdate,
+                    "profileImageSource" to user.profileImageSource,
+                    "profileImage" to user.profileImage,
+                    "feedbacks" to user.feedbacks,
+                    "favorites" to user.favorites
+                )
+
+                it.set(userRef, userMap)
+            }.await()
+            userRef.id
+        } catch (e: Exception) {
+            null
+        }
+
+    }
+
     suspend fun updateUser(userId: String, user: User): Boolean {
         val userRef = db.collection("users").document(userId)
 

@@ -19,11 +19,13 @@ import kotlinx.coroutines.tasks.await
 
 data class SignInResult(
     val data: String?,
+    var isAnonymous: Boolean,
     val errorMessage: String?
 )
 
 data class SignInState(
     val isSignInSuccessful: Boolean? = null,
+    val isAnonymous: Boolean,
     val signInError: String? = null
 )
 class GoogleAuthUiClient(
@@ -55,6 +57,7 @@ class GoogleAuthUiClient(
                 data = user?.run {
                     user.uid
                 },
+                isAnonymous = false,
                 errorMessage = null
             )
         } catch(e: Exception) {
@@ -62,6 +65,7 @@ class GoogleAuthUiClient(
             if(e is CancellationException) throw e
             SignInResult(
                 data = null,
+                isAnonymous = false,
                 errorMessage = e.message
             )
         }
@@ -84,6 +88,7 @@ class GoogleAuthUiClient(
                 data = user?.run {
                     user.uid
                 },
+                isAnonymous = true,
                 errorMessage = null
             )
         } catch(e: Exception) {
@@ -91,6 +96,7 @@ class GoogleAuthUiClient(
             if(e is CancellationException) throw e
             SignInResult(
                 data = null,
+                isAnonymous = true,
                 errorMessage = e.message
             )
         }

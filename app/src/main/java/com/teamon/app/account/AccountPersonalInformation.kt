@@ -606,11 +606,20 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxSize(),
-                    readOnly = false,
+                    readOnly = true,
                     enabled = true,
                     value = userVm.birthdateValue,
                     singleLine = true,
                     isError = userVm.birthdateError.isNotBlank(),
+                    trailingIcon = {
+                        IconButton(enabled = true,
+                            onClick = { userVm.setDatePickerDialog() }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.round_calendar_today_24),
+                                contentDescription = "Date picker"
+                            )
+                        }
+                    },
                     supportingText = {
                         if(userVm.birthdateError.isNotBlank())
                             Text(text = userVm.birthdateError)
@@ -649,6 +658,28 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
                             text = { Text(it.name) },
                             onClick = { userVm.setColor(it.name) })
                     }
+                }
+            }
+
+
+            if (userVm.datePickerDialog) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                ) {
+                    MyDatePickerDialog(
+                        onDateSelected = {
+                            userVm.setBirthdate(
+                                it.replace(
+                                    "/",
+                                    "-"
+                                )
+                            )
+                        },
+                        onDismiss = { userVm.setDatePickerDialog() },
+                        actualBirthdate = userVm.birthdateValue
+                    )
                 }
             }
 
