@@ -6,6 +6,7 @@
     <uses-feature android:name="android.hardware.camera.any" />
 
     <!-- Devices running Android 12L (API level 32) or lower  -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission
@@ -42,6 +43,7 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
+            <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_action_name" />
         </service>
 
         <provider
@@ -100,6 +102,7 @@
             <meta-data
                 android:name="photopicker_activity:0:required"
                 android:value="" />
+
         </service>
 
 

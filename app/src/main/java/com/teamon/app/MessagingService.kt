@@ -18,31 +18,30 @@ import android.content.Context
 
 class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-            val data = remoteMessage.data
-            data["channel"]?.let { channel ->
+        remoteMessage.notification?.let { notification ->
+                val tag = remoteMessage.data["tag"]
+                val channel = remoteMessage.data["channelId"]?:""
 
-            if (data["user"] != profileViewModel.userId)
-                when(channel) {
-                    HISTORY -> {
-                        sendNotification(
-                            channel,
-                            data["task"] + " - " + data["project"],
-                            data["text"]
-                        )
+                if (tag != profileViewModel.userId)
+                    when(channel) {
+                        HISTORY -> {
+                            sendNotification(
+                                channel = channel,
+                                title = notification.title,
+                                message = notification.body
+                            )
+                        }
+                        MESSAGES -> {
+
+                            sendNotification(
+                                channel = channel,
+                                title = notification.title,
+                                message = notification.body
+                            )
+                        }
+                        else -> {}
                     }
-                    MESSAGES -> {
-                        val suffix = if(data["personal"] == null) " (Group Chat)" else " "
-                        val title = data["sender"] + " in " + data["team"] + suffix
-                        sendNotification(
-                            channel,
-                            title,
-                            data["text"]
-                        )
-                    }
-                }
-        }
-
-
+            }
         }
 
     private fun sendNotification(channel: String, title: String?, message: String?) {
@@ -54,7 +53,7 @@ class MessagingService : FirebaseMessagingService() {
             .setAutoCancel(true)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(0, notificationBuilder.build())
+        notificationManager.notify(Math.random().toInt(), notificationBuilder.build())
     }
 
     companion object {

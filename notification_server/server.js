@@ -9,7 +9,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 const app = express();
-const port = 3000;
+const port = 3001;
 
 let isInitialTasksSnapshotProcessed = false;
 let isInitialMessagesSnapshotProcessed = false;
@@ -44,19 +44,22 @@ db.collection('history').onSnapshot(snapshot => {
 
                                     
                                     const message = {
-                                    data: {
-                                    channel: "history",
-                                        text: change.doc.data().text,
-                                        user: change.doc.data().user,
-                                        project: projectName,
-                                        task: taskName,
+                                    notification: {
+                                        title: projectName + " - " + taskName,
+                                        body: newValue.text,
                                     },
+                                    android: {
+                                        data: {
+                                            channelId: "history",
+                                            tag: change.doc.data().user,
+                                            }
+                                        },
                                     topic: taskId.toString()
                                     };
                 
                                     admin.messaging().send(message)
                                         .then(response => {
-                                            console.log('Notification sent successfully:', response);
+                                            console.log("Notification sent successfully ("+response+"): ", message);
                                         })
                                         .catch(error => {
                                             console.log('Error sending notification:', error);
@@ -128,13 +131,12 @@ db.collection('messages').onSnapshot(snapshot => {
                                             }
                                             else {
                                             message = {
-                                                                                        data: {
-                                                                                            channel: "messages",
-                                                                                            text: change.doc.data().content,
-                                                                                            user: senderId,
-                                                                                            sender: senderNickname,
-                                                                                            team: teamName,
-                                                                                        },
+                                            notification: {
+                                            channelId: "messages",
+                                                 tag: senderId,
+                                                 title: senderNickname + " in " + teamName,
+                                                 body: change.doc.data().content,
+                                            },
                                                                                         topic: chatId
                                                                                         };
                                             }
@@ -142,7 +144,7 @@ db.collection('messages').onSnapshot(snapshot => {
                         
                                             admin.messaging().send(message)
                                                 .then(response => {
-                                                    console.log('Notification sent successfully:', response);
+                                                    console.log("Notification sent successfully ("+response+"): ", message);
                                                 })
                                                 .catch(error => {
                                                     console.log('Error sending notification:', error);
