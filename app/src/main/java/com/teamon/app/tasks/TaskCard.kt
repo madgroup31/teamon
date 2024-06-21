@@ -457,9 +457,9 @@ fun TaskCard(
                         Column(modifier = Modifier.weight(1.5f)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    task.endDate.asCompactFutureRelativeDate(),
+                                    text = task.endDate.asCompactFutureRelativeDate(),
+                                    color = if (progress > 0.9f && task.status != TaskStatus.Completed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                                    color = MaterialTheme.colorScheme.primary
                                 )
                                 Spacer(modifier = Modifier.weight(0.1f))
                                 Column(

@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -49,6 +52,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
@@ -190,26 +194,39 @@ fun PortraitView(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TeamOnImage(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .alpha(if (zombie) 0.5f else 1f)
-                            .clip(CircleShape),
-                        source = addressee.profileImageSource,
-                        name = addressee.name,
-                        surname = addressee.surname,
-                        uri = addressee.profileImage?.toUri(),
-                        color = addressee.color,
-                        description =
-                        addressee.name + " " + addressee.surname + " profile picture"
-                    )
+                    Column {
+                        TeamOnImage(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .alpha(if (zombie) 0.5f else 1f)
+                                .clip(CircleShape),
+                            source = addressee.profileImageSource,
+                            name = addressee.name,
+                            surname = addressee.surname,
+                            uri = addressee.profileImage?.toUri(),
+                            color = addressee.color,
+                            description =
+                            addressee.name + " " + addressee.surname + " profile picture"
+                        )
+                    }
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = addressee.name + " " + addressee.surname,
-                        style = MaterialTheme.typography.titleLarge.copy(textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None),
-                        fontStyle = if (zombie) FontStyle.Italic else FontStyle.Normal,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+
+                    Column(modifier = Modifier) {
+                        Text(
+                            text = addressee.name + " " + addressee.surname,
+                            style = MaterialTheme.typography.titleLarge.copy(textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None),
+                            fontStyle = if (zombie) FontStyle.Italic else FontStyle.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = addressee.nickname,
+                            style = MaterialTheme.typography.bodySmall.copy(textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None),
+                            fontStyle = if (zombie) FontStyle.Italic else FontStyle.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                    }
+
                 }
             },
             leadingTopBarActions = {

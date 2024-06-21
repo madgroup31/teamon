@@ -11,13 +11,14 @@ const db = admin.firestore();
 const app = express();
 const port = 3000;
 
-let isInitialSnapshotProcessed = false;
+let isInitialTasksSnapshotProcessed = false;
+let isInitialMessagesSnapshotProcessed = false;
 
 // Listen for Firestore changes
 db.collection('history').onSnapshot(snapshot => {
-    if (!isInitialSnapshotProcessed) {
+    if (!isInitialTasksSnapshotProcessed) {
         // Skip the initial snapshot
-        isInitialSnapshotProcessed = true;
+        isInitialTasksSnapshotProcessed = true;
         return;
     }
 
@@ -43,11 +44,14 @@ db.collection('history').onSnapshot(snapshot => {
 
                                     
                                     const message = {
-                                        notification: {
-                                            title: projectName + " - " + taskName,
-                                            body: `${newValue.text}`,
-                                        },
-                                        topic: taskId.toString()
+                                    data: {
+                                    channel: "history",
+                                        text: change.doc.data().text,
+                                        user: change.doc.data().user,
+                                        project: projectName,
+                                        task: taskName,
+                                    },
+                                    topic: taskId.toString()
                                     };
                 
                                     admin.messaging().send(message)
@@ -71,11 +75,101 @@ db.collection('history').onSnapshot(snapshot => {
     });
 });
 
-// Function to sanitize taskId to ensure it conforms to topic naming conventions
-function sanitizeTopicName(taskId) {
-    // Replace any characters that are not allowed in topic names
-    return taskId.replace(/[^a-zA-Z0-9\-_.]/g, '_');
-}
+db.collection('messages').onSnapshot(snapshot => {
+    if (!isInitialMessagesSnapshotProcessed) {
+        // Skip the initial snapshot
+        isInitialMessagesSnapshotProcessed = true;
+        return;
+    }
+
+    snapshot.docChanges().forEach(change => {
+        if (change.type === 'added' || change.type === 'modified') {
+            let newValue = change.doc.data();
+            
+            db.collection("chats")
+                .doc(change.doc.data().chatId)
+                .get()
+                .then(chatQuerySnapshot => {
+                    if (chatQuerySnapshot.exists) {
+
+                        let chatId = chatQuerySnapshot.id
+                        let teamId = chatQuerySnapshot.data().teamId;
+                        let personal = chatQuerySnapshot.data().personal;
+
+                        let senderId = change.doc.data().senderId;
+
+                        db.collection("teams")
+                            .doc(teamId)
+                            .get()
+                            .then(teamQuerySnapshot => {
+                                if (teamQuerySnapshot.exists) {
+                                    let teamName = teamQuerySnapshot.data().name;
+
+                                    
+                                    db.collection("users")
+                                    .doc(senderId)
+                                    .get()
+                                    .then(userQuerySnapshot => {
+                                        if (userQuerySnapshot.exists) {
+                                            let senderNickname = userQuerySnapshot.data().nickname;
+                                            let message;
+                                         if(personal) {
+                                            message = {
+                                            data: {
+                                            channel: "message",
+                                                text: change.doc.data().content,
+                                                user: senderId,
+                                                personal: personal.toString(),
+                                                sender: senderNickname,
+                                                team: teamName,
+                                            },
+                                            topic: chatId
+                                            };
+                                            }
+                                            else {
+                                            message = {
+                                                                                        data: {
+                                                                                            channel: "messages",
+                                                                                            text: change.doc.data().content,
+                                                                                            user: senderId,
+                                                                                            sender: senderNickname,
+                                                                                            team: teamName,
+                                                                                        },
+                                                                                        topic: chatId
+                                                                                        };
+                                            }
+                                            
+                        
+                                            admin.messaging().send(message)
+                                                .then(response => {
+                                                    console.log('Notification sent successfully:', response);
+                                                })
+                                                .catch(error => {
+                                                    console.log('Error sending notification:', error);
+                                                });
+                                            }
+
+                                    })
+                                    .catch(error => {
+                                        console.error("Error getting user", error);
+                                    })
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error getting projects:", error);
+                            });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error getting tasks:", error);
+                });
+        }
+    });
+});
+
+
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

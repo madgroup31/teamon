@@ -38,6 +38,22 @@ class ChatsViewModel(val model: Model) : ViewModel() {
 
     fun getChat(chatId: String) = model.getChatById(chatId)
 
+    fun getChats(userId: String): Flow<Map<String, Chat>> = channelFlow {
+        val chats = mutableMapOf<String, Chat>()
+        model.getTeams().collect { teams ->
+            chats.clear()
+            teams.values.forEach { team ->
+                viewModelScope.launch {
+                    model.getChats(team.teamId).collect {
+                        chats.putAll(it)
+                        send(chats)
+                    }
+                }
+            }
+        }
+        awaitClose { /* Close resources if needed */ }
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
+
     fun getUserChats(teamId: String) = model.getUserChats(teamId)
     fun getChatMessages(userId: String, teamId: String): Flow<List<Message>> = channelFlow {
 

@@ -1040,7 +1040,7 @@ class Model(val context: Context) {
         val auth = Firebase.auth
         val listener = db
             .collection("tasks")
-            .whereArrayContains("listUser", profileViewModel.userId)
+            .whereArrayContains("listUser", auth.currentUser?.uid ?: "")
             .addSnapshotListener { result, error ->
                 if (result != null) {
                     val tasks =
@@ -1056,10 +1056,10 @@ class Model(val context: Context) {
     }
 
     fun getTeams(): Flow<Map<String, Team>> = callbackFlow {
-
+        val auth = Firebase.auth
         val listener = db
             .collection("teams")
-            .whereArrayContains("users", profileViewModel.userId)
+            .whereArrayContains("users", auth.currentUser?.uid ?: "")
             .addSnapshotListener { result, error ->
                 if (result != null) {
                     val teams =
@@ -1122,6 +1122,24 @@ class Model(val context: Context) {
 
 
     }
+
+    fun getChats(teamId: String): Flow<Map<String, Chat>> = callbackFlow {
+        val listener = db
+            .collection("chats")
+            .whereEqualTo("teamId", teamId)
+            .addSnapshotListener { result, error ->
+                if (result != null) {
+                    val chats = result.toObjects(Chat::class.java).associateBy { it.chatId }
+                    trySend(chats)
+                } else {
+                    Log.e("Firebase", "Error fetching chats")
+                    trySend(emptyMap())
+                }
+
+            }
+        awaitClose { listener.remove() }
+    }
+
 
     fun getUserChats(teamId: String): Flow<Map<String, Chat>> = callbackFlow {
         val listener = db

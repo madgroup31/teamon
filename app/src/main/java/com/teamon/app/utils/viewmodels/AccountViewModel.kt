@@ -18,6 +18,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.teamon.app.MessagingService
 import com.teamon.app.Model
+import com.teamon.app.chatsViewModel
 import com.teamon.app.feedbacksViewModel
 import com.teamon.app.login.SignInResult
 import com.teamon.app.login.SignInState
@@ -65,9 +66,11 @@ class ProfileViewModel(val model: Model) : ViewModel() {
             startCollectingUser(userId)
             startCollectingFeedbacks(userId)
             startCollectingTasks(userId)
+            startCollectingNotifications()
             emailValue = auth.currentUser?.email?: ""
         }
     }
+
 
     fun onSignInResult(result: SignInResult) {
         val auth = Firebase.auth
@@ -77,6 +80,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
             startCollectingUser(userId)
             startCollectingFeedbacks(userId)
             startCollectingTasks(userId)
+            startCollectingNotifications()
         }
         if(result.data != null && result.isAnonymous) {
             viewModelScope.launch {
@@ -94,6 +98,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
                     userId = result.data
                     startCollectingUser(userId)
                     startCollectingFeedbacks(userId)
+                    startCollectingNotifications()
                     startCollectingTasks(userId)
                 }
             }
@@ -115,6 +120,33 @@ class ProfileViewModel(val model: Model) : ViewModel() {
     private var updatingUser: Job? = null
     private var updatingFeedbacks: Job? = null
     private var updatingTasks: Job? = null
+    private var tasksNotifications: Job? = null
+    private var chatsNotifications: Job? = null
+
+    private fun startCollectingNotifications() {
+        tasksNotifications = viewModelScope.launch {
+            tasksViewModel.getUserTasks().collect {
+                it.values.forEach { task ->
+                    MessagingService.subscribe(task.taskId)
+                }
+            }
+        }
+        chatsNotifications = viewModelScope.launch {
+            chatsViewModel.getChats(userId).collect {
+                it.values.forEach { chat ->
+                    MessagingService.subscribe(chat.chatId)
+                }
+            }
+        }
+    }
+
+    private fun stopCollectingNotifications() {
+        tasksNotifications?.cancel()
+        tasksNotifications = null
+        chatsNotifications?.cancel()
+        chatsNotifications = null
+    }
+
 
     private fun startCollectingUser(userId: String) {
         updatingUser = viewModelScope.launch {
@@ -158,9 +190,6 @@ class ProfileViewModel(val model: Model) : ViewModel() {
     private fun startCollectingTasks(userId: String) {
         updatingTasks = viewModelScope.launch {
             tasksViewModel!!.getUserTasks().collect {
-                it.values.forEach { task ->
-                    MessagingService.subscribe(task.taskId)
-                }
                 tasks.clear()
                 tasks.addAll(it.values)
             }
@@ -238,6 +267,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
                     isEditing = false
                     uploadStatus = Any()
                     startCollectingUser(userId)
+                    startCollectingNotifications()
                     true
                 } else {
                     uploadStatus = UploadStatus.Error("An error occurred. Please try again.")
@@ -266,6 +296,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
         stopCollectingUser()
         stopCollectingTasks()
         stopCollectingFeedbacks()
+        stopCollectingNotifications()
         reset()
     }
 

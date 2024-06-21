@@ -362,7 +362,7 @@ fun ReceivedTeamMessageCard(
                                     author.userId
                                 )
                             },
-                            text = author.name + " " + author.surname,
+                            text = author.nickname,
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                         )

@@ -226,7 +226,7 @@ fun Chats(  //TODO: Move from here
                                 }
                             ) {
                                 Text(
-                                    text = "Team Chat",
+                                    text = "Group Chat",
                                 )
                             }
                         }

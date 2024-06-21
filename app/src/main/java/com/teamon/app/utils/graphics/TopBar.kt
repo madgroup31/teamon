@@ -25,7 +25,7 @@ fun TopBar(
     orientation: Orientation,
     leadingTopBarActions: @Composable () -> Unit = {},
     trailingTopBarActions: @Composable RowScope.() -> Unit = {}) {
-    if(orientation == Orientation.LANDSCAPE)
+    if(orientation == Orientation.LANDSCAPE || composableTitle != null)
         CenterAlignedTopAppBar(
             scrollBehavior = scrollBehavior,
             colors = TopAppBarDefaults.topAppBarColors(

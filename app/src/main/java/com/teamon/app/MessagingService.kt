@@ -15,20 +15,38 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.ktx.messaging
 import android.content.Context
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        remoteMessage.notification?.let { message ->
-            remoteMessage.from?.let {
-                sendNotification(it, message.title, message.body)
-            }
+            val data = remoteMessage.data
+            data["channel"]?.let { channel ->
+
+            if (data["user"] != profileViewModel.userId)
+                when(channel) {
+                    HISTORY -> {
+                        sendNotification(
+                            channel,
+                            data["task"] + " - " + data["project"],
+                            data["text"]
+                        )
+                    }
+                    MESSAGES -> {
+                        val suffix = if(data["personal"] == null) " (Group Chat)" else " "
+                        val title = data["sender"] + " in " + data["team"] + suffix
+                        sendNotification(
+                            channel,
+                            title,
+                            data["text"]
+                        )
+                    }
+                }
         }
-    }
+
+
+        }
 
     private fun sendNotification(channel: String, title: String?, message: String?) {
-        val notificationBuilder = NotificationCompat.Builder(this, HISTORY)
+        val notificationBuilder = NotificationCompat.Builder(this, channel)
             .setSmallIcon(R.drawable.ic_action_name)
             .setContentTitle(title)
             .setContentText(message)
@@ -40,8 +58,8 @@ class MessagingService : FirebaseMessagingService() {
     }
 
     companion object {
-        const val HISTORY = "/topics/history"
-        const val MESSAGES = "/topics/messages"
+        const val HISTORY = "history"
+        const val MESSAGES = "messages"
 
 
             fun subscribe(topic: String) {
@@ -99,9 +117,9 @@ class MessagingService : FirebaseMessagingService() {
                     channel = NotificationChannel(
                         MessagingService.MESSAGES,
                         "Chat Messages",
-                        NotificationManager.IMPORTANCE_DEFAULT
+                        NotificationManager.IMPORTANCE_HIGH
                     ).apply {
-                        description = "This channel allows to receive notifications about new chat messages."
+                        description = "This channel allows to receive notifications when new chat messages are received."
                     }
                     notificationManager.createNotificationChannel(channel)
                 }
