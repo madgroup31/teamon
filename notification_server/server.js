@@ -41,24 +41,22 @@ db.collection('history').onSnapshot(snapshot => {
                             .then(projectsQuerySnapshot => {
                                 if (!projectsQuerySnapshot.empty) {
                                     let projectName = projectsQuerySnapshot.docs[0].data().projectName;
-
                                     
                                     const message = {
-                                    notification: {
-                                        title: projectName + " - " + taskName,
-                                        body: newValue.text,
-                                    },
-                                    android: {
-                                        notification: {
-                                            icon: 'ic_action_name'
-                                        },
-                                        data: {
-                                            channelId: "history",
-                                            tag: change.doc.data().user,
-                                            }
-                                        },
-                                    topic: taskId.toString()
-                                    };
+                                        android: {
+                                            notification: {
+                                            default_sound: true,
+                                            default_vibrate_timings: true,
+                                            title: taskName +" in "+projectName,
+                                            body: newValue.text,
+                                                channelId: "history",
+                                                icon: 'ic_action_name',
+                                                tag: change.doc.data().user,
+                                            },
+                                            },
+                                        topic: taskId.toString()
+                                        };
+                                    
                 
                                     admin.messaging().send(message)
                                         .then(response => {
@@ -110,6 +108,8 @@ db.collection('messages').onSnapshot(snapshot => {
                             .then(teamQuerySnapshot => {
                                 if (teamQuerySnapshot.exists) {
                                     let teamName = teamQuerySnapshot.data().name;
+                                    let teamImageSource = teamQuerySnapshot.data().imageSource;
+                                    let teamImage = teamQuerySnapshot.data().image;
 
                                     
                                     db.collection("users")
@@ -118,45 +118,92 @@ db.collection('messages').onSnapshot(snapshot => {
                                     .then(userQuerySnapshot => {
                                         if (userQuerySnapshot.exists) {
                                             let senderNickname = userQuerySnapshot.data().nickname;
-                                            let message;
-                                         if(personal) {
-
-                                            message = {
-                                                notification: {
-                                                    title: senderNickname + " in " + teamName,
-                                                    body: change.doc.data().content,
-                                                },
-                                                android: {
-                                                    notification: {
-                                                        icon: 'ic_action_name'
-                                                    },
-                                                    data: {
-                                                        channelId: "messages",
-                                                        tag: senderId,
-                                                        }
-                                                    },
-                                                topic: chatId.toString()
-                                                };
-                                            
+                                            let userImageSource = userQuerySnapshot.data().profileImageSource;
+                                            let message; let title; let body; let image;
+                                            if(personal) {
+                                                title = senderNickname + " | " + teamName;
+                                                body = change.doc.data().content;
+                                                image = userQuerySnapshot.data().profileImage;
                                             }
                                             else {
-                                                message = {
-                                                    notification: {
-                                                        title: senderNickname + " in " + teamName,
-                                                        body: change.doc.data().content,
-                                                    },
-                                                    android: {
-                                                        notification: {
-                                                            icon: 'ic_action_name'
-                                                        },
-                                                        data: {
-                                                            channelId: "messages",
-                                                            tag: senderId,
-                                                            }
-                                                        },
-                                                    topic: chatId.toString()
-                                                    };
+                                                title = teamName
+                                                body = senderNickname + ": "+ change.doc.data().content
                                             }
+                                            if(personal) {
+                                                if(userImageSource == "MONOGRAM") {
+
+                                                    message = {
+                                                        android: {
+                                                            notification: {
+                                                                default_sound: true,
+                                                                default_vibrate_timings: true,
+                                                                title: title,
+                                                                body: body,
+                                                                channelId: "messages",
+                                                                icon: 'ic_action_name',
+                                                                tag: senderId
+                                                            }
+                                                            },
+                                                        topic: chatId.toString()
+                                                        };
+                                                    
+                                                }
+                                                    else {
+                                                        message = {
+                                                            android: {
+                                                                notification: {
+                                                                default_sound: true,
+                                                                default_vibrate_timings: true,
+                                                                imageUrl: image,
+                                                                title: title,
+                                                                body: body,
+                                                                    channelId: "messages",
+                                                                    icon: 'ic_action_name',
+                                                                    tag: senderId
+                                                                },
+                                                                },
+                                                            topic: chatId.toString()
+                                                            };
+                                                    }
+                                            }
+                                            else {
+                                                if(teamImageSource == "MONOGRAM") {
+
+                                                    message = {
+                                                        android: {
+                                                            notification: {
+                                                                default_sound: true,
+                                                                default_vibrate_timings: true,
+                                                                title: title,
+                                                                body: body,
+                                                                channelId: "messages",
+                                                                icon: 'ic_action_name',
+                                                                tag: senderId
+                                                            }
+                                                            },
+                                                        topic: chatId.toString()
+                                                        };
+                                                    
+                                                }
+                                                    else {
+                                                        message = {
+                                                            android: {
+                                                                notification: {
+                                                                default_sound: true,
+                                                                default_vibrate_timings: true,
+                                                                imageUrl: teamImage,
+                                                                title: title,
+                                                                body: body,
+                                                                    channelId: "messages",
+                                                                    icon: 'ic_action_name',
+                                                                    tag: senderId
+                                                                },
+                                                                },
+                                                            topic: chatId.toString()
+                                                            };
+                                                    }
+                                                }
+                                            
                                             
                         
                                             admin.messaging().send(message)

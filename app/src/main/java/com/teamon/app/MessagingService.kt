@@ -15,20 +15,22 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.ktx.messaging
 import android.content.Context
+import android.graphics.drawable.Icon
+import android.net.Uri
 
 class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.notification?.let { notification ->
-                val tag = remoteMessage.data["tag"]
-                val channel = remoteMessage.data["channelId"]?:""
-
-                if (tag != profileViewModel.userId)
+                val channel = notification.channelId
+                val tag = notification.tag
+                val image = notification.imageUrl
+                if(tag != profileViewModel.userId)
                     when(channel) {
                         HISTORY -> {
                             sendNotification(
                                 channel = channel,
                                 title = notification.title,
-                                message = notification.body
+                                message = notification.body,
                             )
                         }
                         MESSAGES -> {
@@ -36,7 +38,7 @@ class MessagingService : FirebaseMessagingService() {
                             sendNotification(
                                 channel = channel,
                                 title = notification.title,
-                                message = notification.body
+                                message = notification.body,
                             )
                         }
                         else -> {}

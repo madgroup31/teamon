@@ -448,7 +448,6 @@ fun Chats(  //TODO: Move from here
                                                     .fillMaxWidth(0.8f)
                                                     .padding(0.dp),
                                                 thickness = 1.dp,
-                                                color = MaterialTheme.colorScheme.tertiary
                                             )
                                         }
                                     }
