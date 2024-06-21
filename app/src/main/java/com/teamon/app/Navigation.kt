@@ -55,7 +55,6 @@ import com.teamon.app.tasks.TasksView
 import com.teamon.app.tasks.attachments.TaskAttachmentInfo
 import com.teamon.app.teams.TeamsView
 import com.teamon.app.utils.classes.Attachment
-import com.teamon.app.utils.classes.FirestoreMessageListener
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.graphics.LoadingOverlay
@@ -1253,10 +1252,7 @@ fun Navigator() {
     LaunchedEffect(auth.currentUser) {
         if (auth.currentUser != null)
             if (usersViewModel.exists(auth.currentUser!!.uid))
-            {
-                firestoreMessageListener.startListeningForMessagesUnread(auth.currentUser!!.uid)
                 startDestination = Screen.Main.route
-            }
             else startDestination = Screen.SignUp.route
         else startDestination = Screen.Login.route
 

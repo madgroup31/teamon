@@ -21,7 +21,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import com.google.firebase.messaging.messaging
-import com.teamon.app.utils.classes.FirestoreMessageListener
 import com.teamon.app.utils.viewmodels.AttachmentsViewModel
 import com.teamon.app.utils.viewmodels.ProfileViewModel
 import com.teamon.app.utils.viewmodels.UsersViewModel
@@ -47,7 +46,6 @@ lateinit var attachmentsViewModel: AttachmentsViewModel
 lateinit var historyViewModel: HistoryViewModel
 lateinit var commentsViewModel: CommentsViewModel
 lateinit var prefs: SharedPreferences
-lateinit var firestoreMessageListener: FirestoreMessageListener
 
 
 class MainActivity : ComponentActivity() {
@@ -95,8 +93,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
-        firestoreMessageListener.stopListeningForMessages()
     }
 
 

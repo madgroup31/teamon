@@ -11,7 +11,6 @@ import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderF
 import com.google.firebase.initialize
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ktx.initialize
-import com.teamon.app.utils.classes.FirestoreMessageListener
 
 
 class TeamOn: Application() {
@@ -20,7 +19,7 @@ class TeamOn: Application() {
     override fun onCreate() {
         super.onCreate()
         model = Model(this)
-        firestoreMessageListener = FirestoreMessageListener(this)
+
         Firebase.initialize(this)
         Firebase.appCheck.installAppCheckProviderFactory(
             DebugAppCheckProviderFactory.getInstance(),
