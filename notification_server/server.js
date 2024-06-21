@@ -49,6 +49,9 @@ db.collection('history').onSnapshot(snapshot => {
                                         body: newValue.text,
                                     },
                                     android: {
+                                        notification: {
+                                            icon: 'ic_action_name'
+                                        },
                                         data: {
                                             channelId: "history",
                                             tag: change.doc.data().user,
@@ -117,28 +120,42 @@ db.collection('messages').onSnapshot(snapshot => {
                                             let senderNickname = userQuerySnapshot.data().nickname;
                                             let message;
                                          if(personal) {
+
                                             message = {
-                                            data: {
-                                            channel: "message",
-                                                text: change.doc.data().content,
-                                                user: senderId,
-                                                personal: personal.toString(),
-                                                sender: senderNickname,
-                                                team: teamName,
-                                            },
-                                            topic: chatId
-                                            };
+                                                notification: {
+                                                    title: senderNickname + " in " + teamName,
+                                                    body: change.doc.data().content,
+                                                },
+                                                android: {
+                                                    notification: {
+                                                        icon: 'ic_action_name'
+                                                    },
+                                                    data: {
+                                                        channelId: "messages",
+                                                        tag: senderId,
+                                                        }
+                                                    },
+                                                topic: chatId.toString()
+                                                };
+                                            
                                             }
                                             else {
-                                            message = {
-                                            notification: {
-                                            channelId: "messages",
-                                                 tag: senderId,
-                                                 title: senderNickname + " in " + teamName,
-                                                 body: change.doc.data().content,
-                                            },
-                                                                                        topic: chatId
-                                                                                        };
+                                                message = {
+                                                    notification: {
+                                                        title: senderNickname + " in " + teamName,
+                                                        body: change.doc.data().content,
+                                                    },
+                                                    android: {
+                                                        notification: {
+                                                            icon: 'ic_action_name'
+                                                        },
+                                                        data: {
+                                                            channelId: "messages",
+                                                            tag: senderId,
+                                                            }
+                                                        },
+                                                    topic: chatId.toString()
+                                                    };
                                             }
                                             
                         
