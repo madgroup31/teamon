@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -15,43 +16,87 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.ktx.messaging
 import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.Icon
 import android.net.Uri
+import androidx.core.app.PendingIntentCompat
 
 class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.notification?.let { notification ->
+
                 val channel = notification.channelId
                 val tag = notification.tag
                 val image = notification.imageUrl
                 if(tag != profileViewModel.userId)
                     when(channel) {
                         HISTORY -> {
+                            val data = remoteMessage.data
+                            val intent = Intent(this, MainActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                putExtra("graph", NavigationItem.MyTasks.title)
+                                putExtra("taskId",data["taskId"])
+                            }
+                            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                             sendNotification(
                                 channel = channel,
                                 title = notification.title,
                                 message = notification.body,
+                                intent = pendingIntent
                             )
                         }
                         MESSAGES -> {
+                            val data = remoteMessage.data
+                            if(data["userId"] != null) {
+                                val intent = Intent(this, MainActivity::class.java).apply {
+                                    flags =
+                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    putExtra("graph", NavigationItem.Chats.title)
+                                    putExtra("teamId", data["teamId"])
+                                    putExtra("userId", data["userId"])
+                                }
 
-                            sendNotification(
-                                channel = channel,
-                                title = notification.title,
-                                message = notification.body,
-                            )
+                                val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+                                sendNotification(
+                                    channel = channel,
+                                    title = notification.title,
+                                    message = notification.body,
+                                    intent = pendingIntent
+                                )
+                            }
+                            else {
+                                val intent = Intent(this, MainActivity::class.java).apply {
+                                    flags =
+                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    putExtra("graph", NavigationItem.MyTeams.title)
+                                    putExtra("teamId", data["teamId"])
+                                }
+
+                                val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+                                sendNotification(
+                                    channel = channel,
+                                    title = notification.title,
+                                    message = notification.body,
+                                    intent = pendingIntent
+                                )
+                            }
+
                         }
                         else -> {}
                     }
             }
         }
 
-    private fun sendNotification(channel: String, title: String?, message: String?) {
+    private fun sendNotification(channel: String, title: String?, message: String?, intent: PendingIntent) {
+
         val notificationBuilder = NotificationCompat.Builder(this, channel)
             .setSmallIcon(R.drawable.ic_action_name)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(intent)
             .setAutoCancel(true)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

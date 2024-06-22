@@ -393,24 +393,9 @@ class Actions(val navCont: NavHostController) {
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 fun NavGraphBuilder.boardGraph(actions: Actions) {
-
     //Board with all projects the user is involved in (startDestination component)
     composable(NavigationItem.Board.title) {
         BoardView(actions = actions)
-    }
-
-    composable(NavigationItem.MyTeams.title + "/{teamId}/join",
-        arguments = listOf(
-            navArgument("teamId") { type = NavType.StringType }
-        ),
-        deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "teamon.app/${NavigationItem.MyTeams.title}/{teamId}/join"
-                action = Intent.ACTION_VIEW
-            })
-    ) {
-        TeamsView(actions = actions, joinRequest = it.arguments?.getString("teamId"))
-
     }
 
     //Single project view
@@ -748,8 +733,7 @@ fun NavGraphBuilder.boardGraph(actions: Actions) {
 }
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-fun NavGraphBuilder.tasksGraph(actions: Actions) {
-
+fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
 
     //User assigned tasks view
     composable(NavigationItem.MyTasks.title) {
@@ -757,7 +741,8 @@ fun NavGraphBuilder.tasksGraph(actions: Actions) {
             viewModel<TasksViewModel>(factory = Factory(LocalContext.current.applicationContext))
         TasksView(
             actions = actions,
-            myTasksViewModel = myTasksViewModel
+            myTasksViewModel = myTasksViewModel,
+            taskId = taskId
         )
     }
 
@@ -767,8 +752,8 @@ fun NavGraphBuilder.tasksGraph(actions: Actions) {
             navArgument("taskId") { type = NavType.StringType }
         )
     ) { navBackStackEntry ->
-        val taskId = navBackStackEntry.arguments?.getString("taskId")
 
+        val taskId = navBackStackEntry.arguments?.getString("taskId")
         if (taskId != null)
         // Display the task details
             TaskView(
@@ -958,12 +943,11 @@ fun NavGraphBuilder.tasksGraph(actions: Actions) {
     }
 }
 
-
-fun NavGraphBuilder.teamsGraph(actions: Actions) {
+fun NavGraphBuilder.teamsGraph(actions: Actions, teamId: String?) {
 
     //Team view
     composable(NavigationItem.MyTeams.title) {
-        TeamsView(actions = actions)
+        TeamsView(actions = actions, teamId = teamId)
     }
 
     //Single team view
@@ -1048,11 +1032,10 @@ fun NavGraphBuilder.teamsGraph(actions: Actions) {
 
 }
 
-fun NavGraphBuilder.chatsGraph(actions: Actions) {
-
+fun NavGraphBuilder.chatsGraph(actions: Actions, userId: String?, teamId: String?) {
     //Started projects chats view
     composable(NavigationItem.Chats.title) {
-        ChatsView(actions = actions)
+        ChatsView(actions = actions, userId = userId, teamId = teamId)
     }
 
     //Personal chat
@@ -1134,7 +1117,6 @@ fun NavGraphBuilder.accountGraph(actions: Actions) {
     }
 
 }
-
 
 fun NavGraphBuilder.loginGraph(actions: Actions) {
     navigation(startDestination = "start", route = Screen.Login.route) {
@@ -1226,13 +1208,28 @@ fun NavGraphBuilder.signUpGraph(actions: Actions) {
 }
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-fun NavGraphBuilder.mainGraph(actions: Actions) {
+fun NavGraphBuilder.mainGraph(actions: Actions, graph: String?, userId: String?, taskId: String?, teamId: String?) {
 
-    navigation(startDestination = NavigationItem.Board.title, route = Screen.Main.route) {
+    navigation(startDestination = graph ?: NavigationItem.Board.title, route = Screen.Main.route) {
+
+        composable(NavigationItem.MyTeams.title + "/{teamId}/join",
+            arguments = listOf(
+                navArgument("teamId") { type = NavType.StringType }
+            ),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "teamon.app/${NavigationItem.MyTeams.title}/{teamId}/join"
+                    action = Intent.ACTION_VIEW
+                })
+        ) {
+            TeamsView(actions = actions, joinRequest = it.arguments?.getString("teamId"))
+
+        }
+
         boardGraph(actions)
-        tasksGraph(actions)
-        teamsGraph(actions)
-        chatsGraph(actions)
+        tasksGraph(actions, taskId)
+        teamsGraph(actions, teamId)
+        chatsGraph(actions, userId, teamId)
         accountGraph(actions)
     }
 }
@@ -1244,18 +1241,17 @@ fun printGraphPath(entry: NavGraph?): String {
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
-fun Navigator() {
+fun Navigator(graph: String?, taskId: String?, teamId: String?, userId: String?) {
     val auth = Firebase.auth
     val navController = rememberNavController()
     val actions = remember(navController) { Actions(navController) }
-    val context = LocalContext.current
-    val activity = context as Activity
+
 
     var startDestination by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(auth.currentUser) {
         if (auth.currentUser != null)
             if (usersViewModel.exists(auth.currentUser!!.uid)) {
-                startDestination = Screen.Main.route
+                    startDestination = Screen.Main.route
             }
             else {
                 startDestination = Screen.SignUp.route
@@ -1268,7 +1264,7 @@ fun Navigator() {
         NavHost(navController = navController, startDestination = it) {
             loginGraph(actions)
             signUpGraph(actions)
-            mainGraph(actions)
+            mainGraph(actions, graph = graph, userId = userId, taskId = taskId, teamId = teamId)
         }
     }
 

@@ -104,7 +104,8 @@ import java.util.UUID
 
 
 @Composable
-fun ChatsView(actions: Actions) {
+fun ChatsView(actions: Actions, userId: String?, teamId: String?) {
+    if(userId != null && teamId != null) actions.openPersonalChat(userId, teamId)
     Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         var landscape by remember { mutableStateOf(false) }

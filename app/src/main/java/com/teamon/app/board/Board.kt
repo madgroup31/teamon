@@ -3,6 +3,7 @@ package com.teamon.app.board
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Intent
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -50,8 +51,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teamon.app.Actions
 import com.teamon.app.MainActivity
 import com.teamon.app.MessagingService
+import com.teamon.app.NavigationItem
 import com.teamon.app.utils.viewmodels.Factory
 import com.teamon.app.R
+import com.teamon.app.Screen
 import com.teamon.app.board.project.NewProjectBottomSheetContent
 import com.teamon.app.utils.viewmodels.NewProjectViewModel
 import com.teamon.app.board.project.ProjectCard
@@ -74,6 +77,7 @@ import kotlinx.coroutines.flow.filter
 @Composable
 fun BoardView(actions: Actions) {
     MessagingService.initialize(LocalContext.current, LocalContext.current as Activity)
+
     Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         val newProjectViewModel =
@@ -168,79 +172,82 @@ fun LandscapeView(
     }
 }
 
-    @SuppressLint("SuspiciousIndentation")
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-    @Composable
-    fun PortraitView(
-        actions: Actions,
-        newProjectVM: NewProjectViewModel,
+@SuppressLint("SuspiciousIndentation")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun PortraitView(
+    actions: Actions,
+    newProjectVM: NewProjectViewModel,
+) {
+
+
+    val projects by projectsViewModel.getProjects().collectAsState(initial = emptyMap())
+    val sheetState = rememberModalBottomSheetState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
+    AppSurface(
+        orientation = Orientation.PORTRAIT,
+        title = "Board",
+        snackbarHostState = snackbarHostState,
+        actions = actions,
+        floatingActionButton = {
+            FloatingActionButton(modifier = Modifier,
+                onClick = {
+                    newProjectVM.toggleShow()
+                }) {
+                Image(
+                    painter = painterResource(id = R.drawable.round_add_circle_outline_24),
+                    contentDescription = "Create a project",
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                )
+            }
+        }
     ) {
-
-
-
-        val projects by projectsViewModel.getProjects().collectAsState(initial = emptyMap())
-        val sheetState = rememberModalBottomSheetState()
-        val snackbarHostState = remember { SnackbarHostState() }
-
-
-        AppSurface(
-            orientation = Orientation.PORTRAIT,
-            title = "Board",
-            snackbarHostState = snackbarHostState,
-            actions = actions,
-            floatingActionButton = {
-                FloatingActionButton(modifier = Modifier,
-                    onClick = {
-                        newProjectVM.toggleShow()
-                    }) {
-                    Image(
-                        painter = painterResource(id = R.drawable.round_add_circle_outline_24),
-                        contentDescription = "Create a project",
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                    )
-                }
+        if (projects.isEmpty())
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "No Available Projects.",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontStyle = FontStyle.Italic
+                )
             }
-        ) {
-            if (projects.isEmpty())
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "No Available Projects.",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontStyle = FontStyle.Italic
+        else {
+            AnimatedGrid(
+                modifier = Modifier.fillMaxSize(),
+                columns = GridCells.Adaptive(minSize = 350.dp),
+                items = projects.values.sortedByDescending {
+                    profileViewModel!!.favoritesProjects.contains(
+                        it.projectId
                     )
                 }
-            else {
-                AnimatedGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 350.dp),
-                    items = projects.values.sortedByDescending { profileViewModel!!.favoritesProjects.contains(it.projectId) }
-                ) { it, _ ->
-                    ProjectCard(
-                        orientation = Orientation.PORTRAIT,
-                        actions = actions,
-                        project = it as Project,
-                        snackbarHostState = snackbarHostState
-                    )
-                }
+            ) { it, _ ->
+                ProjectCard(
+                    orientation = Orientation.PORTRAIT,
+                    actions = actions,
+                    project = it as Project,
+                    snackbarHostState = snackbarHostState
+                )
             }
-            if (newProjectVM.isShowing) {
-                ModalBottomSheet(
-                    modifier = Modifier,
-                    onDismissRequest = {
-                        newProjectVM.toggleShow()
-                    },
-                    sheetState = sheetState
-                ) {
-                    // Sheet content
-                    NewProjectBottomSheetContent(newProjectVM = newProjectVM)
-                }
+        }
+        if (newProjectVM.isShowing) {
+            ModalBottomSheet(
+                modifier = Modifier,
+                onDismissRequest = {
+                    newProjectVM.toggleShow()
+                },
+                sheetState = sheetState
+            ) {
+                // Sheet content
+                NewProjectBottomSheetContent(newProjectVM = newProjectVM)
             }
         }
     }
+}
 
 

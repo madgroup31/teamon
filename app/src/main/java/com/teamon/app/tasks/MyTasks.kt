@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teamon.app.Actions
+import com.teamon.app.NavigationItem
 import com.teamon.app.utils.viewmodels.Factory
 import com.teamon.app.R
 import com.teamon.app.profileViewModel
@@ -71,8 +72,11 @@ import com.teamon.app.utils.viewmodels.NewTaskViewModel
 @Composable
 fun TasksView(
     myTasksViewModel: TasksViewModel,
-    actions: Actions
+    actions: Actions,
+    taskId: String? = null
 ) {
+    if(taskId != null) actions.openTask(NavigationItem.MyTasks.title, taskId)
+
     Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         var sortingOrder by rememberSaveable {

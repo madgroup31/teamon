@@ -83,7 +83,13 @@ class MainActivity : ComponentActivity() {
             commentsViewModel =
                 viewModel<CommentsViewModel>(factory = Factory(LocalContext.current.applicationContext))
 
-            Navigator()
+
+            Navigator(
+                graph = intent?.getStringExtra("graph"),
+                taskId = intent?.getStringExtra("taskId"),
+                teamId = intent?.getStringExtra("teamId"),
+                userId = intent?.getStringExtra("userId")
+            )
         }
     }
 

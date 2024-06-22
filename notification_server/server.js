@@ -41,8 +41,13 @@ db.collection('history').onSnapshot(snapshot => {
                             .then(projectsQuerySnapshot => {
                                 if (!projectsQuerySnapshot.empty) {
                                     let projectName = projectsQuerySnapshot.docs[0].data().projectName;
-                                    
+                                    let projectId = projectsQuerySnapshot.docs[0].id
+
                                     const message = {
+                                        data: {
+                                            taskId: taskId,
+                                            projectId: projectId
+                                        },
                                         android: {
                                             notification: {
                                             default_sound: true,
@@ -133,6 +138,10 @@ db.collection('messages').onSnapshot(snapshot => {
                                                 if(userImageSource == "MONOGRAM") {
 
                                                     message = {
+                                                        data: {
+                                                            userId: senderId,
+                                                            chatId: chatId
+                                                        },
                                                         android: {
                                                             notification: {
                                                                 default_sound: true,
@@ -150,6 +159,10 @@ db.collection('messages').onSnapshot(snapshot => {
                                                 }
                                                     else {
                                                         message = {
+                                                            data: {
+                                                                userId: senderId,
+                                                                chatId: chatId
+                                                            },
                                                             android: {
                                                                 notification: {
                                                                 default_sound: true,
@@ -170,6 +183,10 @@ db.collection('messages').onSnapshot(snapshot => {
                                                 if(teamImageSource == "MONOGRAM") {
 
                                                     message = {
+                                                        data: {
+                                                            teamId: teamId,
+                                                            chatId: chatId
+                                                        },
                                                         android: {
                                                             notification: {
                                                                 default_sound: true,
@@ -187,6 +204,10 @@ db.collection('messages').onSnapshot(snapshot => {
                                                 }
                                                     else {
                                                         message = {
+                                                            data: {
+                                                                teamId: teamId,
+                                                                chatId: chatId
+                                                            },
                                                             android: {
                                                                 notification: {
                                                                 default_sound: true,

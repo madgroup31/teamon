@@ -92,8 +92,8 @@ import kotlinx.coroutines.flow.map
 enum class JoinRequest { Accepted, Rejected, AlreadyPartecipating, NotFound, Requesting, Error }
 
 @Composable
-fun TeamsView(actions: Actions, joinRequest: String? = null) {
-
+fun TeamsView(actions: Actions, joinRequest: String? = null, teamId: String? = null) {
+    if(teamId != null) actions.openTeamChat(teamId)
     Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         var snackbarHostState = remember { SnackbarHostState() }
