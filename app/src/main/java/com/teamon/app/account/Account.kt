@@ -72,7 +72,37 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import android.content.Context
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.EaseInCirc
+import androidx.compose.animation.core.EaseInCubic
+import androidx.compose.animation.core.EaseInElastic
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -107,10 +137,9 @@ fun AccountView(actions: Actions, userVm: UserViewModel? = null, signUp: Boolean
                                         l.longitude,
                                         1
                                     ) {
-                                            profileViewModel.setLocation(it.first()?.locality?:"")
+                                        profileViewModel.setLocation(it.first()?.locality ?: "")
                                     }
-                                }
-                                else profileViewModel.setLocation("")
+                                } else profileViewModel.setLocation("")
                             }
                         }
                 } catch (e: Exception) {
@@ -175,19 +204,25 @@ fun LandscapeView(
                                 )
                             )
                         }
-                        ElevatedButton(
-                            modifier = Modifier.padding(horizontal = 10.dp),
-                            shape = RoundedCornerShape(10.dp),
-                            onClick = {
+                        var showDropdown by rememberSaveable { mutableStateOf(false) }
+                        IconButton(onClick = { showDropdown = true }) {
+                            Icon(
+                                Icons.Rounded.MoreVert,
+                                contentDescription = "More account options"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showDropdown,
+                            onDismissRequest = { showDropdown = false }) {
+                            DropdownMenuItem(text = {
+                                Text(
+                                    if (animate) "Disable animations" else "Enable animations",
+                                    color = if (animate) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                )
+                            }, onClick = {
                                 prefs.edit().putBoolean("animate", !animate).apply(); animate =
                                 !animate
-                            },
-                            colors = ButtonDefaults.elevatedButtonColors(
-                                contentColor = if (animate) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                                containerColor = if (animate) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow
-                            )
-                        ) {
-                            Text(if (animate) "Disable animations" else "Enable animations")
+                            })
                         }
                     }
                 },
@@ -435,6 +470,7 @@ fun LandscapeView(
 
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PortraitView(
     actions: Actions,
@@ -467,7 +503,7 @@ fun PortraitView(
                 isSigningUp = isSigningUp,
                 orientation = Orientation.PORTRAIT,
                 trailingTopBarActions = {
-                    if (!isSigningUp) {
+                    if (!signUp) {
                         var animate by remember {
                             mutableStateOf(
                                 prefs.getBoolean(
@@ -476,20 +512,60 @@ fun PortraitView(
                                 )
                             )
                         }
-                        ElevatedButton(
-                            modifier = Modifier.padding(horizontal = 10.dp),
-                            shape = RoundedCornerShape(10.dp),
-                            onClick = {
-                                prefs.edit().putBoolean("animate", !animate).apply(); animate =
-                                !animate
-                            },
-                            colors = ButtonDefaults.elevatedButtonColors(
-                                contentColor = if (animate) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                                containerColor = if (animate) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow
+
+                        val infiniteTransition = rememberInfiniteTransition()
+                        val anim by infiniteTransition.animateFloat(
+                            initialValue = 0.9f,
+                            targetValue = 0.1f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(durationMillis = 3000, easing = LinearEasing),
+                                repeatMode = RepeatMode.Reverse
                             )
-                        ) {
-                            Text(if (animate) "Disable animations" else "Enable animations")
-                        }
+                        )
+
+                        if (!animate) {
+                            IconButton(onClick = {
+                                prefs.edit().putBoolean("animate", true).apply();
+                                animate = true
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    snackbarHostState.showSnackbar("Animations enabled")
+                                }
+                            }) {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    Icon(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        painter = painterResource(R.drawable.round_hdr_weak_24),
+                                        contentDescription = "Stop animation"
+                                    )
+                                }
+                            }
+                        } else
+                            IconButton(onClick = {
+                                prefs.edit().putBoolean("animate", false).apply();
+                                animate = false
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    snackbarHostState.showSnackbar("Animations disabled")
+                                }
+                            }) {
+                                AnimatedContent(targetState = anim >= 0.5f, transitionSpec = {
+                                    fadeIn(animationSpec = tween(1500)) togetherWith fadeOut(
+                                        animationSpec = tween(1500)
+                                    )
+                                }) { targetState ->
+                                    val iconPainter: Painter = if (targetState) {
+                                        painterResource(R.drawable.round_hdr_weak_24)
+                                    } else {
+                                        painterResource(R.drawable.round_hdr_strong_24)
+                                    }
+                                    Icon(
+                                        painter = iconPainter,
+                                        contentDescription = "More account options",
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .alpha(if (targetState) anim else 1f - anim)
+                                    )
+                                }
+                            }
                     }
                 },
                 title = "My Account",

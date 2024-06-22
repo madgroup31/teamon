@@ -11,7 +11,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -85,9 +88,9 @@ fun TeamActions(teamId: String, snackbarHostState: SnackbarHostState) {
     val context = LocalContext.current
     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newRawUri("TeamOn Invitation Link", uri)
-    var qrCode: Bitmap? by remember { mutableStateOf(null) }
-    var showQRCode by remember { mutableStateOf(false) }
-    var copying by remember { mutableStateOf(false) }
+    var qrCode: Bitmap? by rememberSaveable { mutableStateOf(null) }
+    var showQRCode by rememberSaveable { mutableStateOf(false) }
+    var copying by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -124,11 +127,6 @@ fun TeamActions(teamId: String, snackbarHostState: SnackbarHostState) {
             modifier = Modifier.size(400.dp),
             onDismissRequest = { showQRCode = false },
             text = {
-                Surface(
-                    modifier = Modifier
-                        .size(300.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.SpaceAround,
@@ -155,7 +153,7 @@ fun TeamActions(teamId: String, snackbarHostState: SnackbarHostState) {
                         )
                     }
 
-                }
+
             },
             confirmButton = {}
         )

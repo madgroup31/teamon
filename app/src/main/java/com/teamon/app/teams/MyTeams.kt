@@ -142,7 +142,7 @@ fun TeamsView(actions: Actions, joinRequest: String? = null, teamId: String? = n
         val newTeamViewModel = viewModel<NewTeamViewModel>(
             factory = Factory(
                 LocalContext.current.applicationContext,
-                userId = profileViewModel!!.userId
+                userId = profileViewModel.userId
             )
         )
 

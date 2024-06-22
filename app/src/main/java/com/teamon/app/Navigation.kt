@@ -946,8 +946,13 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
 fun NavGraphBuilder.teamsGraph(actions: Actions, teamId: String?) {
 
     //Team view
-    composable(NavigationItem.MyTeams.title) {
-        TeamsView(actions = actions, teamId = teamId)
+    composable(NavigationItem.MyTeams.title,
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "teamon.app/${NavigationItem.MyTeams.title}/{teamId}/join"
+                action = Intent.ACTION_VIEW
+            })) {
+        TeamsView(actions = actions, joinRequest = it.arguments?.getString("teamId"), teamId = teamId)
     }
 
     //Single team view
@@ -1211,21 +1216,6 @@ fun NavGraphBuilder.signUpGraph(actions: Actions) {
 fun NavGraphBuilder.mainGraph(actions: Actions, graph: String?, userId: String?, taskId: String?, teamId: String?) {
 
     navigation(startDestination = graph ?: NavigationItem.Board.title, route = Screen.Main.route) {
-
-        composable(NavigationItem.MyTeams.title + "/{teamId}/join",
-            arguments = listOf(
-                navArgument("teamId") { type = NavType.StringType }
-            ),
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = "teamon.app/${NavigationItem.MyTeams.title}/{teamId}/join"
-                    action = Intent.ACTION_VIEW
-                })
-        ) {
-            TeamsView(actions = actions, joinRequest = it.arguments?.getString("teamId"))
-
-        }
-
         boardGraph(actions)
         tasksGraph(actions, taskId)
         teamsGraph(actions, teamId)
