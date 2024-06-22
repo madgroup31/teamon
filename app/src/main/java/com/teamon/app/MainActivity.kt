@@ -83,9 +83,6 @@ class MainActivity : ComponentActivity() {
             commentsViewModel =
                 viewModel<CommentsViewModel>(factory = Factory(LocalContext.current.applicationContext))
 
-
-
-            MessagingService.initialize(this, this)
             Navigator()
         }
     }

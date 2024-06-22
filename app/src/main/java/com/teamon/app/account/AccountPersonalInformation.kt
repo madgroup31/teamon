@@ -1,5 +1,12 @@
 package com.teamon.app.account
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.location.Geocoder
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -30,7 +38,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,9 +49,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.teamon.app.Location
 import com.teamon.app.R
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.graphics.Orientation
@@ -50,6 +65,11 @@ import com.teamon.app.utils.graphics.convertMillisToDate
 import com.teamon.app.utils.graphics.toInt
 import com.teamon.app.utils.viewmodels.NewAccountViewModel
 import com.teamon.app.utils.viewmodels.UserViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -62,6 +82,7 @@ import java.util.TimeZone
 fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? = null) {
     when (userVm) {
         null -> {
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -246,7 +267,9 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                             enabled = true,
                             value = profileViewModel.color.toString().lowercase().capitalize(),
                             singleLine = true,
-                            leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(profileViewModel.color.toInt())) {} },
+                            leadingIcon = { Surface(modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape), color = Color(profileViewModel.color.toInt())) {} },
                             trailingIcon = {
                                 IconButton(enabled = profileViewModel.isEditing,
                                     onClick = { colorExpanded = !colorExpanded  }) {
@@ -259,7 +282,9 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                         DropdownMenu(expanded = colorExpanded, onDismissRequest = { colorExpanded = false }) {
                             ProjectColors.entries.forEach {
                                 DropdownMenuItem(
-                                    leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(it.toInt())) {} },
+                                    leadingIcon = { Surface(modifier = Modifier
+                                        .size(24.dp)
+                                        .clip(CircleShape), color = Color(it.toInt())) {} },
                                     text = { Text(it.name.lowercase().capitalize()) },
                                     onClick = { profileViewModel.setColor(it.name) })
                             }
@@ -444,7 +469,9 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
                             enabled = false,
                             value = userVm.color.toString().lowercase().capitalize(),
                             singleLine = true,
-                            leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(userVm.color.toInt())) {} },
+                            leadingIcon = { Surface(modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape), color = Color(userVm.color.toInt())) {} },
                             label = { Text("Color") },
                             onValueChange = {  },
                         )
@@ -473,10 +500,49 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
 }
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 
 fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountViewModel) {
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+     LaunchedEffect(Unit) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                try {
+                    fusedLocationClient
+                        .getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                        .addOnCompleteListener { location ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val l = location.await()
+                                Geocoder(context, Locale.getDefault()).getFromLocation(
+                                    l.latitude,
+                                    l.longitude,
+                                    1
+                                ) {
+                                    val cityName = it.first()?.locality
+                                    if(cityName != null) {
+                                        Log.d("location", cityName)
+                                        userVm.setLocation(cityName)
+                                    }
+                                }
+                            }
+                        }
+                } catch (e: Exception) {
+                    userVm.setLocation("")
+                }
 
+            } else {
+                userVm.setLocation("")
+            }
+
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -641,11 +707,15 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
                     enabled = true,
                     value = userVm.color.toString().lowercase().capitalize(),
                     singleLine = true,
-                    leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(userVm.color.toInt())) {} },
+                    isError = false,
+                    supportingText = {Text("")},
+                    leadingIcon = { Surface(modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape), color = Color(userVm.color.toInt())) {} },
                     trailingIcon = {
                         IconButton(enabled = true,
                             onClick = { colorExpanded = !colorExpanded  }) {
-                            Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null)
+                            Icon(if(!colorExpanded) Icons.Rounded.KeyboardArrowDown else Icons.Rounded.KeyboardArrowUp, contentDescription = null)
                         }
                     },
                     label = { Text("Color") },
@@ -654,8 +724,10 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
                 DropdownMenu(expanded = colorExpanded, onDismissRequest = { colorExpanded = false }) {
                     ProjectColors.entries.forEach {
                         DropdownMenuItem(
-                            leadingIcon = { Surface(modifier = Modifier.size(24.dp).clip(CircleShape), color = Color(it.toInt())) {} },
-                            text = { Text(it.name) },
+                            leadingIcon = { Surface(modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape), color = Color(it.toInt())) {} },
+                            text = { Text(it.name.lowercase().capitalize()) },
                             onClick = { userVm.setColor(it.name) })
                     }
                 }

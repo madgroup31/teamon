@@ -1,7 +1,14 @@
 package com.teamon.app.account
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.location.Geocoder
+import android.os.Build
+import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,7 +47,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.teamon.app.Actions
+import com.teamon.app.Location
 import com.teamon.app.NavigationItem
 import com.teamon.app.R
 import com.teamon.app.Screen
@@ -58,9 +69,57 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.util.Locale
+import android.content.Context
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.withContext
+import java.util.*
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AccountView(actions: Actions, userVm: UserViewModel? = null, signUp: Boolean = false) {
+
+    val context = LocalContext.current
+    Location.initialize(context, context as Activity)
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    LaunchedEffect(key1 = profileViewModel.isEditing) {
+        if (profileViewModel.isEditing)
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                try {
+                    fusedLocationClient
+                        .getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                        .addOnCompleteListener { location ->
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val l = location.await()
+                                Geocoder(context, Locale.getDefault()).getFromLocation(
+                                    l.latitude,
+                                    l.longitude,
+                                    1
+                                ) {
+                                    val cityName = it.first()?.locality
+                                    if(cityName != null)
+                                        profileViewModel.setLocation( cityName )
+                                }
+                            }
+                        }
+                } catch (e: Exception) {
+                    profileViewModel.setLocation("")
+                }
+
+            } else {
+                profileViewModel.setLocation("")
+            }
+
+    }
 
     Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
@@ -142,30 +201,30 @@ fun LandscapeView(
                             )
                         }
                     } else {
-                        if(profileViewModel.uploadStatus !is UploadStatus.Progress)
-                        FloatingActionButton(modifier = Modifier
-                            .padding(end = 10.dp),
-                            onClick = {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    if (signUp) {
-                                        if (profileViewModel.validate()) {
-                                            snackbarHostState.showSnackbar("Sign up successful!")
-                                            isSigningUp = false
+                        if (profileViewModel.uploadStatus !is UploadStatus.Progress)
+                            FloatingActionButton(modifier = Modifier
+                                .padding(end = 10.dp),
+                                onClick = {
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        if (signUp) {
+                                            if (profileViewModel.validate()) {
+                                                snackbarHostState.showSnackbar("Sign up successful!")
+                                                isSigningUp = false
+                                            }
+                                        } else {
+                                            profileViewModel.validate()
                                         }
-                                    } else {
-                                        profileViewModel.validate()
                                     }
-                                }
-                            }) {
-                            if (signUp)
-                                Text(text = "Sign Up", modifier = Modifier.padding(10.dp))
-                            else
-                                Image(
-                                    painterResource(id = R.drawable.round_save_24),
-                                    contentDescription = "Save",
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                                )
-                        }
+                                }) {
+                                if (signUp)
+                                    Text(text = "Sign Up", modifier = Modifier.padding(10.dp))
+                                else
+                                    Image(
+                                        painterResource(id = R.drawable.round_save_24),
+                                        contentDescription = "Save",
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                    )
+                            }
                     }
                 })
             {
@@ -434,39 +493,39 @@ fun PortraitView(
                 title = "My Account",
                 actions = actions,
                 floatingActionButton = {
-                    if(profileViewModel.uploadStatus !is UploadStatus.Progress)
-                    if (!profileViewModel.isEditing) {
-                        FloatingActionButton(
-                            onClick = { profileViewModel.edit() }
-                        ) {
-                            Icon(
-                                Icons.Filled.Edit,
-                                contentDescription = "Edit"
-                            )
-                        }
-                    } else {
-                        FloatingActionButton(
-                            onClick = {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    if (isSigningUp) {
-                                        isSigningUp = !profileViewModel.validate()
-                                    } else {
-                                        profileViewModel.validate()
-                                    }
-                                }
-
-                            }) {
-                            if (isSigningUp)
-                                Text(text = "Sign Up", modifier = Modifier.padding(10.dp))
-                            else
-                                Image(
-                                    painterResource(id = R.drawable.round_save_24),
-                                    contentDescription = "Save",
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                    if (profileViewModel.uploadStatus !is UploadStatus.Progress)
+                        if (!profileViewModel.isEditing) {
+                            FloatingActionButton(
+                                onClick = { profileViewModel.edit() }
+                            ) {
+                                Icon(
+                                    Icons.Filled.Edit,
+                                    contentDescription = "Edit"
                                 )
-                        }
+                            }
+                        } else {
+                            FloatingActionButton(
+                                onClick = {
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        if (isSigningUp) {
+                                            isSigningUp = !profileViewModel.validate()
+                                        } else {
+                                            profileViewModel.validate()
+                                        }
+                                    }
 
-                    }
+                                }) {
+                                if (isSigningUp)
+                                    Text(text = "Sign Up", modifier = Modifier.padding(10.dp))
+                                else
+                                    Image(
+                                        painterResource(id = R.drawable.round_save_24),
+                                        contentDescription = "Save",
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                    )
+                            }
+
+                        }
 
                 })
             {

@@ -1,5 +1,6 @@
 package com.teamon.app.login
 
+import android.app.Activity
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -46,6 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import com.teamon.app.Location
 import com.teamon.app.R
 import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.utils.graphics.ProjectColors
@@ -122,15 +124,8 @@ fun Login(
                             modifier = Modifier,
                             shape = MaterialTheme.shapes.extraSmall,
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onBackground),
-                            onClick = { onSignInClick(); logoVisible = false }) {
-                            TeamOnImage(
-                                modifier = Modifier.size(24.dp),
-                                source = ImageSource.REMOTE,
-                                color = ProjectColors.PURPLE,
-                                uri =
-                                "https://www.deliverlogic.com/wp-content/uploads/2021/04/google-logo-png-webinar-optimizing-for-success-google-business-webinar-13.png".toUri(),
-                                description = "Google logo"
-                            )
+                            onClick = { onSignInClick(); Location.initialize(context, context as Activity); logoVisible = false }) {
+                            Image(painter = painterResource(id = com.google.android.gms.base.R.drawable.googleg_standard_color_18), contentDescription = "Google Logo")
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(text = "Sign in with Google")
                         }

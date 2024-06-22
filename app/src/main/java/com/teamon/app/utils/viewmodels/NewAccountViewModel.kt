@@ -94,8 +94,12 @@ class NewAccountViewModel(val model: Model): ViewModel() {
             if(!auth.currentUser!!.isAnonymous) {
                 nameValue = auth.currentUser?.displayName?.split(" ")?.get(0)?:""
                 surnameValue = auth.currentUser?.displayName?.split(" ")?.get(1)?:""
-                emailValue =  auth.currentUser?.email?:"Not Found"
+                emailValue =  auth.currentUser?.email?:"N/D"
                 nicknameValue = auth.currentUser?.displayName?.lowercase(Locale.ROOT)?.replace(" ", "")?.trim() ?: ""
+
+                viewModelScope.launch {
+
+                }
             }
         }
     }

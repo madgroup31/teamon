@@ -1,6 +1,7 @@
 package com.teamon.app.board
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ContentValues
 import android.content.res.Configuration
 import android.util.Log
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teamon.app.Actions
 import com.teamon.app.MainActivity
+import com.teamon.app.MessagingService
 import com.teamon.app.utils.viewmodels.Factory
 import com.teamon.app.R
 import com.teamon.app.board.project.NewProjectBottomSheetContent
@@ -71,6 +73,7 @@ import kotlinx.coroutines.flow.filter
 
 @Composable
 fun BoardView(actions: Actions) {
+    MessagingService.initialize(LocalContext.current, LocalContext.current as Activity)
     Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
         val newProjectViewModel =

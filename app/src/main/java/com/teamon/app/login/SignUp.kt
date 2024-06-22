@@ -1,7 +1,9 @@
 package com.teamon.app.account
 
 import android.content.res.Configuration
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +49,7 @@ import com.teamon.app.prefs
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.AppSurface
+import com.teamon.app.utils.graphics.LoadingOverlay
 import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.UploadStatus
 import com.teamon.app.utils.themes.teamon.TeamOnTheme
@@ -55,6 +58,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun SignUpView(actions: Actions, newUserVm: NewAccountViewModel) {
 
@@ -71,6 +75,7 @@ fun SignUpView(actions: Actions, newUserVm: NewAccountViewModel) {
 
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun LandscapeView(
     actions: Actions,
@@ -167,6 +172,7 @@ fun LandscapeView(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun PortraitView(
     actions: Actions,
@@ -174,7 +180,9 @@ fun PortraitView(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current.applicationContext
-
+    var isLoading by remember {
+        mutableStateOf(false)
+    }
     LaunchedEffect(Unit) {
         Toast.makeText(
             context,
@@ -190,7 +198,6 @@ fun PortraitView(
         }
     }
 
-
     AppSurface(
         snackbarHostState = snackbarHostState,
         isSigningUp = true,
@@ -203,8 +210,10 @@ fun PortraitView(
                     onClick = {
                         CoroutineScope(Dispatchers.Main).launch {
                             if (newUserVm.validate()) {
+                                isLoading = true
                                 snackbarHostState.showSnackbar("Sign up successful!")
                                 actions.navCont.navigate(Screen.Main.route)
+                                isLoading = false
                             } else {
                                 snackbarHostState.showSnackbar("An error occurred. Please try again.")
                             }
@@ -215,6 +224,7 @@ fun PortraitView(
                 }
         })
     {
+        LoadingOverlay(isLoading = isLoading)
         LazyColumn(
             modifier = Modifier
                 .fillMaxHeight(),

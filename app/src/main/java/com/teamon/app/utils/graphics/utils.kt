@@ -831,12 +831,7 @@ fun TeamOnImage(
                     CircularProgressIndicator(modifier = modifier.wrapContentSize())
                 }
                 is AsyncImagePainter.State.Error -> {
-                    Image(
-                        modifier = modifier,
-                        painter = painterResource(R.drawable.round_error_24),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
-                        contentDescription = "Error loading team image"
-                    )
+                    CircularProgressIndicator(modifier = modifier.wrapContentSize())
                 }
                 is AsyncImagePainter.State.Success -> {
                     Image(

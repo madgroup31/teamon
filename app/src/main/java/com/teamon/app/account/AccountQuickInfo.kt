@@ -706,7 +706,6 @@ fun AccountQuickInfo(
 fun NewAccountQuickInfo(orientation: Orientation, newUserVm: NewAccountViewModel) {
 
     var expanded by remember { mutableStateOf(false) }
-    Log.d("anon", newUserVm.userId)
     val context = LocalContext.current
     val file = context.createImageFile(newUserVm.userId)
     val uri = FileProvider.getUriForFile(

@@ -1,6 +1,7 @@
 package com.teamon.app
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Build
@@ -1247,13 +1248,18 @@ fun Navigator() {
     val auth = Firebase.auth
     val navController = rememberNavController()
     val actions = remember(navController) { Actions(navController) }
+    val context = LocalContext.current
+    val activity = context as Activity
 
     var startDestination by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(auth.currentUser) {
         if (auth.currentUser != null)
-            if (usersViewModel.exists(auth.currentUser!!.uid))
+            if (usersViewModel.exists(auth.currentUser!!.uid)) {
                 startDestination = Screen.Main.route
-            else startDestination = Screen.SignUp.route
+            }
+            else {
+                startDestination = Screen.SignUp.route
+            }
         else startDestination = Screen.Login.route
 
     }
