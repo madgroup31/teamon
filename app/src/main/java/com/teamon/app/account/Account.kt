@@ -77,7 +77,7 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.withContext
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
 @Composable
 fun AccountView(actions: Actions, userVm: UserViewModel? = null, signUp: Boolean = false) {
 
@@ -100,15 +100,18 @@ fun AccountView(actions: Actions, userVm: UserViewModel? = null, signUp: Boolean
                         .addOnCompleteListener { location ->
                             CoroutineScope(Dispatchers.IO).launch {
                                 val l = location.await()
-                                Geocoder(context, Locale.getDefault()).getFromLocation(
-                                    l.latitude,
-                                    l.longitude,
-                                    1
-                                ) {
-                                    val cityName = it.first()?.locality
-                                    if(cityName != null)
-                                        profileViewModel.setLocation( cityName )
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    Geocoder(context, Locale.getDefault()).getFromLocation(
+                                        l.latitude,
+                                        l.longitude,
+                                        1
+                                    ) {
+                                        val cityName = it.first()?.locality
+                                        if(cityName != null)
+                                            profileViewModel.setLocation( cityName )
+                                    }
                                 }
+                                else profileViewModel.setLocation("")
                             }
                         }
                 } catch (e: Exception) {

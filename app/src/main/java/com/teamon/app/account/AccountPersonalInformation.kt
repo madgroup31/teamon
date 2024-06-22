@@ -500,7 +500,6 @@ fun AccountPersonalInformation(orientation: Orientation, userVm: UserViewModel? 
 }
 
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 
 fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountViewModel) {
@@ -521,17 +520,20 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
                         .addOnCompleteListener { location ->
                             CoroutineScope(Dispatchers.IO).launch {
                                 val l = location.await()
-                                Geocoder(context, Locale.getDefault()).getFromLocation(
-                                    l.latitude,
-                                    l.longitude,
-                                    1
-                                ) {
-                                    val cityName = it.first()?.locality
-                                    if(cityName != null) {
-                                        Log.d("location", cityName)
-                                        userVm.setLocation(cityName)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    Geocoder(context, Locale.getDefault()).getFromLocation(
+                                        l.latitude,
+                                        l.longitude,
+                                        1
+                                    ) {
+                                        val cityName = it.first()?.locality
+                                        if(cityName != null) {
+                                            Log.d("location", cityName)
+                                            userVm.setLocation(cityName)
+                                        }
                                     }
                                 }
+                                else userVm.setLocation("")
                             }
                         }
                 } catch (e: Exception) {
