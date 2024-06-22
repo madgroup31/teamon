@@ -26,7 +26,7 @@ class ChatsViewModel(val model: Model) : ViewModel() {
     fun getCorrespondent(chatId: String): Flow<User> = channelFlow {
         model.getChatById(chatId).collect {
             launch {
-                val correspondent = it.userIds.firstOrNull { it != profileViewModel!!.userId }
+                val correspondent = it.userIds.firstOrNull { it != profileViewModel.userId }
                 if (correspondent != null)
                     model.getUser(correspondent).collect {
                         send(it)
@@ -45,7 +45,7 @@ class ChatsViewModel(val model: Model) : ViewModel() {
             launch {
                 model.getChatMessages(chat.chatId).collect {
                     send(it)
-                    it.filter { it.unread.contains(profileViewModel!!.userId) }
+                    it.filter { it.unread.contains(profileViewModel.userId) }
                         .forEach { message ->
                             model.setMessageRead(message.messageId)
                         }

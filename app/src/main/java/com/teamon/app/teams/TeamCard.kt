@@ -24,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -46,6 +47,7 @@ import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
 import com.teamon.app.chatsViewModel
+import com.teamon.app.projectsViewModel
 import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Team
@@ -57,6 +59,8 @@ import com.teamon.app.utils.graphics.Theme
 fun TeamCard(
     team: Team,
     actions: Actions,
+    isEditing: Boolean = false,
+    onRemoveTeamClick : ((String) -> Unit)? = null,
 ) {
     val selectedNavItem =
         actions.navCont.currentBackStackEntry?.destination?.route?.split("/")?.first().toString()
@@ -195,6 +199,7 @@ fun TeamCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
+                            if(!isEditing)
                             Button(
                                 modifier = Modifier,
                                 onClick = { actions.openTeamChat(team.teamId) },
@@ -212,6 +217,21 @@ fun TeamCard(
                                     }
                                 }
                                 //Badge(modifier = Modifier.offset(x = 0.dp, y = (-10).dp))
+                            }
+                            else
+                            {
+                                Button(
+                                    modifier = Modifier,
+                                    onClick = {
+                                        onRemoveTeamClick!!(team.teamId)
+                                              },
+                                ) {
+                                    Image(
+                                        painter = painterResource(R.drawable.round_cancel_24),
+                                        contentDescription = null,
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
+                                    )
+                                }
                             }
                         }
                     }
@@ -235,6 +255,48 @@ fun TeamCard(
                     color = team.color,
                     contentScale = ContentScale.FillHeight,
                     description = "Team image"
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AddTeamCard(
+    onAddTeamClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(270.dp)
+            .padding(8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxSize()
+                .border(
+                    1.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                    shape = RoundedCornerShape(20.dp)
+                ),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+            shape = RoundedCornerShape(20.dp),
+            onClick = { onAddTeamClick() }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(15.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "+ Add Team",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

@@ -75,7 +75,11 @@ import kotlinx.coroutines.CoroutineScope
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ProjectView(actions: Actions, projectVM: ProjectViewModel, startingTab: String = TabItem.ProjectTasks.title) {
+fun ProjectView(
+    actions: Actions,
+    projectVM: ProjectViewModel,
+    startingTab: String = TabItem.ProjectTasks.title
+) {
 
 
     Theme(color = projectVM.projectColor, applyToStatusBar = true) {
@@ -146,9 +150,11 @@ fun ProjectView(actions: Actions, projectVM: ProjectViewModel, startingTab: Stri
             mutableStateOf(TeamsSortingOption.CreationDate.title)
         }
         var teamMemberQuery by rememberSaveable {
-            mutableStateOf("") }
+            mutableStateOf("")
+        }
         var teamCategoryQuery by rememberSaveable {
-            mutableStateOf("") }
+            mutableStateOf("")
+        }
         var teamAdminQuery by rememberSaveable {
             mutableStateOf("")
         }
@@ -158,7 +164,8 @@ fun ProjectView(actions: Actions, projectVM: ProjectViewModel, startingTab: Stri
 
         val onShowRecursiveChange: (Boolean) -> Unit = { showRecursive = !showRecursive }
         val onTeamSortingOrderChange: (Boolean) -> Unit = { teamSortingOrder = !it }
-        val onTeamSortingOptionChange: (TeamsSortingOption) -> Unit = { teamSortingOption = it.title}
+        val onTeamSortingOptionChange: (TeamsSortingOption) -> Unit =
+            { teamSortingOption = it.title }
         val onTeamMemberQueryChange: (String) -> Unit = { teamMemberQuery = it }
         val onTeamCategoryQueryChange: (String) -> Unit = { teamCategoryQuery = it }
         val onTeamAdminQueryChange: (String) -> Unit = { teamAdminQuery = it }
@@ -167,99 +174,118 @@ fun ProjectView(actions: Actions, projectVM: ProjectViewModel, startingTab: Stri
             mutableStateOf("")
         }
         val onTeamQueryChange: (String) -> Unit = { teamQuery = it }
-        val onTaskDelete: (String)->Unit = { taskId ->
+        val onTaskDelete: (String) -> Unit = { taskId ->
             //Log.d("TaskView", "Task deleted: $taskId")
             //tasksViewModel!!.deleteTask(taskId)
         }
         var teamSearchActive by rememberSaveable {
             mutableStateOf(false)
         }
-        val onTeamSearchActiveChange: (Boolean) -> Unit = {teamSearchActive = it}
+        val onTeamSearchActiveChange: (Boolean) -> Unit = { teamSearchActive = it }
 
-        val newTaskViewModel = viewModel<NewTaskViewModel>(factory = Factory(LocalContext.current.applicationContext, projectId = projectVM.projectId, userId = profileViewModel!!.userId))
-
-        val pagerState = rememberPagerState(pageCount = { items.size }, initialPage = items.indexOfFirst { it.title == startingTab })
-
-
-            if (landscape) LandscapeView(
-                taskQuery = query,
-                onTaskQueryChange = onQueryChange,
-                taskSearchActive = searchActive,
-                onTaskSearchActiveChange = onSearchActiveChange,
-                taskSortingOrder = sortingOrder,
-                onTaskSortingOrderChange = onSortingOrderChange,
-                taskSortingOption = sortingOption,
-                onTaskSortingOptionChange = onSortingOptionChange,
-                taskDeadlineFilter = deadlineFilter,
-                onTaskDeadlineFilterChange = onDeadlineFilterChange,
-                taskStatusFilter = statusFilter,
-                onTaskStatusFilterChange = onStatusFilterChange,
-                taskPriorityFilter = priorityFilter,
-                onTaskPriorityFilterChange = onPriorityFilterChange,
-                taskTagQuery = tagQuery,
-                onTaskTagQueryChange = onTagQueryChange,
-                taskMemberQuery = memberQuery,
-                onTaskMemberQueryChange = onMemberQueryChange,
-                actions = actions,
-                newTaskViewModel = newTaskViewModel,
-                projectVM = projectVM,
-                pagerState = pagerState,
-                onTaskDelete = onTaskDelete,
-                teamSortingOrder = teamSortingOrder,
-                onTeamSortingOrderChange = onTeamSortingOrderChange,
-                teamSortingOption = teamSortingOption,
-                onTeamSortingOptionChange = onTeamSortingOptionChange,
-                teamMemberQuery = teamMemberQuery,
-                onTeamMemberQueryChange = onTeamMemberQueryChange,
-                teamCategoryQuery = teamCategoryQuery,
-                onTeamCategoryQueryChange = onTeamCategoryQueryChange,
-                teamAdminQuery=  teamAdminQuery,
-                onTeamAdminQueryChange= onTeamAdminQueryChange,
-                teamQuery = teamQuery,
-                onTeamQueryChange = onTeamQueryChange,
-                teamSearchActive = teamSearchActive,
-                onTeamSearchActiveChange = onTeamSearchActiveChange,
-                showRecursive = showRecursive,
+        val newTaskViewModel = viewModel<NewTaskViewModel>(
+            factory = Factory(
+                LocalContext.current.applicationContext,
+                projectId = projectVM.projectId,
+                userId = profileViewModel!!.userId
             )
-            else PortraitView(
-                query = query,
-                onQueryChange = onQueryChange,
-                searchActive = searchActive,
-                onSearchActiveChange = onSearchActiveChange,
-                sortingOrder = sortingOrder,
-                onSortingOrderChange = onSortingOrderChange,
-                sortingOption = sortingOption,
-                onSortingOptionChange = onSortingOptionChange,
-                deadlineFilter = deadlineFilter,
-                onDeadlineFilterChange = onDeadlineFilterChange,
-                statusFilter = statusFilter,
-                onStatusFilterChange = onStatusFilterChange,
-                priorityFilter = priorityFilter,
-                onPriorityFilterChange = onPriorityFilterChange,
-                tagQuery = tagQuery,
-                onTagQueryChange = onTagQueryChange,
-                memberQuery = memberQuery,
-                onMemberQueryChange = onMemberQueryChange,
-                actions = actions,
-                pagerState = pagerState,
-                newTaskViewModel = newTaskViewModel,
-                projectVM = projectVM,
-                onTaskDelete = onTaskDelete,
-                teamSortingOrder = teamSortingOrder,
-                onTeamSortingOrderChange = onTeamSortingOrderChange,
-                teamSortingOption = teamSortingOption,
-                onTeamSortingOptionChange = onTeamSortingOptionChange,
-                teamMemberQuery = teamMemberQuery,
-                onTeamMemberQueryChange = onTeamMemberQueryChange,
-                teamCategoryQuery = teamCategoryQuery,
-                onTeamCategoryQueryChange = onTeamCategoryQueryChange,
-                teamAdminQuery=  teamAdminQuery,
-                onTeamAdminQueryChange= onTeamAdminQueryChange,
-                teamQuery = teamQuery,
-                onTeamQueryChange = onTeamQueryChange,
-                teamSearchActive = teamSearchActive,
-                onTeamSearchActiveChange = onTeamSearchActiveChange,
-            )
+        )
+
+        val pagerState = rememberPagerState(pageCount = { items.size },
+            initialPage = items.indexOfFirst { it.title == startingTab })
+
+        var isAddingTeam by rememberSaveable {
+            mutableStateOf(false)
+        }
+
+        val onAddTeamClick: () -> Unit = {
+            isAddingTeam = !isAddingTeam
+        }
+
+
+        if (landscape) LandscapeView(
+            taskQuery = query,
+            onTaskQueryChange = onQueryChange,
+            taskSearchActive = searchActive,
+            onTaskSearchActiveChange = onSearchActiveChange,
+            taskSortingOrder = sortingOrder,
+            onTaskSortingOrderChange = onSortingOrderChange,
+            taskSortingOption = sortingOption,
+            onTaskSortingOptionChange = onSortingOptionChange,
+            taskDeadlineFilter = deadlineFilter,
+            onTaskDeadlineFilterChange = onDeadlineFilterChange,
+            taskStatusFilter = statusFilter,
+            onTaskStatusFilterChange = onStatusFilterChange,
+            taskPriorityFilter = priorityFilter,
+            onTaskPriorityFilterChange = onPriorityFilterChange,
+            taskTagQuery = tagQuery,
+            onTaskTagQueryChange = onTagQueryChange,
+            taskMemberQuery = memberQuery,
+            onTaskMemberQueryChange = onMemberQueryChange,
+            actions = actions,
+            newTaskViewModel = newTaskViewModel,
+            projectVM = projectVM,
+            pagerState = pagerState,
+            onTaskDelete = onTaskDelete,
+            teamSortingOrder = teamSortingOrder,
+            onTeamSortingOrderChange = onTeamSortingOrderChange,
+            teamSortingOption = teamSortingOption,
+            onTeamSortingOptionChange = onTeamSortingOptionChange,
+            teamMemberQuery = teamMemberQuery,
+            onTeamMemberQueryChange = onTeamMemberQueryChange,
+            teamCategoryQuery = teamCategoryQuery,
+            onTeamCategoryQueryChange = onTeamCategoryQueryChange,
+            teamAdminQuery = teamAdminQuery,
+            onTeamAdminQueryChange = onTeamAdminQueryChange,
+            teamQuery = teamQuery,
+            onTeamQueryChange = onTeamQueryChange,
+            teamSearchActive = teamSearchActive,
+            onTeamSearchActiveChange = onTeamSearchActiveChange,
+            showRecursive = showRecursive,
+            isAddingTeam = isAddingTeam,
+            onAddTeamClick = onAddTeamClick,
+        )
+        else PortraitView(
+            query = query,
+            onQueryChange = onQueryChange,
+            searchActive = searchActive,
+            onSearchActiveChange = onSearchActiveChange,
+            sortingOrder = sortingOrder,
+            onSortingOrderChange = onSortingOrderChange,
+            sortingOption = sortingOption,
+            onSortingOptionChange = onSortingOptionChange,
+            deadlineFilter = deadlineFilter,
+            onDeadlineFilterChange = onDeadlineFilterChange,
+            statusFilter = statusFilter,
+            onStatusFilterChange = onStatusFilterChange,
+            priorityFilter = priorityFilter,
+            onPriorityFilterChange = onPriorityFilterChange,
+            tagQuery = tagQuery,
+            onTagQueryChange = onTagQueryChange,
+            memberQuery = memberQuery,
+            onMemberQueryChange = onMemberQueryChange,
+            actions = actions,
+            pagerState = pagerState,
+            newTaskViewModel = newTaskViewModel,
+            projectVM = projectVM,
+            onTaskDelete = onTaskDelete,
+            teamSortingOrder = teamSortingOrder,
+            onTeamSortingOrderChange = onTeamSortingOrderChange,
+            teamSortingOption = teamSortingOption,
+            onTeamSortingOptionChange = onTeamSortingOptionChange,
+            teamMemberQuery = teamMemberQuery,
+            onTeamMemberQueryChange = onTeamMemberQueryChange,
+            teamCategoryQuery = teamCategoryQuery,
+            onTeamCategoryQueryChange = onTeamCategoryQueryChange,
+            teamAdminQuery = teamAdminQuery,
+            onTeamAdminQueryChange = onTeamAdminQueryChange,
+            teamQuery = teamQuery,
+            onTeamQueryChange = onTeamQueryChange,
+            teamSearchActive = teamSearchActive,
+            onTeamSearchActiveChange = onTeamSearchActiveChange,
+            isAddingTeam = isAddingTeam,
+            onAddTeamClick = onAddTeamClick,
+        )
 
     }
 }
@@ -290,7 +316,7 @@ fun LandscapeView(
     pagerState: PagerState,
     newTaskViewModel: NewTaskViewModel,
     projectVM: ProjectViewModel,
-    onTaskDelete: (String)->Unit,
+    onTaskDelete: (String) -> Unit,
     teamSortingOrder: Boolean,
     onTeamSortingOrderChange: (Boolean) -> Unit,
     teamSortingOption: String,
@@ -306,6 +332,8 @@ fun LandscapeView(
     teamSearchActive: Boolean,
     onTeamSearchActiveChange: (Boolean) -> Unit,
     showRecursive: Boolean,
+    isAddingTeam: Boolean,
+    onAddTeamClick: () -> Unit,
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -383,26 +411,27 @@ fun LandscapeView(
                     var sortExpanded by remember {
                         mutableStateOf(false)
                     }
-
-                    TeamsActions(
-                        mainExpanded = mainExpanded,
-                        onMainExpandedChange = { mainExpanded = it },
-                        sortExpanded = sortExpanded,
-                        onSortExpandedChange = { sortExpanded = it },
-                        filterExpanded = filterExpanded,
-                        onFilterExpandedChange = { filterExpanded = it },
-                        sortingOrder = teamSortingOrder,
-                        onSortingOrderChange = onTeamSortingOrderChange,
-                    sortingOption = teamSortingOption,
-                    onSortingOptionChange = onTeamSortingOptionChange,
-                    memberQuery = teamMemberQuery,
-                    onMemberQueryChange = onTeamMemberQueryChange,
-                    categoryQuery = teamCategoryQuery,
-                    onCategoryQueryChange = onTeamCategoryQueryChange,
-                    adminQuery=  teamAdminQuery,
-                    onAdminQueryChange= onTeamAdminQueryChange,
-                    onSearchActiveChange = onTeamSearchActiveChange,
-                    )
+                    if(!projectVM.isEditingTeams) {
+                        TeamsActions(
+                            mainExpanded = mainExpanded,
+                            onMainExpandedChange = { mainExpanded = it },
+                            sortExpanded = sortExpanded,
+                            onSortExpandedChange = { sortExpanded = it },
+                            filterExpanded = filterExpanded,
+                            onFilterExpandedChange = { filterExpanded = it },
+                            sortingOrder = teamSortingOrder,
+                            onSortingOrderChange = onTeamSortingOrderChange,
+                            sortingOption = teamSortingOption,
+                            onSortingOptionChange = onTeamSortingOptionChange,
+                            memberQuery = teamMemberQuery,
+                            onMemberQueryChange = onTeamMemberQueryChange,
+                            categoryQuery = teamCategoryQuery,
+                            onCategoryQueryChange = onTeamCategoryQueryChange,
+                            adminQuery = teamAdminQuery,
+                            onAdminQueryChange = onTeamAdminQueryChange,
+                            onSearchActiveChange = onTeamSearchActiveChange,
+                        )
+                    }
                 }
 
                 3 -> {
@@ -418,26 +447,26 @@ fun LandscapeView(
             when (pagerState.currentPage) {
 
                 0 -> {
-                    if(projectVM.teams.filter { it.users.contains(profileViewModel.userId) }
+                    if (projectVM.teams.filter { it.users.contains(profileViewModel.userId) }
                             .any { it.admin.contains(profileViewModel.userId) })
-                    FloatingActionButton(
-                        onClick = { projectVM.toggleEdit() },
-                        modifier = Modifier
-                            .padding(end = 10.dp),
-                        content = {
-                            if (!projectVM.isEditing)
-                                Icon(
-                                    Icons.Filled.Edit,
-                                    contentDescription = "Edit Project Info"
-                                )
-                            else
-                                Image(
-                                    painterResource(id = R.drawable.round_save_24),
-                                    contentDescription = "Save Changes",
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                                )
-                        }
-                    )
+                        FloatingActionButton(
+                            onClick = { projectVM.toggleEdit() },
+                            modifier = Modifier
+                                .padding(end = 10.dp),
+                            content = {
+                                if (!projectVM.isEditing)
+                                    Icon(
+                                        Icons.Filled.Edit,
+                                        contentDescription = "Edit Project Info"
+                                    )
+                                else
+                                    Image(
+                                        painterResource(id = R.drawable.round_save_24),
+                                        contentDescription = "Save Changes",
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                    )
+                            }
+                        )
                 }
 
                 1 -> {
@@ -472,11 +501,32 @@ fun LandscapeView(
                 }
 
                 2 -> {
+                    if (projectVM.canEditProject() && !teamSearchActive)
+                        FloatingActionButton(
+                            onClick = {
+                                projectVM.toggleEditTeams()
+                            },
+                            modifier = Modifier
+                                .padding(end = 10.dp),
+                            content = {
+                                if (!projectVM.isEditingTeams)
+                                    Icon(
+                                        Icons.Filled.Edit,
+                                        contentDescription = "Edit Project Info"
+                                    )
+                                else
+                                    Image(
+                                        painterResource(id = R.drawable.round_check_circle_outline_24),
+                                        contentDescription = "Stop editing teams",
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                    )
+                            }
+                        )
 
                 }
 
                 3 -> {
-FloatingActionButton(
+                    FloatingActionButton(
                         onClick = {
                             if (!projectVM.isWritingFeedback)
                                 projectVM.toggleIsWritingFeedback()
@@ -539,15 +589,19 @@ FloatingActionButton(
                     LandscapeTeamsView(
                         actions = actions,
                         projectVM = projectVM,
+                        snackbarHostState = snackbarHostState,
                         teamSortingOrder = teamSortingOrder,
                         teamSortingOption = teamSortingOption,
                         teamMemberQuery = teamMemberQuery,
                         teamCategoryQuery = teamCategoryQuery,
-                        teamAdminQuery=  teamAdminQuery,
+                        teamAdminQuery = teamAdminQuery,
                         teamQuery = teamQuery,
                         onTeamQueryChange = onTeamQueryChange,
                         searchActive = teamSearchActive,
-                        onTeamSearchActiveChange = onTeamSearchActiveChange)
+                        onTeamSearchActiveChange = onTeamSearchActiveChange,
+                        isAddingTeam = isAddingTeam,
+                        onAddTeamClick = onAddTeamClick
+                    )
 
                 }
 
@@ -589,7 +643,7 @@ fun PortraitView(
     pagerState: PagerState,
     newTaskViewModel: NewTaskViewModel,
     projectVM: ProjectViewModel,
-    onTaskDelete: (String)->Unit,
+    onTaskDelete: (String) -> Unit,
     teamSortingOrder: Boolean,
     onTeamSortingOrderChange: (Boolean) -> Unit,
     teamSortingOption: String,
@@ -604,6 +658,8 @@ fun PortraitView(
     onTeamQueryChange: (String) -> Unit,
     teamSearchActive: Boolean,
     onTeamSearchActiveChange: (Boolean) -> Unit,
+    isAddingTeam: Boolean,
+    onAddTeamClick: () -> Unit,
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -678,42 +734,44 @@ fun PortraitView(
 
 
                 2 -> {
-                    var mainExpanded by remember {
-                        mutableStateOf(false)
-                    }
-                    var filterExpanded by remember {
-                        mutableStateOf(false)
-                    }
-                    var sortExpanded by remember {
-                        mutableStateOf(false)
-                    }
+                    if(!projectVM.isEditingTeams) {
+                        var mainExpanded by remember {
+                            mutableStateOf(false)
+                        }
+                        var filterExpanded by remember {
+                            mutableStateOf(false)
+                        }
+                        var sortExpanded by remember {
+                            mutableStateOf(false)
+                        }
 
-                    TeamsActions(
-                        mainExpanded = mainExpanded,
-                        onMainExpandedChange = { mainExpanded = it },
-                        sortExpanded = sortExpanded,
-                        onSortExpandedChange = { sortExpanded = it },
-                        filterExpanded = filterExpanded,
-                        onFilterExpandedChange = { filterExpanded = it },
-                        sortingOrder = teamSortingOrder,
-                        onSortingOrderChange = onTeamSortingOrderChange,
-                        sortingOption = teamSortingOption,
-                        onSortingOptionChange = onTeamSortingOptionChange,
-                        memberQuery = teamMemberQuery,
-                        onMemberQueryChange = onTeamMemberQueryChange,
-                        categoryQuery = teamCategoryQuery,
-                        onCategoryQueryChange = onTeamCategoryQueryChange,
-                        adminQuery=  teamAdminQuery,
-                        onAdminQueryChange= onTeamAdminQueryChange,
-                        onSearchActiveChange = onTeamSearchActiveChange,
-                    )
+                        TeamsActions(
+                            mainExpanded = mainExpanded,
+                            onMainExpandedChange = { mainExpanded = it },
+                            sortExpanded = sortExpanded,
+                            onSortExpandedChange = { sortExpanded = it },
+                            filterExpanded = filterExpanded,
+                            onFilterExpandedChange = { filterExpanded = it },
+                            sortingOrder = teamSortingOrder,
+                            onSortingOrderChange = onTeamSortingOrderChange,
+                            sortingOption = teamSortingOption,
+                            onSortingOptionChange = onTeamSortingOptionChange,
+                            memberQuery = teamMemberQuery,
+                            onMemberQueryChange = onTeamMemberQueryChange,
+                            categoryQuery = teamCategoryQuery,
+                            onCategoryQueryChange = onTeamCategoryQueryChange,
+                            adminQuery = teamAdminQuery,
+                            onAdminQueryChange = onTeamAdminQueryChange,
+                            onSearchActiveChange = onTeamSearchActiveChange,
+                        )
+                    }
                 }
 
                 3 -> {
 
                 }
 
-                4-> {
+                4 -> {
                     PerformanceActions()
                 }
             }
@@ -722,32 +780,31 @@ fun PortraitView(
             when (pagerState.currentPage) {
 
                 0 -> {
-                   if(projectVM.teams.filter { it.users.contains(profileViewModel.userId) }
-                        .any { it.admin.contains(profileViewModel.userId) })
-                    FloatingActionButton(
-                        onClick = {
-                            if (!projectVM.isEditing)
-                                projectVM.toggleEdit()
-                            else {
-                                projectVM.checkAll()
+                    if (projectVM.canEditProject())
+                        FloatingActionButton(
+                            onClick = {
+                                if (!projectVM.isEditing)
+                                    projectVM.toggleEdit()
+                                else {
+                                    projectVM.checkAll()
+                                }
+                            },
+                            modifier = Modifier
+                                .padding(end = 10.dp),
+                            content = {
+                                if (!projectVM.isEditing)
+                                    Icon(
+                                        Icons.Filled.Edit,
+                                        contentDescription = "Edit Project Info"
+                                    )
+                                else
+                                    Image(
+                                        painterResource(id = R.drawable.round_save_24),
+                                        contentDescription = "Save Changes",
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                    )
                             }
-                        },
-                        modifier = Modifier
-                            .padding(end = 10.dp),
-                        content = {
-                            if (!projectVM.isEditing)
-                                Icon(
-                                    Icons.Filled.Edit,
-                                    contentDescription = "Edit Project Info"
-                                )
-                            else
-                                Image(
-                                    painterResource(id = R.drawable.round_save_24),
-                                    contentDescription = "Save Changes",
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                                )
-                        }
-                    )
+                        )
                 }
 
                 1 -> {
@@ -780,8 +837,30 @@ fun PortraitView(
                 }
 
                 2 -> {
+                    if (projectVM.canEditProject() && !teamSearchActive)
+                        FloatingActionButton(
+                            onClick = {
+                                projectVM.toggleEditTeams()
+                            },
+                            modifier = Modifier
+                                .padding(end = 10.dp),
+                            content = {
+                                if (!projectVM.isEditingTeams)
+                                    Icon(
+                                        Icons.Filled.Edit,
+                                        contentDescription = "Edit Project Info"
+                                    )
+                                else
+                                    Image(
+                                        painterResource(id = R.drawable.round_check_circle_outline_24),
+                                        contentDescription = "Stop editing teams",
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                    )
+                            }
+                        )
 
                 }
+
                 3 -> {
                     FloatingActionButton(
                         onClick = {
@@ -810,60 +889,65 @@ fun PortraitView(
     ) {
 
         HorizontalPager(state = pagerState, pageSpacing = 10.dp) {
-                when (it) {
+            when (it) {
 
-                    0 -> {
-                        PortraitProjectInfoView(
-                            actions = actions,
-                            projectVM = projectVM,
-                        )
-                    }
-
-                    1 -> {
-
-                        PortraitTasksView(
-                            actions = actions,
-                            query = query,
-                            snackbarHostState = snackbarHostState,
-                            onQueryChange = onQueryChange,
-                            searchActive = searchActive,
-                            onSearchActiveChange = onSearchActiveChange,
-                            newTaskVM = newTaskViewModel,
-                            projectVM = projectVM,
-                            sortingOrder = sortingOrder,
-                            sortingOption = sortingOption,
-                            deadlineFilter = deadlineFilter,
-                            statusFilter = statusFilter,
-                            priorityFilter = priorityFilter,
-                            tagQuery = tagQuery,
-                            memberQuery = memberQuery,
-                            onTaskDelete = onTaskDelete,
-                        )
-                    }
-
-
-                    2 -> {
-                        PortraitTeamsView(actions = actions,
-                            projectVM = projectVM,
-                            teamSortingOrder = teamSortingOrder,
-                            teamSortingOption = teamSortingOption,
-                            teamMemberQuery = teamMemberQuery,
-                            teamCategoryQuery = teamCategoryQuery,
-                            teamAdminQuery=  teamAdminQuery,
-                            teamQuery = teamQuery,
-                            onTeamQueryChange = onTeamQueryChange,
-                            searchActive = teamSearchActive,
-                            onTeamSearchActiveChange = onTeamSearchActiveChange)
-                    }
-
-                    3 -> {
-                        FeedbacksView(actions = actions, projectVM = projectVM)
-                    }
-
-                    4 -> {
-                        PerformanceView(actions = actions, projectVM = projectVM)
-                    }
+                0 -> {
+                    PortraitProjectInfoView(
+                        actions = actions,
+                        projectVM = projectVM,
+                    )
                 }
+
+                1 -> {
+
+                    PortraitTasksView(
+                        actions = actions,
+                        query = query,
+                        snackbarHostState = snackbarHostState,
+                        onQueryChange = onQueryChange,
+                        searchActive = searchActive,
+                        onSearchActiveChange = onSearchActiveChange,
+                        newTaskVM = newTaskViewModel,
+                        projectVM = projectVM,
+                        sortingOrder = sortingOrder,
+                        sortingOption = sortingOption,
+                        deadlineFilter = deadlineFilter,
+                        statusFilter = statusFilter,
+                        priorityFilter = priorityFilter,
+                        tagQuery = tagQuery,
+                        memberQuery = memberQuery,
+                        onTaskDelete = onTaskDelete,
+                    )
+                }
+
+
+                2 -> {
+                    PortraitTeamsView(
+                        actions = actions,
+                        projectVM = projectVM,
+                        snackbarHostState = snackbarHostState,
+                        teamSortingOrder = teamSortingOrder,
+                        teamSortingOption = teamSortingOption,
+                        teamMemberQuery = teamMemberQuery,
+                        teamCategoryQuery = teamCategoryQuery,
+                        teamAdminQuery = teamAdminQuery,
+                        teamQuery = teamQuery,
+                        onTeamQueryChange = onTeamQueryChange,
+                        searchActive = teamSearchActive,
+                        onTeamSearchActiveChange = onTeamSearchActiveChange,
+                        isAddingTeam = isAddingTeam,
+                        onAddTeamClick = onAddTeamClick
+                    )
+                }
+
+                3 -> {
+                    FeedbacksView(actions = actions, projectVM = projectVM)
+                }
+
+                4 -> {
+                    PerformanceView(actions = actions, projectVM = projectVM)
+                }
+            }
         }
     }
 }
