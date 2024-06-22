@@ -51,6 +51,8 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     var teams = mutableStateListOf<Team>()
     private set
 
+    fun getProjectTeams() = projectsViewModel.getProjectTeams(projectId)
+
     var members = mutableStateMapOf<String, User>()
     private set
 
@@ -73,12 +75,14 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
                 tasks.addAll(it.values.toMutableStateList())
             }
         }
+
         viewModelScope.launch {
             projectsViewModel.getProjectTeams(projectId).collect {
                 teams.clear()
                 teams.addAll(it.values.toMutableStateList())
             }
         }
+
         viewModelScope.launch {
             projectsViewModel.getProjectMembers(projectId).collect {
                 members.clear()
@@ -102,12 +106,28 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     var projectColor by mutableStateOf(ProjectColors.PURPLE)
         private set
 
+    fun canEditProject() : Boolean {
+        return teams.filter { it.users.contains(profileViewModel.userId) }
+            .any { it.admin.contains(profileViewModel.userId) }
+    }
+
     var isEditing by mutableStateOf(false)
         private set
 
     fun toggleEdit() {
         isEditing = !isEditing
     }
+
+    var isEditingTeams by mutableStateOf(false)
+        private set
+
+    fun toggleEditTeams() {
+        isEditingTeams = !isEditingTeams
+    }
+
+    suspend fun removeTeam(teamId: String) = model.removeTeamFromProject(projectId, teamId)
+
+    suspend fun addTeam(teamId: String) = model.addTeamToProject(projectId, teamId)
 
     var isEditingEndDate by mutableStateOf(false)
         private set

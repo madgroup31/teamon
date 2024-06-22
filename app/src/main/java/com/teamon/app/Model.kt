@@ -311,6 +311,74 @@ class Model(val context: Context) {
         }
     }
 
+    suspend fun addTeamToProject(projectId: String, teamId: String): Boolean {
+        // Recupera il riferimento al documento del progetto
+        val projectRef = db.collection("projects").document(projectId)
+
+        // Esegui un'operazione atomica per evitare problemi di concorrenza
+        return db.runTransaction { transaction ->
+            // Recupera il progetto
+            val snapshot = transaction.get(projectRef)
+            val project = snapshot.toObject(Project::class.java)
+
+            // Verifica se il progetto esiste
+            if (project != null) {
+                // Verifica se il team non è già nella lista
+                if (!project.teams.contains(teamId)) {
+                    // Aggiungi il team all'elenco
+                    val updatedTeams = project.teams.toMutableList()
+                    updatedTeams.add(teamId)
+
+                    // Aggiorna l'oggetto Project
+                    val updatedProject = project.copy(teams = updatedTeams)
+
+                    // Aggiorna il documento nel database
+                    transaction.set(projectRef, updatedProject)
+
+                    // Restituisce true se l'operazione è andata a buon fine
+                    return@runTransaction true
+                }
+            }
+
+            // Restituisce false se il progetto non esiste o se il team è già presente nella lista
+            return@runTransaction false
+        }.await()
+    }
+
+    suspend fun removeTeamFromProject(projectId: String, teamId: String): Boolean {
+        // Recupera il riferimento al documento del progetto
+        val projectRef = db.collection("projects").document(projectId)
+
+        // Esegui un'operazione atomica per evitare problemi di concorrenza
+        return db.runTransaction { transaction ->
+            // Recupera il progetto
+            val snapshot = transaction.get(projectRef)
+            val project = snapshot.toObject(Project::class.java)
+
+            // Verifica se il progetto esiste
+            if (project != null) {
+                // Verifica se ci sono almeno due team
+                if (project.teams.size > 1 && project.teams.contains(teamId)) {
+                    // Rimuovi il team dall'elenco
+                    val updatedTeams = project.teams.toMutableList()
+                    updatedTeams.remove(teamId)
+
+                    // Aggiorna l'oggetto Project
+                    val updatedProject = project.copy(teams = updatedTeams)
+
+                    // Aggiorna il documento nel database
+                    transaction.set(projectRef, updatedProject)
+
+                    // Restituisce true se l'operazione è andata a buon fine
+                    return@runTransaction true
+                }
+            }
+
+            // Restituisce false se il progetto non esiste, se c'è solo un team o il team è stato già rimosso dalla lista
+            return@runTransaction false
+        }.await()
+    }
+
     fun getHistory(historyId: String): Flow<History> = callbackFlow {
         val listener = db
             .collection("history")

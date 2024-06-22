@@ -34,7 +34,7 @@ fun SearchBar(modifier: Modifier = Modifier, placeholder: String = "Search...", 
         colors = SearchBarDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow, dividerColor = MaterialTheme.colorScheme.surfaceContainer),
         trailingIcon = { Icon(Icons.Rounded.Search, contentDescription = "Search tasks") },
         leadingIcon = {
-            if(query != "")
+            //if(query != "")
                 IconButton(onClick = { onSearchActiveChange(false) }) {
                     Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back from search")
                 }
