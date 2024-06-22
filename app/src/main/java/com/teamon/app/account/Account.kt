@@ -100,18 +100,15 @@ fun AccountView(actions: Actions, userVm: UserViewModel? = null, signUp: Boolean
                         .addOnCompleteListener { location ->
                             CoroutineScope(Dispatchers.IO).launch {
                                 val l = location.await()
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    Geocoder(context, Locale.getDefault()).getFromLocation(
-                                        l.latitude,
-                                        l.longitude,
-                                        1
-                                    ) {
-                                        val cityName = it.first()?.locality
-                                        if(cityName != null)
-                                            profileViewModel.setLocation( cityName )
-                                    }
-                                }
-                                else profileViewModel.setLocation("")
+
+                                val cityName = Geocoder(context, Locale.getDefault()).getFromLocation(
+                                    l.latitude,
+                                    l.longitude,
+                                    1
+                                )
+                                val value = cityName?.first()?.locality
+                                if(value != null)
+                                    profileViewModel.setLocation(value)
                             }
                         }
                 } catch (e: Exception) {
