@@ -521,14 +521,16 @@ fun NewAccountPersonalInformation(orientation: Orientation, userVm: NewAccountVi
                             CoroutineScope(Dispatchers.IO).launch {
                                 val l = location.await()
 
-                                    val cityName = Geocoder(context, Locale.getDefault()).getFromLocation(
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    Geocoder(context, Locale.getDefault()).getFromLocation(
                                         l.latitude,
                                         l.longitude,
                                         1
-                                    )
-                                    val value = cityName?.first()?.locality
-                                    if(value != null)
-                                        userVm.setLocation(value)
+                                    ) {
+                                        userVm.setLocation(it.first()?.locality?:"")
+                                    }
+                                }
+                                else userVm.setLocation("")
                             }
                         }
                 } catch (e: Exception) {
