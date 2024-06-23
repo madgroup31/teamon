@@ -35,44 +35,51 @@ fun TopBar(
     orientation: Orientation,
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
     leadingTopBarActions: @Composable () -> Unit = {},
-    trailingTopBarActions: @Composable RowScope.() -> Unit = {}) {
+    trailingTopBarActions: @Composable RowScope.() -> Unit = {}
+) {
     val context = LocalContext.current
 
     var isConnected by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
 
-            networkConnectivityFlow(context).collect { status ->
-                isConnected = status
-            }
+        networkConnectivityFlow(context).collect { status ->
+            isConnected = status
+        }
 
     }
 
-    if(orientation == Orientation.LANDSCAPE || composableTitle != null)
+    if (orientation == Orientation.LANDSCAPE || composableTitle != null)
         CenterAlignedTopAppBar(
             scrollBehavior = scrollBehavior,
             colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        ),
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
             title = {
-                if(composableTitle == null)
-                    Text(text = title, style = MaterialTheme.typography.headlineSmall, overflow = TextOverflow.Ellipsis, maxLines = 1)
+                if (composableTitle == null)
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
                 else
                     composableTitle()
             },
             navigationIcon = leadingTopBarActions,
             actions = {
-
+                if(!isConnected)
                 IconButton(onClick = {
                     CoroutineScope(Dispatchers.Main).launch {
-                        snackbarHostState.showSnackbar(if(isConnected) "Good internet connection! Data is up to date." else "No internet connection! Some functions are not available or limited.")
+                        snackbarHostState.showSnackbar("No internet connection! Some functions are not available or limited.")
                     }
                 }) {
                     Image(
-                        painter = painterResource(id = if(isConnected) R.drawable.ic_cloud_done else R.drawable.ic_cloud_off),
+                        painter = painterResource(id = R.drawable.ic_cloud_off),
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                        contentDescription = "Good internet connection")
+                        contentDescription = "Good internet connection"
+                    )
                 }
                 trailingTopBarActions()
             })
@@ -84,22 +91,27 @@ fun TopBar(
             titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         ),
         title = {
-            if(composableTitle == null)
-                Text(text = title, style = MaterialTheme.typography.headlineSmall, overflow = TextOverflow.Ellipsis, maxLines = 1)
-            else
-                composableTitle() },
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        },
         navigationIcon = leadingTopBarActions,
         actions = {
-
-            IconButton(onClick = {
-                CoroutineScope(Dispatchers.Main).launch {
-                    snackbarHostState.showSnackbar(if(isConnected) "Good internet connection! Data is up to date." else "No internet connection! Some functionalities are limited or not available.")
+            if (!isConnected)
+                IconButton(onClick = {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        snackbarHostState.showSnackbar("No internet connection! Some functionalities are limited or not available.")
+                    }
+                }) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_cloud_off),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                        contentDescription = "Good internet connection"
+                    )
                 }
-            }) {
-                Image(painter = painterResource(id = if(isConnected) R.drawable.ic_cloud_done else R.drawable.ic_cloud_off),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                    contentDescription = "Good internet connection")
-            }
             trailingTopBarActions()
         }
     )

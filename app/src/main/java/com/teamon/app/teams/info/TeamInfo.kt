@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -43,13 +41,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -59,28 +55,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.palette.graphics.Palette
 import com.teamon.app.R
-import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.account.createImageFile
-import com.teamon.app.profileViewModel
 import com.teamon.app.teams.saveImageToGallery
 import com.teamon.app.utils.graphics.AnimatedItem
+import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.utils.graphics.LoadingOverlay
 import com.teamon.app.utils.graphics.StorageAccess
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.UploadStatus
-import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.graphics.getStorageAccess
 import com.teamon.app.utils.graphics.toProjectColor
 import com.teamon.app.utils.viewmodels.TeamViewModel
 import java.util.Objects
-
-@Composable
-fun InfoActions() {
-
-}
 
 @Composable
 fun TeamInfo(teamVM: TeamViewModel, snackbarHostState: SnackbarHostState) {
@@ -105,21 +93,20 @@ fun TeamInfo(teamVM: TeamViewModel, snackbarHostState: SnackbarHostState) {
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            uri?.let {
-                var originalBitmap: Bitmap =
-                    Bitmap.createBitmap(1024, 1024, Bitmap.Config.ARGB_8888)
+        onResult = { result ->
+            result?.let {
+                val originalBitmap: Bitmap
                 val stream =
                     context.contentResolver.openInputStream(it)
                 originalBitmap = BitmapFactory.decodeStream(stream)
 
                 val convertedBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
 
-                convertedBitmap?.let {
-                    val palette = Palette.from(it).generate()
+                convertedBitmap?.let { bitmap ->
+                    val palette = Palette.from(bitmap).generate()
                     val dominantColor = palette.getDominantColor(0)
                     val color = dominantColor.toProjectColor()
-                    teamVM.setTeamImage(ImageSource.LIBRARY, uri, context, color)
+                    teamVM.setTeamImage(ImageSource.LIBRARY, result, context, color)
                 }
             }
         }
@@ -138,16 +125,15 @@ fun TeamInfo(teamVM: TeamViewModel, snackbarHostState: SnackbarHostState) {
                     ),
                     file.name
                 )
-                var originalBitmap: Bitmap =
-                    Bitmap.createBitmap(1024, 1024, Bitmap.Config.ARGB_8888)
+                val originalBitmap: Bitmap
                 val stream =
                     context.contentResolver.openInputStream(uri)
                 originalBitmap = BitmapFactory.decodeStream(stream)
 
                 val convertedBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
 
-                convertedBitmap?.let {
-                    val palette = Palette.from(it).generate()
+                convertedBitmap?.let { bitmap ->
+                    val palette = Palette.from(bitmap).generate()
                     val dominantColor = palette.getDominantColor(0)
                     val color = dominantColor.toProjectColor()
                     teamVM.setTeamImage(ImageSource.CAMERA, uri, context, color)

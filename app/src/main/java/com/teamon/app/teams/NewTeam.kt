@@ -1,9 +1,7 @@
 package com.teamon.app.teams
 
-import android.Manifest
 import android.content.ContentValues
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
@@ -33,16 +31,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -56,7 +49,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -65,21 +57,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.palette.graphics.Palette
-import com.teamon.app.Actions
 import com.teamon.app.R
-import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.account.createImageFile
-import com.teamon.app.utils.viewmodels.NewTeamViewModel
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.classes.User
+import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.utils.graphics.StorageAccess
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.getStorageAccess
 import com.teamon.app.utils.graphics.toProjectColor
+import com.teamon.app.utils.viewmodels.NewTeamViewModel
 import java.io.File
 import java.util.Objects
 import java.util.UUID
@@ -111,7 +101,7 @@ fun saveImageToGallery(context: Context, bitmap: Bitmap, filename: String) {
 }
 
 @Composable
-fun ModalBottomSheetContentTeam(actions: Actions, newTeamVM: NewTeamViewModel) {
+fun ModalBottomSheetContentTeam(newTeamVM: NewTeamViewModel) {
 
     val scrollState = rememberScrollState()
 
@@ -127,10 +117,9 @@ fun ModalBottomSheetContentTeam(actions: Actions, newTeamVM: NewTeamViewModel) {
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            uri?.let {
-                var originalBitmap: Bitmap =
-                    Bitmap.createBitmap(1024, 1024, Bitmap.Config.ARGB_8888)
+        onResult = { result ->
+            result?.let { it ->
+                val originalBitmap: Bitmap
                 val stream =
                     context.contentResolver.openInputStream(it)
                 originalBitmap = BitmapFactory.decodeStream(stream)
@@ -141,7 +130,7 @@ fun ModalBottomSheetContentTeam(actions: Actions, newTeamVM: NewTeamViewModel) {
                     val palette = Palette.from(it).generate()
                     val dominantColor = palette.getDominantColor(0)
                     val color = dominantColor.toProjectColor()
-                    newTeamVM.setTeamImage(ImageSource.LIBRARY, uri, color)
+                    newTeamVM.setTeamImage(ImageSource.LIBRARY, result, color)
                 }
                 expanded = false
             }
@@ -161,16 +150,15 @@ fun ModalBottomSheetContentTeam(actions: Actions, newTeamVM: NewTeamViewModel) {
                     ),
                     file.name
                 )
-                var originalBitmap: Bitmap =
-                    Bitmap.createBitmap(1024, 1024, Bitmap.Config.ARGB_8888)
+                val originalBitmap: Bitmap
                 val stream =
                     context.contentResolver.openInputStream(uri)
                 originalBitmap = BitmapFactory.decodeStream(stream)
 
                 val convertedBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
 
-                convertedBitmap?.let {
-                    val palette = Palette.from(it).generate()
+                convertedBitmap?.let { bitmap ->
+                    val palette = Palette.from(bitmap).generate()
                     val dominantColor = palette.getDominantColor(0)
                     val color = dominantColor.toProjectColor()
                     newTeamVM.setTeamImage(ImageSource.CAMERA, uri, color)
@@ -179,7 +167,7 @@ fun ModalBottomSheetContentTeam(actions: Actions, newTeamVM: NewTeamViewModel) {
             }
         }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
+    rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
         if (it) {
@@ -190,15 +178,14 @@ fun ModalBottomSheetContentTeam(actions: Actions, newTeamVM: NewTeamViewModel) {
     }
 
     // Register ActivityResult handler
-    val requestPermissions =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
-            // Handle permission requests results
-            if (getStorageAccess(context) == StorageAccess.Full || getStorageAccess(context) == StorageAccess.Partial) {
-                galleryLauncher.launch("image/*")
-            } else {
-                Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-            }
+    rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
+        // Handle permission requests results
+        if (getStorageAccess(context) == StorageAccess.Full || getStorageAccess(context) == StorageAccess.Partial) {
+            galleryLauncher.launch("image/*")
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
         }
+    }
 
 
 
@@ -543,7 +530,7 @@ fun MemberTeam(
     newTeamVM: NewTeamViewModel
 ) {
 
-    var userId = profileViewModel!!.userId //me
+    val userId = profileViewModel.userId //me
     val me = userId == user.userId
 
     val fullName = if (me) {
@@ -562,12 +549,12 @@ fun MemberTeam(
                     modifier = Modifier
                         .size(50.dp)
                         .clip(CircleShape),
-                    source = profileViewModel!!.profileImageSource,
-                    uri = profileViewModel!!.profileImageUri,
-                    name = profileViewModel!!.nameValue,
+                    source = profileViewModel.profileImageSource,
+                    uri = profileViewModel.profileImageUri,
+                    name = profileViewModel.nameValue,
                     color = profileViewModel.color,
-                    surname = profileViewModel!!.surnameValue,
-                    description = profileViewModel!!.nameValue + " " + profileViewModel!!.surnameValue + " profile image")
+                    surname = profileViewModel.surnameValue,
+                    description = profileViewModel.nameValue + " " + profileViewModel.surnameValue + " profile image")
             }
             else if(user.profileImage != null)
             {

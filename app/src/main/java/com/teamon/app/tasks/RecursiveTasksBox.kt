@@ -41,16 +41,13 @@ import androidx.compose.ui.zIndex
 import com.teamon.app.Actions
 import com.teamon.app.prefs
 import com.teamon.app.utils.classes.Task
-import com.teamon.app.utils.graphics.Orientation
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun RecursiveTasksBox(
     tasks: List<Task> = listOf(),
-    orientation: Orientation = Orientation.PORTRAIT,
     actions: Actions,
-    snackbarHostState: SnackbarHostState,
-    onTaskDelete: (String) -> Unit
+    snackbarHostState: SnackbarHostState
 ) {
     val animate = prefs.getBoolean("animate", true)
     var expanded by remember { mutableStateOf(false) }
@@ -59,7 +56,7 @@ fun RecursiveTasksBox(
         animationSpec = if (animate) spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
-        ) else snap()
+        ) else snap(), label = ""
     )
 
     Card(
@@ -100,14 +97,14 @@ fun RecursiveTasksBox(
                     animationSpec = if (animate) spring(
                         dampingRatio = Spring.DampingRatioLowBouncy,
                         stiffness = Spring.StiffnessLow
-                    ) else snap()
+                    ) else snap(), label = ""
                 )
                 val padding: Dp by animateDpAsState(
                     targetValue = if (!expanded) (index * 10).dp else 0.dp,
                     animationSpec = if (animate) spring(
                         dampingRatio = Spring.DampingRatioLowBouncy,
                         stiffness = Spring.StiffnessLow
-                    ) else snap()
+                    ) else snap(), label = ""
                 )
                 Box(
                     modifier = Modifier
@@ -120,19 +117,15 @@ fun RecursiveTasksBox(
                 ) {
                     if (expanded)
                         TaskCard(
-                            orientation = orientation,
-                            actions = actions,
                             taskId = it.taskId,
-                            onTaskDelete = onTaskDelete,
+                            actions = actions,
                             snackbarHostState = snackbarHostState
                         )
                     else
                         TaskCard(
-                            orientation = orientation,
-                            setView = { expanded = it },
-                            actions = actions,
                             taskId = it.taskId,
-                            onTaskDelete = onTaskDelete,
+                            actions = actions,
+                            setView = { expanded = it },
                             snackbarHostState = snackbarHostState
                         )
                 }

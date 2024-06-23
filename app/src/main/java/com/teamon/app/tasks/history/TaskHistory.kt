@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.teamon.app.tasks.history
 
 import androidx.compose.foundation.layout.Arrangement
@@ -75,7 +77,7 @@ fun TaskHistory(history: List<History>) {
             columns = StaggeredGridCells.Adaptive(400.dp),
             items = history.sortedBy { it.timestamp }.reversed()
                 .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()
-        ) { it, index ->
+        ) { it, _ ->
             val list = it as List<History>
             Column {
                 DayHeader(list.first().timestamp.asPastRelativeDate())

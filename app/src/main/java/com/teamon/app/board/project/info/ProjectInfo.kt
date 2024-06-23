@@ -34,7 +34,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -48,18 +47,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
-import com.teamon.app.prefs
-import com.teamon.app.utils.viewmodels.ProjectViewModel
 import com.teamon.app.profileViewModel
 import com.teamon.app.tasks.info.MyDatePickerDialog
-import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.SearchBar
+import com.teamon.app.utils.graphics.TeamOnImage
+import com.teamon.app.utils.viewmodels.ProjectViewModel
 import kotlin.math.ceil
 import kotlin.math.log
 
@@ -68,7 +65,7 @@ fun PortraitProjectInfoView(
     projectVM: ProjectViewModel,
     actions: Actions
 ) {
-    val teams = projectVM.teams
+    projectVM.teams
     val users = projectVM.members.values.sortedBy { it.name + " " + it.surname }.toList()
     var listExpanded by remember { mutableStateOf(false) }
 
@@ -255,17 +252,17 @@ fun PortraitProjectInfoView(
             }
         }
 
-        var size = if (listExpanded) users.size
+        val size = if (listExpanded) users.size
         else ceil(log(users.size.toDouble(), 2.0)).toInt()
 
-        if (users.size < 1) {
+        if (users.isEmpty()) {
             item {
                 AnimatedItem(index = 3) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Start
                     ) {
-                        Text("No users partecipating yet.", textAlign = TextAlign.Center)
+                        Text("No users participating yet.", textAlign = TextAlign.Center)
                     }
                 }
             }
@@ -314,7 +311,7 @@ fun PortraitProjectInfoView(
                     val isAdmin = projectVM.teams.filter { it.users.contains(user.userId) }
                         .any { it.admin.contains(user.userId) }
 
-                    val me = profileViewModel!!.userId == user.userId
+                    val me = profileViewModel.userId == user.userId
                     val selectedNavItem =
                         actions.navCont.currentBackStackEntry?.destination?.route?.split("/")
                             ?.first()
@@ -347,7 +344,7 @@ fun PortraitProjectInfoView(
                                                 .height(70.dp),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            val image = user.profileImage
+                                            user.profileImage
                                             if (me) {
                                                 TeamOnImage(
                                                     modifier = if (isAdmin) Modifier
@@ -361,10 +358,10 @@ fun PortraitProjectInfoView(
                                                     else Modifier
                                                         .size(50.dp)
                                                         .clip(CircleShape),
-                                                    source = profileViewModel!!.profileImageSource,
-                                                    uri = profileViewModel!!.profileImageUri,
-                                                    name = profileViewModel!!.nameValue,
-                                                    surname = profileViewModel!!.surnameValue,
+                                                    source = profileViewModel.profileImageSource,
+                                                    uri = profileViewModel.profileImageUri,
+                                                    name = profileViewModel.nameValue,
+                                                    surname = profileViewModel.surnameValue,
                                                     color = profileViewModel.color,
                                                     description = "My Profile Picture"
                                                 )
@@ -503,7 +500,7 @@ fun PortraitProjectInfoView(
                                         team.users.contains(user.userId) && team.admin.contains(user.userId)
                                     }
 
-                                    val me = profileViewModel!!.userId == user.userId
+                                    val me = profileViewModel.userId == user.userId
                                     val selectedNavItem =
                                         actions.navCont.currentBackStackEntry?.destination?.route?.split(
                                             "/"
@@ -546,11 +543,11 @@ fun PortraitProjectInfoView(
                                                                 else Modifier
                                                                     .size(50.dp)
                                                                     .clip(CircleShape),
-                                                                source = profileViewModel!!.profileImageSource,
+                                                                source = profileViewModel.profileImageSource,
                                                                 color = profileViewModel.color,
-                                                                uri = profileViewModel!!.profileImageUri,
-                                                                name = profileViewModel!!.nameValue,
-                                                                surname = profileViewModel!!.surnameValue,
+                                                                uri = profileViewModel.profileImageUri,
+                                                                name = profileViewModel.nameValue,
+                                                                surname = profileViewModel.surnameValue,
                                                                 description = "My Profile Picture"
                                                             )
                                                         } else {
@@ -683,8 +680,8 @@ fun PortraitProjectInfoView(
         actions: Actions,
     ) {
 
-        val userId = profileViewModel.userId
-        val teams = projectVM.teams
+        profileViewModel.userId
+        projectVM.teams
         val users = projectVM.members.values.sortedBy { it.name + " " + it.surname }.toList()
 
         var searchActive by rememberSaveable { mutableStateOf(false) }
@@ -871,17 +868,17 @@ fun PortraitProjectInfoView(
                 }
             }
 
-            var size = if (listExpanded) users.size
+            val size = if (listExpanded) users.size
             else ceil(log(users.size.toDouble(), 2.0)).toInt()
 
-            if (users.size < 1) {
+            if (users.isEmpty()) {
                 item {
                     AnimatedItem(index = 3) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Start
                         ) {
-                            Text("No users partecipating yet.", textAlign = TextAlign.Center)
+                            Text("No users participating yet.", textAlign = TextAlign.Center)
                         }
                     }
                 }
@@ -930,7 +927,7 @@ fun PortraitProjectInfoView(
                         val isAdmin = projectVM.teams.filter { it.users.contains(user.userId) }
                             .any { it.admin.contains(user.userId) }
 
-                        val me = profileViewModel!!.userId == user.userId
+                        val me = profileViewModel.userId == user.userId
                         val selectedNavItem =
                             actions.navCont.currentBackStackEntry?.destination?.route?.split("/")
                                 ?.first()
@@ -963,7 +960,7 @@ fun PortraitProjectInfoView(
                                                     .height(70.dp),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                val image = user.profileImage
+                                                user.profileImage
                                                 if (me) {
                                                     TeamOnImage(
                                                         modifier = if (isAdmin) Modifier
@@ -977,11 +974,11 @@ fun PortraitProjectInfoView(
                                                         else Modifier
                                                             .size(50.dp)
                                                             .clip(CircleShape),
-                                                        source = profileViewModel!!.profileImageSource,
+                                                        source = profileViewModel.profileImageSource,
                                                         color = profileViewModel.color,
-                                                        uri = profileViewModel!!.profileImageUri,
-                                                        name = profileViewModel!!.nameValue,
-                                                        surname = profileViewModel!!.surnameValue,
+                                                        uri = profileViewModel.profileImageUri,
+                                                        name = profileViewModel.nameValue,
+                                                        surname = profileViewModel.surnameValue,
                                                         description = "My Profile Picture"
                                                     )
                                                 } else {
@@ -1119,7 +1116,7 @@ fun PortraitProjectInfoView(
                                             team.users.contains(user.userId) && team.admin.contains(user.userId)
                                         }
 
-                                        val me = profileViewModel!!.userId == user.userId
+                                        val me = profileViewModel.userId == user.userId
                                         val selectedNavItem =
                                             actions.navCont.currentBackStackEntry?.destination?.route?.split(
                                                 "/"
@@ -1162,11 +1159,11 @@ fun PortraitProjectInfoView(
                                                                     else Modifier
                                                                         .size(50.dp)
                                                                         .clip(CircleShape),
-                                                                    source = profileViewModel!!.profileImageSource,
-                                                                    uri = profileViewModel!!.profileImageUri,
+                                                                    source = profileViewModel.profileImageSource,
+                                                                    uri = profileViewModel.profileImageUri,
                                                                     color = profileViewModel.color,
-                                                                    name = profileViewModel!!.nameValue,
-                                                                    surname = profileViewModel!!.surnameValue,
+                                                                    name = profileViewModel.nameValue,
+                                                                    surname = profileViewModel.surnameValue,
                                                                     description = "My Profile Picture"
                                                                 )
                                                             } else {

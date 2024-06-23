@@ -12,7 +12,6 @@ import android.graphics.ImageDecoder
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,7 +31,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -77,7 +75,7 @@ import java.util.Objects
 
 fun Context.createImageFile(id: String): File {
     // Create an image file nameValue
-    val imageFileName = "$id"
+    val imageFileName = id
     return File.createTempFile(
         imageFileName, /* prefix */
         ".jpg", /* suffix */
@@ -122,7 +120,7 @@ fun AccountQuickInfo(
             var expanded by remember { mutableStateOf(false) }
 
             val context = LocalContext.current
-            val file = context.createImageFile(profileViewModel!!.userId)
+            val file = context.createImageFile(profileViewModel.userId)
             val uri = FileProvider.getUriForFile(
                 Objects.requireNonNull(context),
                 "com.teamon.app" + ".provider", file
@@ -130,9 +128,9 @@ fun AccountQuickInfo(
 
             val galleryLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.GetContent(),
-                onResult = { uri ->
-                    uri?.let {
-                        profileViewModel!!.setProfileImage(
+                onResult = { result ->
+                    result?.let {
+                        profileViewModel.setProfileImage(
                             uri = it,
                             source = ImageSource.LIBRARY,
                             context = context
@@ -146,7 +144,7 @@ fun AccountQuickInfo(
                 rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
 
                     if (it) {
-                        profileViewModel!!.setProfileImage(ImageSource.CAMERA, uri, context)
+                        profileViewModel.setProfileImage(ImageSource.CAMERA, uri, context)
                         expanded = false
                         saveImageToGallery(
                             context,
@@ -211,24 +209,24 @@ fun AccountQuickInfo(
                                             .clip(CircleShape)
                                             .align(Alignment.Center)
                                     ) {
-                                            TeamOnImage(
-                                                modifier = if (profileViewModel!!.isEditing) Modifier
-                                                    .size(100.dp)
-                                                    .clip(CircleShape)
-                                                    .align(Alignment.Center)
-                                                    .alpha(0.5f) else Modifier
-                                                    .size(100.dp)
-                                                    .align(Alignment.Center)
-                                                    .clip(CircleShape),
-                                                source = profileViewModel!!.profileImageSource,
-                                                uri = profileViewModel!!.profileImageUri,
-                                                name = profileViewModel!!.nameValue,
-                                                color = profileViewModel.color,
-                                                surname = profileViewModel!!.surnameValue,
-                                                description = "My Profile picture"
-                                            )
+                                        TeamOnImage(
+                                            modifier = if (profileViewModel.isEditing) Modifier
+                                                .size(100.dp)
+                                                .clip(CircleShape)
+                                                .align(Alignment.Center)
+                                                .alpha(0.5f) else Modifier
+                                                .size(100.dp)
+                                                .align(Alignment.Center)
+                                                .clip(CircleShape),
+                                            source = profileViewModel.profileImageSource,
+                                            uri = profileViewModel.profileImageUri,
+                                            name = profileViewModel.nameValue,
+                                            color = profileViewModel.color,
+                                            surname = profileViewModel.surnameValue,
+                                            description = "My Profile picture"
+                                        )
 
-                                        if (profileViewModel!!.isEditing)
+                                        if (profileViewModel.isEditing)
 
                                             Box(
                                                 modifier = Modifier
@@ -328,7 +326,7 @@ fun AccountQuickInfo(
                                                             }
                                                         }
                                                     )
-                                                    if (profileViewModel!!.profileImageSource != ImageSource.MONOGRAM)
+                                                    if (profileViewModel.profileImageSource != ImageSource.MONOGRAM)
                                                         DropdownMenuItem(
                                                             text = {
                                                                 Row(
@@ -354,7 +352,7 @@ fun AccountQuickInfo(
                                                                 }
                                                             },
                                                             onClick = {
-                                                                profileViewModel!!.setProfileImage(
+                                                                profileViewModel.setProfileImage(
                                                                     source = ImageSource.MONOGRAM
                                                                 )
                                                                 expanded = false
@@ -378,7 +376,7 @@ fun AccountQuickInfo(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = profileViewModel!!.emailValue,
+                                    text = profileViewModel.emailValue,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontSize = 18.sp,
                                     overflow = TextOverflow.Ellipsis,
@@ -388,7 +386,7 @@ fun AccountQuickInfo(
 
                                 Text(
                                     textAlign = TextAlign.Center,
-                                    text = "Last Update: " + if (isSigningUp) "N/D" else profileViewModel!!.lastUpdate.asPastRelativeDateTime(),
+                                    text = "Last Update: " + if (isSigningUp) "N/D" else profileViewModel.lastUpdate.asPastRelativeDateTime(),
                                     maxLines = 2,
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontStyle = FontStyle.Italic
@@ -416,7 +414,7 @@ fun AccountQuickInfo(
                                         .align(Alignment.Center)
                                 ) {
                                     TeamOnImage(
-                                        modifier = if (profileViewModel!!.isEditing) Modifier
+                                        modifier = if (profileViewModel.isEditing) Modifier
                                             .size(100.dp)
                                             .clip(CircleShape)
                                             .align(Alignment.Center)
@@ -424,16 +422,16 @@ fun AccountQuickInfo(
                                             .size(100.dp)
                                             .align(Alignment.Center)
                                             .clip(CircleShape),
-                                        source = profileViewModel!!.profileImageSource,
-                                        uri = profileViewModel!!.profileImageUri,
-                                        name = profileViewModel!!.nameValue,
+                                        source = profileViewModel.profileImageSource,
+                                        uri = profileViewModel.profileImageUri,
+                                        name = profileViewModel.nameValue,
                                         color = profileViewModel.color,
-                                        surname = profileViewModel!!.surnameValue,
+                                        surname = profileViewModel.surnameValue,
                                         description = "My Profile picture"
                                     )
 
 
-                                    if (profileViewModel!!.isEditing)
+                                    if (profileViewModel.isEditing)
                                         Icon(
                                             Icons.Rounded.Edit,
                                             modifier = Modifier
@@ -507,7 +505,7 @@ fun AccountQuickInfo(
                                                 galleryLauncher.launch("image/*")
                                             }
                                         )
-                                        if (profileViewModel!!.profileImageSource != ImageSource.MONOGRAM)
+                                        if (profileViewModel.profileImageSource != ImageSource.MONOGRAM)
                                             DropdownMenuItem(
                                                 text = {
                                                     Row(
@@ -529,7 +527,7 @@ fun AccountQuickInfo(
                                                     }
                                                 },
                                                 onClick = {
-                                                    profileViewModel!!.setProfileImage(source = ImageSource.MONOGRAM)
+                                                    profileViewModel.setProfileImage(source = ImageSource.MONOGRAM)
                                                     expanded = false
                                                 }
                                             )
@@ -542,7 +540,7 @@ fun AccountQuickInfo(
                         Row {
 
                             Text(
-                                text = profileViewModel!!.emailValue,
+                                text = profileViewModel.emailValue,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontSize = 18.sp,
                             )
@@ -552,7 +550,7 @@ fun AccountQuickInfo(
                         Row {
                             Text(
                                 textAlign = TextAlign.Center,
-                                text = "Last Update: " + profileViewModel!!.lastUpdate.asPastRelativeDateTime(),
+                                text = "Last Update: " + profileViewModel.lastUpdate.asPastRelativeDateTime(),
                                 maxLines = 2,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontStyle = FontStyle.Italic
@@ -702,447 +700,3 @@ fun AccountQuickInfo(
 
 }
 
-@Composable
-fun NewAccountQuickInfo(orientation: Orientation, newUserVm: NewAccountViewModel) {
-
-    var expanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val file = context.createImageFile(newUserVm.userId)
-    val uri = FileProvider.getUriForFile(
-        Objects.requireNonNull(context),
-        "com.teamon.app" + ".provider", file
-    )
-
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            uri?.let {
-                newUserVm.setProfileImage(
-                    uri = it,
-                    source = ImageSource.LIBRARY,
-                    context = context
-                )
-                expanded = false
-            }
-        }
-    )
-
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-
-            if (it) {
-                newUserVm.setProfileImage(ImageSource.CAMERA, uri, context)
-                expanded = false
-                saveImageToGallery(
-                    context,
-                    ImageDecoder.decodeBitmap(
-                        ImageDecoder.createSource(
-                            context.contentResolver,
-                            uri
-                        )
-                    ),
-                    file.name
-                )
-            }
-        }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) {
-        if (it) {
-            cameraLauncher.launch(uri)
-        } else {
-            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Register ActivityResult handler
-    val requestPermissions =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
-            // Handle permission requests results
-            if (getStorageAccess(context) == StorageAccess.Full || getStorageAccess(context) == StorageAccess.Partial) {
-                galleryLauncher.launch("image/*")
-            } else {
-                Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-
-    when (orientation) {
-        Orientation.PORTRAIT -> {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp, start = 10.dp, end = 10.dp, bottom = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-
-                    Column(modifier = Modifier.weight(1.3f)) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            LoadingOverlay(isLoading = newUserVm.uploadStatus is UploadStatus.Progress)
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape)
-                                    .align(Alignment.Center)
-                            ) {
-                                if(newUserVm.uploadStatus !is UploadStatus.Progress)
-                                    TeamOnImage(
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .align(Alignment.Center)
-                                            .clip(CircleShape)
-                                            .alpha(0.5f),
-                                        source = newUserVm.profileImageSource,
-                                        uri = newUserVm.profileImageUri,
-                                        name = newUserVm.nameValue,
-                                        surname = newUserVm.surnameValue,
-                                        color = newUserVm.color,
-                                        description = "My Profile picture"
-                                    )
-
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(CircleShape)
-                                            .align(Alignment.Center)
-                                    ) {
-                                        IconButton(modifier = Modifier.align(Alignment.Center), onClick = { expanded = !expanded },
-                                            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
-                                        Icon(
-                                            Icons.Rounded.Edit,
-                                            contentDescription = "Update profile image"
-                                        )
-                                            }
-
-
-
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Row(
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.Center
-                                                    ) {
-                                                        Image(
-                                                            painter = painterResource(id = R.drawable.round_add_a_photo_24),
-                                                            contentDescription = "Take a photo",
-                                                            colorFilter = ColorFilter.tint(
-                                                                MaterialTheme.colorScheme.onSurfaceVariant
-                                                            )
-                                                        )
-                                                        Spacer(modifier = Modifier.width(10.dp))
-                                                        Text(
-                                                            "Take a photo"
-                                                        )
-                                                    }
-                                                },
-                                                onClick = {
-                                                    val permissionCheckResult =
-                                                        ContextCompat.checkSelfPermission(
-                                                            context,
-                                                            Manifest.permission.CAMERA
-                                                        )
-                                                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                                                        cameraLauncher.launch(uri)
-                                                    } else {
-                                                        // Request a permission
-                                                        permissionLauncher.launch(Manifest.permission.CAMERA)
-                                                    }
-                                                }
-                                            )
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Row(
-                                                        verticalAlignment = Alignment.CenterVertically,
-                                                        horizontalArrangement = Arrangement.Center
-                                                    ) {
-                                                        Image(
-                                                            painter = painterResource(id = R.drawable.round_library_add_24),
-                                                            contentDescription = "Upload from library",
-                                                            colorFilter = ColorFilter.tint(
-                                                                MaterialTheme.colorScheme.onSurfaceVariant
-                                                            )
-                                                        )
-                                                        Spacer(modifier = Modifier.width(10.dp))
-                                                        Text(
-                                                            "Upload from library"
-                                                        )
-                                                    }
-                                                },
-                                                onClick = {// Permission request logic
-                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                                        requestPermissions.launch(
-                                                            arrayOf(
-                                                                READ_MEDIA_IMAGES,
-                                                                READ_MEDIA_VISUAL_USER_SELECTED
-                                                            )
-                                                        )
-                                                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                                        requestPermissions.launch(
-                                                            arrayOf(
-                                                                READ_MEDIA_IMAGES
-                                                            )
-                                                        )
-                                                    } else {
-                                                        requestPermissions.launch(
-                                                            arrayOf(
-                                                                READ_EXTERNAL_STORAGE
-                                                            )
-                                                        )
-                                                    }
-                                                }
-                                            )
-                                            if (newUserVm.profileImageSource != ImageSource.MONOGRAM)
-                                                DropdownMenuItem(
-                                                    text = {
-                                                        Row(
-                                                            verticalAlignment = Alignment.CenterVertically,
-                                                            horizontalArrangement = Arrangement.Center
-                                                        ) {
-                                                            Image(
-                                                                painter = painterResource(id = R.drawable.round_text_fields_24),
-                                                                contentDescription = "Monogram",
-                                                                colorFilter = ColorFilter.tint(
-                                                                    MaterialTheme.colorScheme.error
-                                                                )
-                                                            )
-                                                            Spacer(
-                                                                modifier = Modifier.width(
-                                                                    10.dp
-                                                                )
-                                                            )
-                                                            Text(
-                                                                text = "Restore default",
-                                                                color = MaterialTheme.colorScheme.error
-                                                            )
-                                                        }
-                                                    },
-                                                    onClick = {
-                                                        newUserVm.setProfileImage(source = ImageSource.MONOGRAM)
-                                                        expanded = false
-                                                    }
-                                                )
-                                        }
-
-                                    }
-                            }
-                        }
-                    }
-
-
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(3f)
-                            .padding(15.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = newUserVm.emailValue,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontSize = 18.sp,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                    }
-                }
-            }
-        }
-        else -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row {
-                    Box(modifier = Modifier.size(100.dp)) {
-                        LoadingOverlay(isLoading = newUserVm.uploadStatus is UploadStatus.Progress)
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.Center)
-                        ) {
-                            if(newUserVm.uploadStatus !is UploadStatus.Progress)
-                            TeamOnImage(
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .align(Alignment.Center)
-                                    .clip(CircleShape)
-                                    .alpha(0.5f),
-                                source = newUserVm.profileImageSource,
-                                uri = newUserVm.profileImageUri,
-                                name = newUserVm.nameValue,
-                                surname = newUserVm.surnameValue,
-                                color = newUserVm.color,
-                                description = "My Profile picture"
-                            )
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape)
-                                    .align(Alignment.Center)
-                            ) {
-                                IconButton(modifier = Modifier.align(Alignment.Center), onClick = { expanded = !expanded },
-                                        colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)) {
-                                    Icon(
-                                        Icons.Rounded.Edit,
-                                        contentDescription = "Update profile image"
-                                    )
-                                }
-
-
-
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.Center
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.round_add_a_photo_24),
-                                                    contentDescription = "Take a photo",
-                                                    colorFilter = ColorFilter.tint(
-                                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                                    )
-                                                )
-                                                Spacer(modifier = Modifier.width(10.dp))
-                                                Text(
-                                                    "Take a photo"
-                                                )
-                                            }
-                                        },
-                                        onClick = {
-                                            val permissionCheckResult =
-                                                ContextCompat.checkSelfPermission(
-                                                    context,
-                                                    Manifest.permission.CAMERA
-                                                )
-                                            if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                                                cameraLauncher.launch(uri)
-                                            } else {
-                                                // Request a permission
-                                                permissionLauncher.launch(Manifest.permission.CAMERA)
-                                            }
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.Center
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.round_library_add_24),
-                                                    contentDescription = "Upload from library",
-                                                    colorFilter = ColorFilter.tint(
-                                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                                    )
-                                                )
-                                                Spacer(modifier = Modifier.width(10.dp))
-                                                Text(
-                                                    "Upload from library"
-                                                )
-                                            }
-                                        },
-                                        onClick = {// Permission request logic
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                                                requestPermissions.launch(
-                                                    arrayOf(
-                                                        READ_MEDIA_IMAGES,
-                                                        READ_MEDIA_VISUAL_USER_SELECTED
-                                                    )
-                                                )
-                                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                                requestPermissions.launch(
-                                                    arrayOf(
-                                                        READ_MEDIA_IMAGES
-                                                    )
-                                                )
-                                            } else {
-                                                requestPermissions.launch(
-                                                    arrayOf(
-                                                        READ_EXTERNAL_STORAGE
-                                                    )
-                                                )
-                                            }
-                                        }
-                                    )
-                                    if (newUserVm.profileImageSource != ImageSource.MONOGRAM)
-                                        DropdownMenuItem(
-                                            text = {
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.Center
-                                                ) {
-                                                    Image(
-                                                        painter = painterResource(id = R.drawable.round_text_fields_24),
-                                                        contentDescription = "Monogram",
-                                                        colorFilter = ColorFilter.tint(
-                                                            MaterialTheme.colorScheme.error
-                                                        )
-                                                    )
-                                                    Spacer(
-                                                        modifier = Modifier.width(
-                                                            10.dp
-                                                        )
-                                                    )
-                                                    Text(
-                                                        text = "Restore default",
-                                                        color = MaterialTheme.colorScheme.error
-                                                    )
-                                                }
-                                            },
-                                            onClick = {
-                                                newUserVm.setProfileImage(source = ImageSource.MONOGRAM)
-                                                expanded = false
-                                            }
-                                        )
-                                }
-
-                            }
-
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Row {
-
-                    Text(
-                        text = newUserVm.emailValue,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 18.sp,
-                    )
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-
-            }
-
-        }
-    }
-
-}

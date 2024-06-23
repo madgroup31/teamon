@@ -1,16 +1,14 @@
 package com.teamon.app.utils.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.teamon.app.Model
-import com.teamon.app.board.project.feedbacks.FeedbackType
 import com.teamon.app.feedbacksViewModel
 import com.teamon.app.profileViewModel
 import com.teamon.app.tasksViewModel
@@ -22,7 +20,6 @@ import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.graphics.currentTimeSeconds
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class UserViewModel(val model: Model, userId: String) : ViewModel() {
 
@@ -33,31 +30,31 @@ class UserViewModel(val model: Model, userId: String) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            usersViewModel!!.getUser(userId).collect {
+            usersViewModel.getUser(userId).collect { user ->
 
-                nameValue = it.name
-                surnameValue = it.surname
-                nicknameValue = it.nickname
-                emailValue = it.email
-                locationValue = it.location
-                birthdateValue = it.birthdate.asDate()
-                bioValue = it.biography
-                color = it.color
-                it.profileImage?.let { profileImage = it }
-                lastUpdate = it.lastUpdate
-                profileImageSource = it.profileImageSource
+                nameValue = user.name
+                surnameValue = user.surname
+                nicknameValue = user.nickname
+                emailValue = user.email
+                locationValue = user.location
+                birthdateValue = user.birthdate.asDate()
+                bioValue = user.biography
+                color = user.color
+                user.profileImage?.let { profileImage = it }
+                lastUpdate = user.lastUpdate
+                profileImageSource = user.profileImageSource
             }
         }
 
         viewModelScope.launch {
-            feedbacksViewModel!!.getUserFeedbacks(userId).collect {
+            feedbacksViewModel.getUserFeedbacks(userId).collect {
                 feedbacks.clear()
                 feedbacks.addAll(it.values)
             }
         }
 
         viewModelScope.launch {
-            tasksViewModel!!.getUserTasks().collect {
+            tasksViewModel.getUserTasks().collect {
                 tasks.clear()
                 tasks.addAll(it.values)
             }
@@ -91,7 +88,7 @@ class UserViewModel(val model: Model, userId: String) : ViewModel() {
     var color by mutableStateOf(ProjectColors.PURPLE)
     private set
 
-    var newFeedbackRating by mutableStateOf(5)
+    var newFeedbackRating by mutableIntStateOf(5)
         private set
 
     fun updateNewFeedbackRating(rating: Float) {
@@ -116,7 +113,7 @@ class UserViewModel(val model: Model, userId: String) : ViewModel() {
         {
             val feedbackToAdd= Feedback(
                 feedbackId = "-1",
-                authorId = profileViewModel!!.userId,
+                authorId = profileViewModel.userId,
                 description = newFeedback,
                 value = newFeedbackRating,
                 anonymous = isFeedbackAnonymous,

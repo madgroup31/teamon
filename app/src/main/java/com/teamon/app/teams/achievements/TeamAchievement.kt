@@ -1,6 +1,5 @@
 package com.teamon.app.myteams
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,33 +12,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.teamon.app.Actions
 import com.teamon.app.account.Diagram
-import com.teamon.app.projectsViewModel
-import com.teamon.app.tasks.TaskStatus
-import com.teamon.app.tasksViewModel
 import com.teamon.app.teams.feedbacks.NewTeamFeedbackDialog
-import com.teamon.app.teamsViewModel
 import com.teamon.app.utils.classes.Performance
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.viewmodels.TeamViewModel
 import java.time.ZoneId
 
 @Composable
-fun AchievementActions() {
-
-}
-
-@Composable
-fun TeamAchievement(actions: Actions, teamVM: TeamViewModel)
+fun TeamAchievement(teamVM: TeamViewModel)
 {
 
     val projects by teamVM.getProjectsTeam().collectAsState(initial = emptyList())
@@ -51,26 +37,26 @@ fun TeamAchievement(actions: Actions, teamVM: TeamViewModel)
 
     val completedProjects = completedProjectsMap.values
         .groupBy { it.endDate.toInstant().atZone(ZoneId.systemDefault()).year }
-        .mapValues { (year, yearProjects) ->
+        .mapValues { (_, yearProjects) ->
             val monthlyCounts = (0..11).map { 0 }.toIntArray()
             yearProjects.forEach { project ->
                 val monthIndex = project.endDate.toInstant().atZone(ZoneId.systemDefault()).monthValue-1
                 monthlyCounts[monthIndex]++ // Increment count for the corresponding month
             }
-            Performance(year = year, list = monthlyCounts) // Create a Performance object for the year
+            Performance(list = monthlyCounts) // Create a Performance object for the year
         }
 
 
 
     val receivedFeedbacks = feedbacks
         .groupBy { it.timestamp.toInstant().atZone(ZoneId.systemDefault()).year }
-        .mapValues { (year, yearFeedbacks) ->
+        .mapValues { (_, yearFeedbacks) ->
             val monthlyCounts = (0..11).map { 0 }.toIntArray()
             yearFeedbacks.forEach { feedback ->
                 val monthIndex = feedback.timestamp.toInstant().atZone(ZoneId.systemDefault()).monthValue-1
                 monthlyCounts[monthIndex]++ // Increment count for the corresponding month
             }
-            Performance(year = year, list = monthlyCounts) // Create a Performance object for the year
+            Performance(list = monthlyCounts) // Create a Performance object for the year
 
         }
 

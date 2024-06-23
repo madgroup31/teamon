@@ -110,7 +110,7 @@ fun AppSurface(
     composableTitle: @Composable (() -> Unit)? = null,
     tabActions: @Composable () -> Unit = {},
     leadingTopBarActions: @Composable () -> Unit = {},
-    trailingTopBarActions: @Composable() (RowScope.() -> Unit) = {},
+    trailingTopBarActions: @Composable (RowScope.() -> Unit) = {},
     floatingActionButton: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {

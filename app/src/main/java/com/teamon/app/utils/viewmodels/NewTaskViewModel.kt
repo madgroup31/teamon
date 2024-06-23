@@ -1,11 +1,9 @@
 package com.teamon.app.utils.viewmodels
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.runtime.toMutableStateMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -40,22 +38,22 @@ class NewTaskViewModel(val model: Model, projectId: String, userId: String) : Vi
     var selectedCollaborators = mutableStateMapOf<User, Boolean>()
     val myID = userId
     var projectId by mutableStateOf(projectId)
-    val users = usersViewModel!!.users.value
+    val users = usersViewModel.users.value
 
     lateinit var projects: StateFlow<Map<String, Project>>
     lateinit var teams: StateFlow<Map<String, Team>>
-    var projectMembers = mutableStateMapOf<String, User>()
+    private var projectMembers = mutableStateMapOf<String, User>()
 
     init {
         viewModelScope.launch {
-            teams = usersViewModel!!.getUserTeams(myID).stateIn(
+            teams = usersViewModel.getUserTeams(myID).stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyMap()
             )
         }
         viewModelScope.launch {
-            projects = usersViewModel!!.getUserProjects(myID).stateIn(
+            projects = usersViewModel.getUserProjects(myID).stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyMap()
@@ -66,20 +64,16 @@ class NewTaskViewModel(val model: Model, projectId: String, userId: String) : Vi
         }
     }
 
-    suspend fun addTask(task: Task) = model.addTask(projectId, task)
-
     fun updateProjectMembers(pId: String) {
         projectId = pId
         viewModelScope.launch {
-            projectsViewModel!!.getProjectMembers(projectId).collect {
+            projectsViewModel.getProjectMembers(projectId).collect {
                 projectMembers.clear()
                 projectMembers.putAll(it)
 
                 selectedCollaborators.clear()
                 projectMembers.values.forEach { user ->
-                    if (user.userId != myID)
-                        selectedCollaborators[user] = false
-                    else selectedCollaborators[user] = true
+                    selectedCollaborators[user] = user.userId == myID
                 }
             }
         }
@@ -121,7 +115,6 @@ class NewTaskViewModel(val model: Model, projectId: String, userId: String) : Vi
     var lifetimeUnit by mutableStateOf("Days")
     var lifetimeError by mutableStateOf("")
     var lifetimeNumbers by mutableStateOf("1")
-    var lifetimeNumbersError by mutableStateOf("")
     fun updateLifetimeUnit(u: String) {
         lifetimeUnit = u
     }
@@ -130,22 +123,11 @@ class NewTaskViewModel(val model: Model, projectId: String, userId: String) : Vi
         lifetimeNumbers = n
     }
 
-    fun checkLifetime() {
-        lifetimeError =
-            if (lifetimeUnit.isBlank() || lifetimeNumbersError.isBlank()) "You should set a task lifetime" else ""
-    }
-
     var isAssigningTask by mutableStateOf(false)
         private set
 
     fun toggleAssignTask() {
         isAssigningTask = !isAssigningTask
-    }
-
-    var listUser = mutableStateListOf<Int>()
-
-    fun updateListUser(users: List<Int>) {
-        listUser = users.toMutableStateList()
     }
 
     var taskName by mutableStateOf("")
@@ -222,8 +204,7 @@ class NewTaskViewModel(val model: Model, projectId: String, userId: String) : Vi
 
     var taskPriority by mutableStateOf(TaskPriority.Medium)
         private set
-    var taskPriorityError by mutableStateOf("")
-        private set
+    private var taskPriorityError by mutableStateOf("")
 
     fun updateTaskPriority(priority: TaskPriority) {
         taskPriority = priority
@@ -238,16 +219,13 @@ class NewTaskViewModel(val model: Model, projectId: String, userId: String) : Vi
 
     var taskStatus by mutableStateOf(TaskStatus.Pending)
         private set
-    var taskStatusError by mutableStateOf("")
-        private set
+    private var taskStatusError by mutableStateOf("")
 
     fun updateTaskStatus(status: TaskStatus) {
         taskStatus = status
     }
 
     var taskRecurringType by mutableStateOf(RecurringType.Fixed)
-        private set
-    var taskRecurringTypeError by mutableStateOf("")
         private set
 
     fun toggleRecurringType(switch: Boolean) {

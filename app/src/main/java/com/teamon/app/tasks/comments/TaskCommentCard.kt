@@ -1,19 +1,13 @@
 package com.teamon.app.tasks.comments
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -21,12 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -36,9 +26,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import com.teamon.app.R
 import com.teamon.app.profileViewModel
-import com.teamon.app.teamOnViewModel
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Comment
 import com.teamon.app.utils.classes.User
@@ -46,36 +34,6 @@ import com.teamon.app.utils.graphics.TeamOnImage
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-
-@Composable
-fun DayHeader(day: String?) {
-    Box(modifier = Modifier.padding(5.dp)) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center)
-        ) {
-            HorizontalDivider(
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceContainerLowest
-            )
-        }
-        Box(modifier = Modifier.align(Alignment.Center)) {
-            Row(
-                modifier = Modifier
-                    .width(120.dp)
-                    .height(30.dp)
-                    .padding(5.dp)
-                    .clip(MaterialTheme.shapes.small)
-                    .background(MaterialTheme.colorScheme.surfaceContainerLow),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(text = day ?: "", style = MaterialTheme.typography.bodySmall)
-            }
-        }
-    }
-}
 
 @Composable
 fun CommentCard(
@@ -212,7 +170,6 @@ fun CommentCard(
         ) {
             IconButton(modifier = Modifier.size(30.dp), onClick = { }) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    var loading by remember { mutableStateOf(true) }
                     val author by usersViewModel.getUser(comment.author).collectAsState(initial = User())
                     TeamOnImage(
                         modifier = Modifier.size(32.dp),

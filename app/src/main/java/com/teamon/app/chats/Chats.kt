@@ -63,7 +63,7 @@ fun ChatsView(actions: Actions, userId: String?, teamId: String?) {
 
         val teams by teamsViewModel.getTeams().collectAsState(initial = null)
         val ownTeamsIds =
-            teams?.values?.filter { it.users.any { member -> member == profileViewModel!!.userId } }
+            teams?.values?.filter { it.users.any { member -> member == profileViewModel.userId } }
                 ?.map { it.teamId }
                 ?.toList()
 

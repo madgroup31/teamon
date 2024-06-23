@@ -35,13 +35,13 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.teamon.app.account.AccountView
-import com.teamon.app.account.SignUpView
 import com.teamon.app.board.BoardView
 import com.teamon.app.board.project.ProjectView
 import com.teamon.app.chats.ChatsView
 import com.teamon.app.chats.PersonalChatView
 import com.teamon.app.login.GoogleAuthUiClient
 import com.teamon.app.login.Login
+import com.teamon.app.login.SignUpView
 import com.teamon.app.myteams.TeamView
 import com.teamon.app.tasks.TaskView
 import com.teamon.app.tasks.TasksView
@@ -49,7 +49,6 @@ import com.teamon.app.tasks.attachments.TaskAttachmentInfo
 import com.teamon.app.teams.TeamsView
 import com.teamon.app.utils.classes.Attachment
 import com.teamon.app.utils.classes.Project
-import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.graphics.LoadingOverlay
 import com.teamon.app.utils.graphics.TabItem
 import com.teamon.app.utils.graphics.Theme
@@ -162,33 +161,6 @@ class Actions(val navCont: NavHostController) {
         )
     }
 
-    fun openTaskInfo(navigationItem: String, taskId: String) {
-        openTask(navigationItem, taskId)
-    }
-
-    fun openTaskHistory(navigationItem: String, taskId: String) {
-        when (navigationItem) {
-            NavigationItem.Board.title -> {
-                navCont.navigate("${navigationItem}/tasks/${taskId}/history") {
-                    popUpTo("${navigationItem}/tasks/${taskId}/history") {
-                        inclusive = true
-                    }
-                }
-            }
-
-            NavigationItem.MyTasks.title -> {
-                navCont.navigate("${navigationItem}/${taskId}/history") {
-                    popUpTo("${navigationItem}/${taskId}/history") { inclusive = true }
-                }
-            }
-        }
-
-        Log.d(
-            "nav",
-            printGraphPath(navCont.currentBackStackEntry?.destination?.parent) + "/" + navCont.currentBackStackEntry?.destination?.route
-        )
-    }
-
     fun openTaskComments(navigationItem: String, taskId: String) {
         when (navigationItem) {
             NavigationItem.Board.title -> {
@@ -270,14 +242,6 @@ class Actions(val navCont: NavHostController) {
 
     }
 
-    fun goToBoard() {
-        navCont.navigate(NavigationItem.Board.title) {
-            popUpTo(NavigationItem.Board.title) { inclusive = true }
-        }
-
-
-    }
-
 
     @SuppressLint("RestrictedApi")
     fun openTeam(teamId: String) {
@@ -321,18 +285,6 @@ class Actions(val navCont: NavHostController) {
 
     }
 
-    fun openProjectFeedbacks(projectId: String) {
-        navCont.navigate(NavigationItem.Board.title + "/${projectId}/feedbacks") {
-            popUpTo(NavigationItem.Board.title + "/${projectId}/feedbacks") { inclusive = true }
-        }
-
-        Log.d(
-            "nav",
-            printGraphPath(navCont.currentBackStackEntry?.destination?.parent) + "/" + navCont.currentBackStackEntry?.destination?.route
-        )
-
-    }
-
     fun openProjectPerformance(projectId: String) {
         navCont.navigate(NavigationItem.Board.title + "/${projectId}/performance") {
             popUpTo(NavigationItem.Board.title + "/${projectId}/performance") { inclusive = true }
@@ -346,7 +298,7 @@ class Actions(val navCont: NavHostController) {
     }
 
     fun openProfile(navigationItem: String, userId: String) {
-        if (userId == profileViewModel!!.userId)
+        if (userId == profileViewModel.userId)
             navCont.navigate(NavigationItem.Account.title) {
                 popUpTo(navCont.graph.findStartDestination().id) { saveState = true }
                 restoreState = true
@@ -652,9 +604,9 @@ fun NavGraphBuilder.boardGraph(actions: Actions) {
         val attachmentId = navBackStackEntry.arguments?.getString("attachmentId")
         if (taskId != null && attachmentId != null) {
 
-            val project by tasksViewModel!!.getTaskProject(taskId)
+            val project by tasksViewModel.getTaskProject(taskId)
                 .collectAsState(initial = Project())
-            val attachment by attachmentsViewModel!!.getAttachment(attachmentId)
+            val attachment by attachmentsViewModel.getAttachment(attachmentId)
                 .collectAsState(initial = Attachment())
 
             if (project.projectId.isNotBlank() && attachment.attachmentId.isNotBlank())
@@ -735,11 +687,9 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
 
     //User assigned tasks view
     composable(NavigationItem.MyTasks.title) {
-        val myTasksViewModel =
-            viewModel<TasksViewModel>(factory = Factory(LocalContext.current.applicationContext))
+        viewModel<TasksViewModel>(factory = Factory(LocalContext.current.applicationContext))
         TasksView(
             actions = actions,
-            myTasksViewModel = myTasksViewModel,
             taskId = taskId
         )
     }
@@ -751,15 +701,15 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
         )
     ) { navBackStackEntry ->
 
-        val taskId = navBackStackEntry.arguments?.getString("taskId")
-        if (taskId != null)
+        val taskId1 = navBackStackEntry.arguments?.getString("taskId")
+        if (taskId1 != null)
         // Display the task details
             TaskView(
                 actions = actions,
                 taskViewModel = viewModel<TaskViewModel>(
                     factory = Factory(
                         LocalContext.current.applicationContext,
-                        taskId = taskId
+                        taskId = taskId1
                     )
                 ),
             )
@@ -771,9 +721,9 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
             navArgument("taskId") { type = NavType.StringType }
         )
     ) { navBackStackEntry ->
-        val taskId = navBackStackEntry.arguments?.getString("taskId")
+        val taskId1 = navBackStackEntry.arguments?.getString("taskId")
 
-        if (taskId != null)
+        if (taskId1 != null)
         // Display the task details
             TaskView(
                 actions = actions,
@@ -781,7 +731,7 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
                 taskViewModel = viewModel<TaskViewModel>(
                     factory = Factory(
                         LocalContext.current.applicationContext,
-                        taskId = taskId
+                        taskId = taskId1
                     )
                 ),
             )
@@ -793,9 +743,9 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
             navArgument("taskId") { type = NavType.StringType }
         )
     ) { navBackStackEntry ->
-        val taskId = navBackStackEntry.arguments?.getString("taskId")
+        val taskId1 = navBackStackEntry.arguments?.getString("taskId")
 
-        if (taskId != null)
+        if (taskId1 != null)
         // Display the task details
             TaskView(
                 actions = actions,
@@ -803,7 +753,7 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
                 taskViewModel = viewModel<TaskViewModel>(
                     factory = Factory(
                         LocalContext.current.applicationContext,
-                        taskId = taskId
+                        taskId = taskId1
                     )
                 ),
             )
@@ -815,8 +765,7 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
             navArgument("taskId") { type = NavType.StringType }
         )
     ) { navBackStackEntry ->
-        val taskId = navBackStackEntry.arguments?.getString("taskId")?.let {
-            val task by tasksViewModel.getTask(it).collectAsState(initial = Task())
+        navBackStackEntry.arguments?.getString("taskId")?.let {
 
             // Display the task details
             TaskView(
@@ -838,9 +787,9 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
             navArgument("taskId") { type = NavType.StringType }
         )
     ) { navBackStackEntry ->
-        val taskId = navBackStackEntry.arguments?.getString("taskId")
+        val taskId1 = navBackStackEntry.arguments?.getString("taskId")
 
-        if (taskId != null)
+        if (taskId1 != null)
         // Display the task details
             TaskView(
                 actions = actions,
@@ -848,7 +797,7 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
                 taskViewModel = viewModel<TaskViewModel>(
                     factory = Factory(
                         LocalContext.current.applicationContext,
-                        taskId = taskId
+                        taskId = taskId1
                     )
                 ),
             )
@@ -862,12 +811,12 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
             navArgument("attachmentId") { type = NavType.StringType },
         )
     ) { navBackStackEntry ->
-        val taskId = navBackStackEntry.arguments?.getString("taskId")
+        val taskId1 = navBackStackEntry.arguments?.getString("taskId")
         val attachmentId = navBackStackEntry.arguments?.getString("attachmentId")
-        if (attachmentId != null && taskId != null) {
-            val project by tasksViewModel!!.getTaskProject(taskId)
+        if (attachmentId != null && taskId1 != null) {
+            val project by tasksViewModel.getTaskProject(taskId1)
                 .collectAsState(initial = Project())
-            val attachment by attachmentsViewModel!!.getAttachment(attachmentId)
+            val attachment by attachmentsViewModel.getAttachment(attachmentId)
                 .collectAsState(initial = Attachment())
 
             if (project.projectId.isNotBlank() && attachment.attachmentId.isNotBlank())
@@ -885,11 +834,11 @@ fun NavGraphBuilder.tasksGraph(actions: Actions, taskId: String?) {
             navArgument("taskId") { type = NavType.StringType }
         )
     ) { navBackStackEntry ->
-        val taskId = navBackStackEntry.arguments?.getString("taskId")
+        val taskId1 = navBackStackEntry.arguments?.getString("taskId")
         val taskViewModel = viewModel<TaskViewModel>(
             factory = Factory(
                 LocalContext.current.applicationContext,
-                taskId = taskId
+                taskId = taskId1
             )
         )
         taskViewModel.edit()
@@ -958,14 +907,14 @@ fun NavGraphBuilder.teamsGraph(actions: Actions, teamId: String?) {
         arguments = listOf(navArgument("teamId") { type = NavType.StringType }
         )) {
 
-        val teamId = it.arguments?.getString("teamId")
+        val teamId1 = it.arguments?.getString("teamId")
 
         TeamView(
             actions = actions,
             teamVM = viewModel<TeamViewModel>(
                 factory = Factory(
                     LocalContext.current.applicationContext,
-                    teamId = teamId
+                    teamId = teamId1
                 )
             )
         )
@@ -1000,15 +949,15 @@ fun NavGraphBuilder.teamsGraph(actions: Actions, teamId: String?) {
         )
     ) {
 
-        val teamId = it.arguments?.getString("teamId")
+        val teamId1 = it.arguments?.getString("teamId")
 
-        if (teamId != null) {
+        if (teamId1 != null) {
             TeamView(
                 actions = actions,
                 teamVM = viewModel<TeamViewModel>(
                     factory = Factory(
                         LocalContext.current.applicationContext,
-                        teamId = teamId
+                        teamId = teamId1
                     )
                 ),
                 startingTab = TabItem.TeamChat.title
@@ -1021,12 +970,12 @@ fun NavGraphBuilder.teamsGraph(actions: Actions, teamId: String?) {
         arguments = listOf(
             navArgument("teamId") { type = NavType.StringType }
         )) {
-        val teamId = it.arguments?.getString("teamId")
+        val teamId1 = it.arguments?.getString("teamId")
         TeamView(
             actions = actions, teamVM = viewModel<TeamViewModel>(
                 factory = Factory(
                     LocalContext.current.applicationContext,
-                    teamId = teamId
+                    teamId = teamId1
                 )
             ),
             startingTab = TabItem.TeamMembers.title
@@ -1050,17 +999,17 @@ fun NavGraphBuilder.chatsGraph(actions: Actions, userId: String?, teamId: String
         )
     ) {
 
-        val teamId = it.arguments?.getString("teamId")
-        val userId = it.arguments?.getString("userId")
+        val teamId1 = it.arguments?.getString("teamId")
+        val userId1 = it.arguments?.getString("userId")
 
-        if (teamId != null && userId != null) {
+        if (teamId1 != null && userId1 != null) {
             PersonalChatView(
                 actions = actions,
                 chatVm = viewModel<ChatViewModel>(
                     factory = Factory(
                         LocalContext.current.applicationContext,
-                        teamId = teamId,
-                        userId = userId,
+                        teamId = teamId1,
+                        userId = userId1,
                     )
                 )
             )
@@ -1075,15 +1024,15 @@ fun NavGraphBuilder.chatsGraph(actions: Actions, userId: String?, teamId: String
         )
     ) {
 
-        val userId = it.arguments?.getString("userId")
+        val userId1 = it.arguments?.getString("userId")
 
-        if (userId != null) {
+        if (userId1 != null) {
             AccountView(
                 actions = actions,
                 userVm = viewModel<UserViewModel>(
                     factory = Factory(
                         LocalContext.current.applicationContext,
-                        userId = userId
+                        userId = userId1
                     )
                 )
             )
@@ -1169,7 +1118,7 @@ fun NavGraphBuilder.loginGraph(actions: Actions) {
                 }
             }
 
-            if(loading)
+
                 LoadingOverlay(isLoading = loading)
 
             Login(state = state,
@@ -1237,14 +1186,13 @@ fun Navigator(graph: String?, taskId: String?, teamId: String?, userId: String?)
 
     var startDestination by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(auth.currentUser) {
-        if (auth.currentUser != null)
+        startDestination = if (auth.currentUser != null)
             if (usersViewModel.exists(auth.currentUser!!.uid)) {
-                    startDestination = Screen.Main.route
+                Screen.Main.route
+            } else {
+                Screen.SignUp.route
             }
-            else {
-                startDestination = Screen.SignUp.route
-            }
-        else startDestination = Screen.Login.route
+        else Screen.Login.route
 
     }
 

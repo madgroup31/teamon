@@ -17,10 +17,6 @@ import com.google.firebase.ktx.Firebase
 import com.teamon.app.Model
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.User
-import java.text.SimpleDateFormat
-import java.time.DateTimeException
-import java.util.Calendar
-import java.util.Locale
 import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.UploadStatus
@@ -30,14 +26,18 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.time.DateTimeException
+import java.util.Calendar
+import java.util.Locale
+
 class NewAccountViewModel(val model: Model): ViewModel() {
     var userId by mutableStateOf("")
         private set
 
     var emailValue by mutableStateOf("")
         private set
-    var emailError by mutableStateOf("")
-        private set
+    private var emailError by mutableStateOf("")
 
     var uploadStatus by mutableStateOf(Any())
         private set
@@ -164,7 +164,7 @@ class NewAccountViewModel(val model: Model): ViewModel() {
     var profileImageSource: ImageSource by mutableStateOf(ImageSource.MONOGRAM)
         private set
 
-    fun saveBitmapAsJpeg(context: Context, bitmap: Bitmap, filename: String): File? {
+    private fun saveBitmapAsJpeg(context: Context, bitmap: Bitmap, filename: String): File? {
         val file = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), filename)
         return try {
             val outputStream = FileOutputStream(file)
@@ -183,17 +183,17 @@ class NewAccountViewModel(val model: Model): ViewModel() {
         when (source) {
             ImageSource.CAMERA, ImageSource.LIBRARY -> {
                 viewModelScope.launch {
-                    context?.let {
-                        var bitmap: Bitmap? = null
-                        val inputStream = it.contentResolver.openInputStream(uri)
+                    context?.let { stream ->
+                        val bitmap: Bitmap?
+                        val inputStream = stream.contentResolver.openInputStream(uri)
                         bitmap = BitmapFactory.decodeStream(inputStream)
 
                         val file = saveBitmapAsJpeg(context, bitmap, "$userId.jpg")
                         file?.let { jpegFile ->
 
-                            usersViewModel!!.uploadProfileImage(userId = userId, file = jpegFile).collect {
+                            usersViewModel.uploadProfileImage(userId = userId, file = jpegFile).collect {
                                 if(it is UploadStatus.Success) {
-                                    profileImageUri = (it as UploadStatus.Success).downloadUrl.toUri()
+                                    profileImageUri = it.downloadUrl.toUri()
                                     profileImageSource = ImageSource.REMOTE
                                 }
                             }

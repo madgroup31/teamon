@@ -1,7 +1,6 @@
 package com.teamon.app.tasks
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,7 +54,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,14 +61,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import com.teamon.app.R
-import com.teamon.app.utils.viewmodels.ProjectViewModel
 import com.teamon.app.profileViewModel
-import com.teamon.app.teamsViewModel
 import com.teamon.app.utils.classes.User
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.convertMillisToDate
-import com.teamon.app.utils.viewmodels.TasksViewModel
 import com.teamon.app.utils.viewmodels.NewTaskViewModel
+import com.teamon.app.utils.viewmodels.ProjectViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -81,8 +77,7 @@ import java.util.TimeZone
 fun NewTaskBottomSheetContent(
     newTaskVM: NewTaskViewModel,
     projectVM: ProjectViewModel?,
-    snackbarHostState: SnackbarHostState,
-    myTasksViewModel: TasksViewModel?
+    snackbarHostState: SnackbarHostState
 ) {
 
     val scrollState = rememberScrollState()
@@ -90,8 +85,7 @@ fun NewTaskBottomSheetContent(
     var unitOptions by remember { mutableStateOf(false) }
     var numberOptions by remember { mutableStateOf(false) }
     var projectsOptions by remember { mutableStateOf(false) }
-    val myID = profileViewModel!!.userId
-    val myTeams by teamsViewModel!!.getTeams().collectAsState(initial = emptyMap())
+    profileViewModel.userId
     val projects by newTaskVM.projects.collectAsState(initial = emptyMap())
 
     LaunchedEffect(newTaskVM.taskUploadingError) {
@@ -194,7 +188,7 @@ fun NewTaskBottomSheetContent(
             }
         }
 
-        if (projects != null && projectVM == null) {
+        if (projectVM == null) {
             if (projects.isNotEmpty()) {
                 Row(
                     modifier = Modifier
@@ -225,7 +219,7 @@ fun NewTaskBottomSheetContent(
                             onValueChange = { },
                             isError = newTaskVM.taskDescriptionError.isNotBlank()
                         )
-                        // da aggiustare
+
                         if (newTaskVM.taskDescriptionError.isNotBlank()) {
                             Text(
                                 newTaskVM.taskDescriptionError,
@@ -442,7 +436,7 @@ fun NewTaskBottomSheetContent(
                                             )
                                         }
                                     })
-                                if (unitOptions) {
+
                                     DropdownMenu(
                                         expanded = unitOptions,
                                         onDismissRequest = { unitOptions = false }
@@ -463,7 +457,7 @@ fun NewTaskBottomSheetContent(
                                             unitOptions = false
                                         }, text = { Text(text = "Years") })
                                     }
-                                }
+
                             }
                             Spacer(modifier = Modifier.weight(0.05f))
                             Column(

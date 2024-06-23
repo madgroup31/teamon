@@ -1,6 +1,5 @@
 package com.teamon.app.utils.graphics
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
@@ -12,35 +11,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import com.teamon.app.R
 import com.teamon.app.projectsViewModel
-import com.teamon.app.teamOnViewModel
-import com.teamon.app.tasks.TaskStatus
-import com.teamon.app.tasksViewModel
-import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Team
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
 fun TeamsViewDropdownMenu(
     mainExpanded: Boolean,
     onMainExpandedChange: (Boolean) -> Unit,
-    sortExpanded: Boolean,
     onSortExpandedChange: (Boolean) -> Unit,
-    filterExpanded: Boolean,
     onFilterExpandedChange: (Boolean) -> Unit
 ) {
     DropdownMenu(
@@ -95,10 +83,18 @@ fun List<Team>.prepare(
 
     if (sortingOrder)
         teams = when (sortingOption) {
-            TeamsSortingOption.TeamName.title -> teams.sortedByDescending { it.name.decapitalize() }
+            TeamsSortingOption.TeamName.title -> teams.sortedByDescending { it.name.replaceFirstChar { char ->
+                char.lowercase(
+                    Locale.getDefault()
+                )
+            } }
             TeamsSortingOption.Members.title -> teams.sortedByDescending { it.users.size }
             TeamsSortingOption.CreationDate.title -> teams.sortedByDescending { it.creationDate }
-            TeamsSortingOption.Category.title -> teams.sortedByDescending { it.category.decapitalize() }
+            TeamsSortingOption.Category.title -> teams.sortedByDescending { it.category.replaceFirstChar { char ->
+                char.lowercase(
+                    Locale.getDefault()
+                )
+            } }
             TeamsSortingOption.CompletedTasks.title -> teams.sortedByDescending { team ->
                 var completed by mutableIntStateOf(0)
                 CoroutineScope(Dispatchers.IO).launch {
@@ -119,10 +115,18 @@ fun List<Team>.prepare(
         }
     else
         teams = when (sortingOption) {
-            TeamsSortingOption.TeamName.title -> teams.sortedBy { it.name.decapitalize() }
+            TeamsSortingOption.TeamName.title -> teams.sortedBy { it.name.replaceFirstChar { char ->
+                char.lowercase(
+                    Locale.getDefault()
+                )
+            } }
             TeamsSortingOption.Members.title -> teams.sortedBy { it.users.size }
             TeamsSortingOption.CreationDate.title -> teams.sortedBy { it.creationDate }
-            TeamsSortingOption.Category.title -> teams.sortedBy { it.category.decapitalize() }
+            TeamsSortingOption.Category.title -> teams.sortedBy { it.category.replaceFirstChar { char ->
+                char.lowercase(
+                    Locale.getDefault()
+                )
+            } }
             TeamsSortingOption.CompletedTasks.title -> teams.sortedBy { team ->
                 var completed by mutableIntStateOf(0)
                 CoroutineScope(Dispatchers.IO).launch {
@@ -146,15 +150,15 @@ fun List<Team>.prepare(
     if(query.isNotBlank()) teams = teams.filter { Regex(query, RegexOption.IGNORE_CASE).containsMatchIn(it.name) }
     if(categoryQuery.isNotBlank()) teams = teams.filter { Regex(categoryQuery, RegexOption.IGNORE_CASE).containsMatchIn(it.category) }
     if(memberQuery.isNotBlank()) teams = teams.filter {
-        it.users.any {
-            val user = usersViewModel.users.value[it]!!
+        it.users.any { userId ->
+            val user = usersViewModel.users.value[userId]!!
             Regex(memberQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.name}${user.surname}") ||
                     Regex(memberQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.surname}${user.name}")
         }
     }
     if(adminQuery.isNotBlank()) teams = teams.filter {
-        it.admin.any {
-            val user = usersViewModel.users.value[it]!!
+        it.admin.any { userId ->
+            val user = usersViewModel.users.value[userId]!!
             Regex(adminQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.name}${user.surname}") ||
                     Regex(adminQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.surname}${user.name}")
         }

@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -344,7 +343,6 @@ fun LandscapeTaskView(
 
                 2 -> {
                     TaskComments(
-                        actions = actions, modified = modified, onModifiedChange = onModifiedChange,
                         search = search,
                         onSearchChange = onSearchChange,
                         query = query,
@@ -370,7 +368,7 @@ fun LandscapeTaskView(
 }
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PortraitTaskView(
     actions: Actions,
@@ -574,7 +572,6 @@ fun PortraitTaskView(
 
                 2 -> {
                     TaskComments(
-                        actions = actions, modified = modified, onModifiedChange = onModifiedChange,
                         search = search,
                         onSearchChange = onSearchChange,
                         query = query,

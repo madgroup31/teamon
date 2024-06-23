@@ -20,7 +20,6 @@ import com.teamon.app.Actions
 import com.teamon.app.board.project.ProjectCard
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.graphics.AnimatedGrid
-import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.viewmodels.TeamViewModel
 
 @Composable
@@ -48,9 +47,8 @@ fun TeamProjects(actions: Actions, teamVM: TeamViewModel)
             modifier = Modifier.fillMaxSize(),
             columns = StaggeredGridCells.Adaptive(250.dp),
             items = projects
-        ) { it, index ->
+        ) { it, _ ->
             ProjectCard(
-                orientation = Orientation.PORTRAIT,
                 actions = actions,
                 project = it as Project,
                 snackbarHostState = snackbarHostState

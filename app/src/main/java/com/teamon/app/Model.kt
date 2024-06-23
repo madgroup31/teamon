@@ -1,15 +1,7 @@
 package com.teamon.app
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.os.Build
 import android.util.Log
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import com.google.android.gms.tasks.OnCanceledListener
 import com.google.android.gms.tasks.OnFailureListener
@@ -19,8 +11,6 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.TransactionOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -34,7 +24,6 @@ import com.teamon.app.utils.classes.Comment
 import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.History
 import com.teamon.app.utils.classes.Message
-import com.teamon.app.utils.classes.Performance
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.classes.Team
@@ -50,15 +39,14 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 
 
-
-
+@Suppress("UNCHECKED_CAST")
 class Model(val context: Context) {
     init {
         FirebaseApp.initializeApp(context)
     }
 
-    val db = Firebase.firestore
-    val storageRef = Firebase.storage.reference
+    private val db = Firebase.firestore
+    private val storageRef = Firebase.storage.reference
 
 
     fun addFeedbackToUser(feedbackToAdd: Feedback, userId: String) {
@@ -212,8 +200,8 @@ class Model(val context: Context) {
         )
         val projectRef = db.collection("projects").document(projectId)
         return try {
-            db.runTransaction() { transaction ->
-                val snapShot = transaction.get(projectRef)
+            db.runTransaction { transaction ->
+                transaction.get(projectRef)
                 val taskRef = db.collection("tasks").document()
                 transaction.set(taskRef, taskMap)
                 transaction.update(projectRef, "tasks", FieldValue.arrayUnion(taskRef.id))
@@ -231,7 +219,7 @@ class Model(val context: Context) {
         val projectRef = db.collection("projects").document(projectId)
         return try {
             db.runTransaction { transaction ->
-                val snapShot = transaction.get(projectRef)
+                transaction.get(projectRef)
                 tasks.forEach { task ->
                     val taskMap = mapOf(
                         "taskName" to task.taskName,
@@ -300,7 +288,7 @@ class Model(val context: Context) {
             db.runTransaction(
                 TransactionOptions.Builder().setMaxAttempts(1).build()
             ) { transaction ->
-                val snapShot = transaction.get(projectRef)
+                transaction.get(projectRef)
                 val tasks = transaction.get(projectRef).get("tasks") as List<String>
                 tasks.forEach { transaction.delete(db.collection("tasks").document(it)) }
                 transaction.delete(projectRef)
@@ -312,69 +300,67 @@ class Model(val context: Context) {
     }
 
     suspend fun addTeamToProject(projectId: String, teamId: String): Boolean {
-        // Recupera il riferimento al documento del progetto
+
         val projectRef = db.collection("projects").document(projectId)
 
-        // Esegui un'operazione atomica per evitare problemi di concorrenza
+
         return db.runTransaction { transaction ->
-            // Recupera il progetto
+
             val snapshot = transaction.get(projectRef)
             val project = snapshot.toObject(Project::class.java)
 
-            // Verifica se il progetto esiste
+
             if (project != null) {
-                // Verifica se il team non è già nella lista
+
                 if (!project.teams.contains(teamId)) {
-                    // Aggiungi il team all'elenco
+
                     val updatedTeams = project.teams.toMutableList()
                     updatedTeams.add(teamId)
 
-                    // Aggiorna l'oggetto Project
+
                     val updatedProject = project.copy(teams = updatedTeams)
 
-                    // Aggiorna il documento nel database
+
                     transaction.set(projectRef, updatedProject)
 
-                    // Restituisce true se l'operazione è andata a buon fine
                     return@runTransaction true
                 }
             }
 
-            // Restituisce false se il progetto non esiste o se il team è già presente nella lista
+
             return@runTransaction false
         }.await()
     }
 
     suspend fun removeTeamFromProject(projectId: String, teamId: String): Boolean {
-        // Recupera il riferimento al documento del progetto
+
         val projectRef = db.collection("projects").document(projectId)
 
-        // Esegui un'operazione atomica per evitare problemi di concorrenza
+
         return db.runTransaction { transaction ->
-            // Recupera il progetto
+
             val snapshot = transaction.get(projectRef)
             val project = snapshot.toObject(Project::class.java)
 
-            // Verifica se il progetto esiste
+
             if (project != null) {
-                // Verifica se ci sono almeno due team
+
                 if (project.teams.size > 1 && project.teams.contains(teamId)) {
-                    // Rimuovi il team dall'elenco
+
                     val updatedTeams = project.teams.toMutableList()
                     updatedTeams.remove(teamId)
 
-                    // Aggiorna l'oggetto Project
+
                     val updatedProject = project.copy(teams = updatedTeams)
 
-                    // Aggiorna il documento nel database
+
                     transaction.set(projectRef, updatedProject)
 
-                    // Restituisce true se l'operazione è andata a buon fine
+
                     return@runTransaction true
                 }
             }
 
-            // Restituisce false se il progetto non esiste, se c'è solo un team o il team è stato già rimosso dalla lista
             return@runTransaction false
         }.await()
     }
@@ -383,7 +369,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("history")
             .document(historyId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val history = result.toObject(History::class.java)
@@ -401,7 +387,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("comments")
             .document(commentId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val comment = result.toObject(Comment::class.java)
@@ -572,15 +558,11 @@ class Model(val context: Context) {
         }
     }
 
-    fun getTeamProjects(teamId: String): Flow<Map<String, Project>> = callbackFlow {
-
-    }
-
     fun getProjectsByTeamId(teamId: String): Flow<List<Project>> = callbackFlow {
         val listener = db
             .collection("projects")
             .whereArrayContains("teams", teamId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val projects = result.documents.mapNotNull { documentSnapshot ->
                         documentSnapshot.toObject(Project::class.java)
@@ -602,7 +584,7 @@ class Model(val context: Context) {
             if (teamSnapshot != null) {
                 val teamUsersId = teamSnapshot.get("users") as? List<String> ?: emptyList()
 
-                val usersListener = db.collection("users")
+                db.collection("users")
                     .addSnapshotListener { usersSnapshot, usersError ->
 
                         if (usersSnapshot != null) {
@@ -634,7 +616,7 @@ class Model(val context: Context) {
             if (teamSnapshot != null) {
                 val teamFeedbacksId = teamSnapshot.get("feedback") as? List<String> ?: emptyList()
 
-                val feedbacksListener = db.collection("feedbacks")
+                db.collection("feedbacks")
                     .addSnapshotListener { feedbacksSnapshot, feedbacksError ->
 
                         if (feedbacksSnapshot != null) {
@@ -731,7 +713,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("users")
             .document(userId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val user = result.toObject(User::class.java)
@@ -744,44 +726,12 @@ class Model(val context: Context) {
         awaitClose { listener.remove() }
     }
 
-    suspend fun addUser(user: User): String? {
-        val userRef = db.collection("users").document()
-
-        return try {
-            db.runTransaction(TransactionOptions.Builder().setMaxAttempts(1).build()) {
-                val snapShot = it.get(userRef)
-
-                val userMap = mapOf(
-                    "name" to user.name,
-                    "surname" to user.surname,
-                    "nickname" to user.nickname,
-                    "email" to user.email,
-                    "location" to user.location,
-                    "birthdate" to user.birthdate,
-                    "biography" to user.biography,
-                    "color" to user.color,
-                    "lastUpdate" to user.lastUpdate,
-                    "profileImageSource" to user.profileImageSource,
-                    "profileImage" to user.profileImage,
-                    "feedbacks" to user.feedbacks,
-                    "favorites" to user.favorites
-                )
-
-                it.set(userRef, userMap)
-            }.await()
-            userRef.id
-        } catch (e: Exception) {
-            null
-        }
-
-    }
-
     suspend fun updateUser(userId: String, user: User): Boolean {
         val userRef = db.collection("users").document(userId)
 
         return try {
             db.runTransaction(TransactionOptions.Builder().setMaxAttempts(1).build()) {
-                val snapShot = it.get(userRef)
+                it.get(userRef)
 
                 val userMap = mapOf(
                     "name" to user.name,
@@ -823,7 +773,7 @@ class Model(val context: Context) {
 
         return try {
             db.runTransaction(TransactionOptions.Builder().setMaxAttempts(1).build()) {
-                val snapShot = it.get(userRef)
+                it.get(userRef)
 
                 it.update(userRef, "favorites", favorites)
 
@@ -839,7 +789,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("attachments")
             .document(attachmentId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val attachment = result.toObject(Attachment::class.java)
@@ -865,10 +815,10 @@ class Model(val context: Context) {
         )
 
         val taskRef = db.collection("tasks").document(taskId)
-        Log.d("attachment", "taskId: "+taskId)
+        Log.d("attachment", "taskId: $taskId")
         return try {
             db.runTransaction { transaction ->
-                val snapShot = transaction.get(taskRef)
+                transaction.get(taskRef)
                 val attachmentRef = db.collection("attachments").document()
                 transaction.set(attachmentRef, attachmentMap)
                 transaction.update(taskRef, "attachments", FieldValue.arrayUnion(attachmentRef.id))
@@ -885,7 +835,7 @@ class Model(val context: Context) {
 
         return try {
             db.runTransaction(TransactionOptions.Builder().setMaxAttempts(1).build()) {
-                val snapShot = it.get(attachmentRef)
+                it.get(attachmentRef)
 
                 it.update(attachmentRef, "name", attachment.name)
                 it.update(attachmentRef, "description", attachment.description)
@@ -912,7 +862,7 @@ class Model(val context: Context) {
             val attachmentRef = db.collection("attachments").document(attachmentId)
 
             db.runTransaction { transaction ->
-                val snapShot = transaction.get(taskRef)
+                transaction.get(taskRef)
                 transaction.update(
                     taskRef,
                     "attachments",
@@ -930,7 +880,7 @@ class Model(val context: Context) {
     fun getFeedbacks(): Flow<Map<String, Feedback>> = callbackFlow {
         val listener = db
             .collection("feedbacks")
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val feedbacks =
                         result.toObjects(Feedback::class.java).associateBy { it.feedbackId }
@@ -948,7 +898,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("feedbacks")
             .document(feedbackId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val feedback = result.toObject(Feedback::class.java)
@@ -1056,7 +1006,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("projects")
             .whereArrayContainsAny("teams", myTeams)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val projects =
                         result.toObjects(Project::class.java).associateBy { it.projectId }
@@ -1074,7 +1024,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("projects")
             .document(projectId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val project = result.toObject(Project::class.java)
@@ -1091,7 +1041,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("tasks")
             .document(taskId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val task = result.toObject(Task::class.java)
@@ -1109,7 +1059,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("tasks")
             .whereArrayContains("listUser", auth.currentUser?.uid ?: "")
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val tasks =
                         result.toObjects(Task::class.java).associateBy { it.taskId }
@@ -1128,7 +1078,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("teams")
             .whereArrayContains("users", auth.currentUser?.uid ?: "")
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val teams =
                         result.toObjects(Team::class.java).associateBy { it.teamId }
@@ -1146,7 +1096,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("teams")
             .document(teamId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val team = result.toObject(Team::class.java)
@@ -1163,7 +1113,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("teams")
             .whereArrayContains("users", userId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val teams =
                         result.toObjects(Team::class.java).associateBy { it.teamId }
@@ -1184,7 +1134,7 @@ class Model(val context: Context) {
             }.await()
             true
         } catch (e: Exception) {
-            Log.d("exc", e.message?.toString() ?: "null")
+            Log.d("exc", e.message ?: "null")
             false
         }
 
@@ -1195,7 +1145,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("chats")
             .whereEqualTo("teamId", teamId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val chats = result.toObjects(Chat::class.java).associateBy { it.chatId }
                     trySend(chats)
@@ -1214,8 +1164,8 @@ class Model(val context: Context) {
             .collection("chats")
             .whereEqualTo("teamId", teamId)
             .whereEqualTo("personal", true)
-            .whereArrayContains("userIds", profileViewModel!!.userId)
-            .addSnapshotListener { result, error ->
+            .whereArrayContains("userIds", profileViewModel.userId)
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val chats = result.toObjects(Chat::class.java).associateBy { it.chatId }
                     trySend(chats)
@@ -1233,8 +1183,8 @@ class Model(val context: Context) {
             .collection("chats")
             .whereEqualTo("teamId", teamId)
             .whereEqualTo("personal", true)
-            .whereArrayContains("userIds", profileViewModel!!.userId)
-            .addSnapshotListener { result, error ->
+            .whereArrayContains("userIds", profileViewModel.userId)
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val chats = result.toObjects(Chat::class.java)
@@ -1255,7 +1205,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("chats")
             .document(chatId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val chat = result.toObject(Chat::class.java)
@@ -1275,7 +1225,7 @@ class Model(val context: Context) {
             .collection("chats")
             .whereEqualTo("teamId", teamId)
             .whereEqualTo("personal", false)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
 
                 if (result != null) {
                     val chat = result.toObjects(Chat::class.java).firstOrNull()
@@ -1292,7 +1242,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("messages")
             .whereEqualTo("chatId", chatId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val messages = result.toObjects(Message::class.java)
                     trySend(messages)
@@ -1309,7 +1259,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("messages")
             .whereEqualTo("chatId", chatId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val messages = result.toObjects(Message::class.java)
                     val lastMessage = messages.maxByOrNull { it.timestamp }
@@ -1328,8 +1278,8 @@ class Model(val context: Context) {
         val listener = db
             .collection("messages")
             .whereEqualTo("chatId", chatId)
-            .whereArrayContains("unread", profileViewModel!!.userId)
-            .addSnapshotListener { result, error ->
+            .whereArrayContains("unread", profileViewModel.userId)
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val messages = result.toObjects(Message::class.java)
                     trySend(messages.size)
@@ -1357,7 +1307,7 @@ class Model(val context: Context) {
         val listener = db
             .collection("messages")
             .document(messageId)
-            .addSnapshotListener { result, error ->
+            .addSnapshotListener { result, _ ->
                 if (result != null) {
                     val message = result.toObject(Message::class.java)
                     if (message != null) {
@@ -1373,23 +1323,6 @@ class Model(val context: Context) {
         awaitClose { listener.remove() }
     }
 
-    fun getMessage(messageId: String): Flow<Message> = callbackFlow {
-        val listener = db
-            .collection("messages")
-            .document(messageId)
-            .addSnapshotListener { result, error ->
-
-                if (result != null) {
-                    val message = result.toObject(Message::class.java)
-                    message?.let { trySend(it) }
-                } else {
-                    Log.e("Firebase", "Error fetching feedback")
-                }
-
-            }
-        awaitClose { listener.remove() }
-    }
-
     fun addMessage(addresseeId: String, authorId: String, teamId: String, text: String) {
 
         db.collection("chats")
@@ -1400,7 +1333,7 @@ class Model(val context: Context) {
             .addOnSuccessListener { chats ->
                 val chatId = chats.firstOrNull {
                     (it.get("userIds") as List<String>).contains(
-                        profileViewModel!!.userId
+                        profileViewModel.userId
                     )
                 }?.id
                 if (chatId == null) {
@@ -1414,7 +1347,7 @@ class Model(val context: Context) {
                         .addOnSuccessListener {
                             val message = mapOf(
                                 "chatId" to it.id,
-                                "senderId" to profileViewModel!!.userId,
+                                "senderId" to profileViewModel.userId,
                                 "content" to text,
                                 "timestamp" to Timestamp(System.currentTimeMillis() / 1000, 0),
                                 "unread" to listOf(addresseeId)
@@ -1434,7 +1367,7 @@ class Model(val context: Context) {
                 } else {
                     val message = mapOf(
                         "chatId" to chatId,
-                        "senderId" to profileViewModel!!.userId,
+                        "senderId" to profileViewModel.userId,
                         "content" to text,
                         "timestamp" to Timestamp(System.currentTimeMillis() / 1000, 0),
                         "unread" to listOf(addresseeId)
@@ -1457,7 +1390,7 @@ class Model(val context: Context) {
             .whereEqualTo("personal", false)
             .get()
             .addOnSuccessListener { it ->
-                var chatId = it.documents.firstOrNull()?.id
+                val chatId = it.documents.firstOrNull()?.id
 
                 if (chatId == null) {
                     val newChat = mapOf(
@@ -1467,9 +1400,9 @@ class Model(val context: Context) {
                     )
                     db.collection("chats")
                         .add(newChat)
-                        .addOnSuccessListener {
+                        .addOnSuccessListener { m ->
                             val message = mapOf(
-                                "chatId" to it.id,
+                                "chatId" to m.id,
                                 "senderId" to profileViewModel.userId,
                                 "content" to text,
                                 "timestamp" to Timestamp(System.currentTimeMillis() / 1000, 0),
@@ -1490,7 +1423,7 @@ class Model(val context: Context) {
                 } else {
                     val message = mapOf(
                         "chatId" to chatId,
-                        "senderId" to profileViewModel!!.userId,
+                        "senderId" to profileViewModel.userId,
                         "content" to text,
                         "timestamp" to Timestamp(System.currentTimeMillis() / 1000, 0),
                         "unread" to users.filter { it != profileViewModel.userId },
@@ -1519,11 +1452,6 @@ class Model(val context: Context) {
             }
     }
 
-    fun deleteTeamChat(teamId: String) {
-
-        // Step 1: Fetch all chats associated with the team
-
-    }
     fun deleteChat(userId: String, teamId: String) {
         val auth = Firebase.auth
 
@@ -1572,18 +1500,6 @@ class Model(val context: Context) {
             }
     }
 
-    fun editMessage(messageId: String, text: String) {
-        db.collection("messages")
-            .document(messageId)
-            .update("content", text)
-            .addOnSuccessListener {
-                Log.d("Firestore", "Message successfully updated!")
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firestore", "Error updating message", e)
-            }
-    }
-
     suspend fun deleteTask(projectId: String, taskId: String): Boolean {
         val projectRef = db.collection("projects").document(projectId)
         val taskRef = db.collection("tasks").document(taskId)
@@ -1591,7 +1507,7 @@ class Model(val context: Context) {
             db.runTransaction(
                 TransactionOptions.Builder().setMaxAttempts(1).build()
             ) { transaction ->
-                val snapShot = transaction.get(projectRef)
+                transaction.get(projectRef)
                 transaction.update(projectRef, "tasks", FieldValue.arrayRemove(taskRef.id))
                 transaction.delete(taskRef)
             }.await()
@@ -1718,8 +1634,8 @@ class Model(val context: Context) {
 
         val taskRef = db.collection("tasks").document(taskId)
         return try {
-            db.runTransaction() { transaction ->
-                val snapShot = transaction.get(taskRef)
+            db.runTransaction { transaction ->
+                transaction.get(taskRef)
                 val commentRef = db.collection("comments").document()
                 transaction.set(commentRef, commentMap)
                 transaction.update(taskRef, "comments", FieldValue.arrayUnion(commentRef.id))

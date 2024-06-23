@@ -6,7 +6,6 @@ import com.google.firebase.Timestamp
 import com.teamon.app.Model
 import com.teamon.app.projectsViewModel
 import com.teamon.app.tasks.TaskStatus
-import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.Project
@@ -18,8 +17,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 

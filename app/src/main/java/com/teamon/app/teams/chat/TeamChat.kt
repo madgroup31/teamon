@@ -21,9 +21,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,19 +35,10 @@ import com.teamon.app.Actions
 import com.teamon.app.chats.DayHeader
 import com.teamon.app.chats.ReceivedTeamMessageCard
 import com.teamon.app.chats.SentTeamMessageCard
-import com.teamon.app.utils.viewmodels.TeamViewModel
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.asPastRelativeDate
-import kotlinx.coroutines.flow.stateIn
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-
-@Composable
-fun ChatActions() {
-
-}
+import com.teamon.app.utils.viewmodels.TeamViewModel
 
 @Composable
 fun TeamChat(
@@ -152,7 +141,7 @@ fun PortraitTeamChatView(
                                 DayHeader(it.first().timestamp.asPastRelativeDate())
                                 it.forEach { message ->
                                     when (message.senderId) {
-                                        profileViewModel!!.userId -> SentTeamMessageCard(
+                                        profileViewModel.userId -> SentTeamMessageCard(
                                             message = message,
                                             query = query,
                                             isQuerying = isQuerying,
@@ -261,7 +250,7 @@ fun LandscapeTeamChatView(
                                 DayHeader(it.first().timestamp.asPastRelativeDate())
                                 it.forEach { message ->
                                     when (message.senderId) {
-                                        profileViewModel!!.userId -> SentTeamMessageCard(
+                                        profileViewModel.userId -> SentTeamMessageCard(
                                             message = message,
                                             query = query,
                                             isQuerying = isQuerying,

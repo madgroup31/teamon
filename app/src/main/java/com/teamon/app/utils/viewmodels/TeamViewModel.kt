@@ -4,47 +4,36 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.core.net.toUri
-import com.teamon.app.utils.graphics.saveBitmapAsJpeg
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.teamon.app.Model
-import com.teamon.app.utils.graphics.ImageSource
-import com.teamon.app.board.project.feedbacks.FeedbackType
 import com.teamon.app.chatsViewModel
-import com.teamon.app.feedbacksViewModel
 import com.teamon.app.profileViewModel
 import com.teamon.app.projectsViewModel
 import com.teamon.app.tasks.TaskStatus
 import com.teamon.app.teamsViewModel
-import com.teamon.app.usersViewModel
-import com.teamon.app.utils.classes.Chat
 import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.Message
-import com.teamon.app.utils.classes.Performance
 import com.teamon.app.utils.classes.Project
-import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.classes.Team
+import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.UploadStatus
 import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.graphics.currentTimeSeconds
+import com.teamon.app.utils.graphics.saveBitmapAsJpeg
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
 {
@@ -52,7 +41,7 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
     var admin=  mutableStateListOf<String>()       //list of Id string
     var feedbacks= mutableStateListOf<String>()    //list of Id string
     var users= mutableStateListOf<String>()         //list of Id string
-    var performances= mutableStateListOf<String>()  //list of Id string
+    private var performances= mutableStateListOf<String>()  //list of Id string
 
     var messages: MutableList<Message> = mutableStateListOf()
 
@@ -99,10 +88,10 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
 
     private fun startCollectingMessages(teamId: String) {
         updatingMessages = viewModelScope.launch {
-            chatsViewModel.getTeamChatMessages(teamId).collect {
+            chatsViewModel.getTeamChatMessages(teamId).collect { mess ->
                 messages.clear()
-                messages.addAll(it)
-                it.filter { it.unread.contains(profileViewModel!!.userId) }
+                messages.addAll(mess)
+                mess.filter { it.unread.contains(profileViewModel.userId) }
                     .forEach { message ->
                         model.setMessageRead(message.messageId)
                     }
@@ -129,7 +118,7 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
         getProjectsTeam().collect {projects ->
             projects.forEach { project ->
                 launch {
-                    projectsViewModel!!.getProjectTasks(project.projectId).collect {tasks ->
+                    projectsViewModel.getProjectTasks(project.projectId).collect { tasks ->
                         if(tasks.values.all { task -> task.status == TaskStatus.Completed })
                             completedProjects[project.projectId] = project
                             send(completedProjects)
@@ -147,7 +136,7 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
 
 
 
-    var teamCreationDateTimestamp by mutableStateOf(Timestamp.now())
+    private var teamCreationDateTimestamp by mutableStateOf(Timestamp.now())
 
 
 
@@ -171,7 +160,7 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
         private set
 
 
-    var newFeedbackRating by mutableStateOf(5)
+    var newFeedbackRating by mutableIntStateOf(5)
         private set
 
     var isConfirmDialogShow by mutableStateOf(false)
@@ -241,7 +230,7 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
         {
             val feedbackToAdd= Feedback(
                 feedbackId = "-1",
-                authorId = profileViewModel!!.userId,
+                authorId = profileViewModel.userId,
                 description = newFeedback,
                 value = newFeedbackRating,
                 anonymous = isFeedbackAnonymous,
@@ -268,9 +257,9 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
         when (source) {
             ImageSource.CAMERA, ImageSource.LIBRARY -> {
                 viewModelScope.launch {
-                    context?.let {
-                        var bitmap: Bitmap? = null
-                        val inputStream = it.contentResolver.openInputStream(uri)
+                    context.let { stream ->
+                        val bitmap: Bitmap?
+                        val inputStream = stream.contentResolver.openInputStream(uri)
                         bitmap = BitmapFactory.decodeStream(inputStream)
 
                         val file = saveBitmapAsJpeg(context, bitmap, "$teamId.jpg")
@@ -359,11 +348,11 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
 
     }
 
-    fun promoteToAdmin(memberIdToPromove: String)
+    fun promoteToAdmin(memberIdToPromote: String)
     {
 
-        var adminsNew=  admin.toMutableList()
-        adminsNew.add(memberIdToPromove)
+        val adminsNew=  admin.toMutableList()
+        adminsNew.add(memberIdToPromote)
         admin.clear()
         admin.addAll(adminsNew)
 
@@ -436,8 +425,8 @@ class TeamViewModel(val model: Model, val teamId: String) : ViewModel()
     fun checkOthersAdmins(userIdToRemove: String): Boolean
     {
 
-        var localAdmins= admin
-        return localAdmins.toList().filter { it != userIdToRemove }.isNotEmpty()
+        val localAdmins= admin
+        return localAdmins.toList().any { it != userIdToRemove }
     }
 
 

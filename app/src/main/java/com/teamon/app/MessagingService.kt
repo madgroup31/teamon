@@ -1,10 +1,13 @@
 package com.teamon.app
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -15,19 +18,15 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.ktx.messaging
-import android.content.Context
-import android.content.Intent
-import android.graphics.drawable.Icon
-import android.net.Uri
-import androidx.core.app.PendingIntentCompat
 
+@SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.notification?.let { notification ->
 
                 val channel = notification.channelId
                 val tag = notification.tag
-                val image = notification.imageUrl
+            notification.imageUrl
                 if(tag != profileViewModel.userId)
                     when(channel) {
                         HISTORY -> {
@@ -130,9 +129,11 @@ class MessagingService : FirebaseMessagingService() {
                         .setMessage("This app needs the Notification permission to notify you about important updates.")
                         .setPositiveButton("OK") { dialog, _ ->
                             // Request the permission again
-                            ActivityCompat.requestPermissions(activity,
-                                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                                1)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                ActivityCompat.requestPermissions(activity,
+                                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                                    1)
+                            }
                             dialog.dismiss()
                         }
                         .setNegativeButton("Cancel") { dialog, _ ->
@@ -143,32 +144,32 @@ class MessagingService : FirebaseMessagingService() {
                         .show()
                 } else {
                     // No explanation needed; request the permission
-                    ActivityCompat.requestPermissions(activity,
-                        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                        1)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        ActivityCompat.requestPermissions(activity,
+                            arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                            1)
+                    }
                 }
             } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    var channel = NotificationChannel(
-                        MessagingService.HISTORY,
-                        "Task Modifications",
-                        NotificationManager.IMPORTANCE_DEFAULT
-                    ).apply {
-                        description = "This channel allows to receive notifications about task modifications."
-                    }
-                    val notificationManager: NotificationManager =
-                        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                    notificationManager.createNotificationChannel(channel)
-
-                    channel = NotificationChannel(
-                        MessagingService.MESSAGES,
-                        "Chat Messages",
-                        NotificationManager.IMPORTANCE_HIGH
-                    ).apply {
-                        description = "This channel allows to receive notifications when new chat messages are received."
-                    }
-                    notificationManager.createNotificationChannel(channel)
+                var channel = NotificationChannel(
+                    HISTORY,
+                    "Task Modifications",
+                    NotificationManager.IMPORTANCE_DEFAULT
+                ).apply {
+                    description = "This channel allows to receive notifications about task modifications."
                 }
+                val notificationManager: NotificationManager =
+                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.createNotificationChannel(channel)
+
+                channel = NotificationChannel(
+                    MESSAGES,
+                    "Chat Messages",
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = "This channel allows to receive notifications when new chat messages are received."
+                }
+                notificationManager.createNotificationChannel(channel)
             }
         }
 

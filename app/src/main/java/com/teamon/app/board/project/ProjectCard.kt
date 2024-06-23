@@ -1,7 +1,5 @@
 package com.teamon.app.board.project
 
-//import com.teamon.app.projectsViewModel
-
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColor
@@ -71,10 +69,7 @@ import com.teamon.app.R
 import com.teamon.app.prefs
 import com.teamon.app.profileViewModel
 import com.teamon.app.projectsViewModel
-import com.teamon.app.teamOnViewModel
 import com.teamon.app.utils.classes.Project
-import com.teamon.app.utils.graphics.ImageSource
-import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.ProjectCardDropdownMenu
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.Theme
@@ -87,7 +82,6 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ProjectCard(
-    orientation: Orientation,
     actions: Actions,
     project: Project,
     snackbarHostState: SnackbarHostState = SnackbarHostState()
@@ -365,14 +359,14 @@ fun ProjectCard(
                             ) {
                                 if(animate)
                                 AnimatedContent(
-                                    targetState = !profileViewModel!!.isFavorite(projectId = project.projectId),
+                                    targetState = !profileViewModel.isFavorite(projectId = project.projectId),
                                     contentAlignment = Alignment.Center,
                                     label = "Favorite animation"
                                 ) {
 
                                     IconButton(
                                         colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-                                        onClick = { profileViewModel!!.setFavorite(projectId = project.projectId) }) {
+                                        onClick = { profileViewModel.setFavorite(projectId = project.projectId) }) {
                                         Icon(
                                             if (it) Icons.Rounded.FavoriteBorder else Icons.Filled.Favorite,
                                             contentDescription = null
@@ -382,9 +376,9 @@ fun ProjectCard(
                                 else
                                     IconButton(
                                         colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-                                        onClick = { profileViewModel!!.setFavorite(projectId = project.projectId) }) {
+                                        onClick = { profileViewModel.setFavorite(projectId = project.projectId) }) {
                                         Icon(
-                                            if (profileViewModel!!.isFavorite(projectId = project.projectId)) Icons.Rounded.FavoriteBorder else Icons.Filled.Favorite,
+                                            if (profileViewModel.isFavorite(projectId = project.projectId)) Icons.Rounded.FavoriteBorder else Icons.Filled.Favorite,
                                             contentDescription = null
                                         )
                                     }
@@ -403,7 +397,6 @@ fun ProjectCard(
                                 ProjectCardDropdownMenu(
                                     expanded = expanded,
                                     onExpandedChange = { expanded = it },
-                                    actions = actions,
                                     projectId = project.projectId,
                                     onProjectDelete = { projectId ->
                                         onProjectDelete(projectId); expanded = false

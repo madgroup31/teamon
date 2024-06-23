@@ -1,7 +1,6 @@
 package com.teamon.app.login
 
 import android.app.Activity
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -20,15 +19,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowForward
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -46,12 +40,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import com.teamon.app.Location
 import com.teamon.app.R
-import com.teamon.app.utils.graphics.ImageSource
-import com.teamon.app.utils.graphics.ProjectColors
-import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.themes.teamon.TeamOnTheme
 import kotlinx.coroutines.delay
 
@@ -83,7 +73,7 @@ fun Login(
                 TextButton(onClick = { onAnonymousSignInClick(); logoVisible = false }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Continue without an account")
-                        Icon(modifier = Modifier.size(18.dp), imageVector = Icons.Rounded.ArrowForward, contentDescription = "Continue without an account")
+                        Icon(modifier = Modifier.size(18.dp), imageVector = Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = "Continue without an account")
                     }
                 }
             }

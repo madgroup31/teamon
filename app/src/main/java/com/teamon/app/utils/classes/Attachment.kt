@@ -2,7 +2,6 @@ package com.teamon.app.utils.classes
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
-import java.io.File
 
 data class Attachment(
     @DocumentId

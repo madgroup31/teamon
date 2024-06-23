@@ -1,9 +1,7 @@
 package com.teamon.app.tasks
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -12,12 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,19 +36,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -63,16 +51,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,31 +64,20 @@ import com.teamon.app.Actions
 import com.teamon.app.R
 import com.teamon.app.prefs
 import com.teamon.app.profileViewModel
-import com.teamon.app.projectsViewModel
 import com.teamon.app.tasksViewModel
-import com.teamon.app.teamOnViewModel
-import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.classes.User
-import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.TaskCardDropdownMenu
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.asCompactFutureRelativeDate
 import com.teamon.app.utils.graphics.asDate
-import com.teamon.app.utils.graphics.asFutureRelativeDate
-import com.teamon.app.utils.graphics.currentTimeSeconds
 import com.teamon.app.utils.graphics.toTimestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 enum class TaskPriority {
     Low, Medium, High;
@@ -142,12 +112,10 @@ enum class Repeat { Daily, Weekly, Monthly, Yearly }
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun TaskCard(
-    orientation: Orientation,
     taskId: String,
     actions: Actions,
     setView: ((Boolean) -> Unit)? = null,
     snackbarHostState: SnackbarHostState,
-    onTaskDelete: (String) -> Unit,
 ) {
     val project by tasksViewModel.getTaskProject(taskId).collectAsState(initial = Project())
     val task by tasksViewModel.getTask(taskId).collectAsState(initial = Task())
@@ -353,11 +321,7 @@ fun TaskCard(
                                             actions = actions,
                                             taskId = taskId,
                                             projectId = project.projectId,
-                                            admins = admins.keys.toList(),
-                                            onTaskDelete = { taskId ->
-                                                //onTaskDelete(project.projectId,taskId);
-                                                expanded = false
-                                            }
+                                            admins = admins.keys.toList()
                                         )
                                 }
 
@@ -473,15 +437,15 @@ fun TaskCard(
                                             .clickable {},
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        if (task.listUser.contains(profileViewModel!!.userId)) {
+                                        if (task.listUser.contains(profileViewModel.userId)) {
                                             TeamOnImage(
                                                 modifier = Modifier
                                                     .size(24.dp)
                                                     .clip(CircleShape),
-                                                source = profileViewModel!!.profileImageSource,
-                                                uri = profileViewModel!!.profileImageUri,
-                                                name = profileViewModel!!.nameValue,
-                                                surname = profileViewModel!!.surnameValue,
+                                                source = profileViewModel.profileImageSource,
+                                                uri = profileViewModel.profileImageUri,
+                                                name = profileViewModel.nameValue,
+                                                surname = profileViewModel.surnameValue,
                                                 color = profileViewModel.color,
                                                 description = "Profile picture"
                                             )
@@ -493,17 +457,17 @@ fun TaskCard(
                                                     modifier = Modifier
                                                         .size(24.dp)
                                                         .clip(CircleShape),
-                                                    source = profileViewModel!!.profileImageSource,
-                                                    uri = profileViewModel!!.profileImageUri,
-                                                    name = profileViewModel!!.nameValue,
-                                                    surname = profileViewModel!!.surnameValue,
+                                                    source = profileViewModel.profileImageSource,
+                                                    uri = profileViewModel.profileImageUri,
+                                                    name = profileViewModel.nameValue,
+                                                    surname = profileViewModel.surnameValue,
                                                     color = profileViewModel.color,
                                                     description = "Profile picture"
                                                 )
                                             } else {
-                                                val userId = task.listUser.firstOrNull()
-                                                if (userId != null) {
-                                                    val user by usersViewModel!!.getUser(userId!!)
+                                                val id = task.listUser.firstOrNull()
+                                                if (id != null) {
+                                                    val user by usersViewModel.getUser(id)
                                                         .collectAsState(initial = User())
 
                                                     TeamOnImage(

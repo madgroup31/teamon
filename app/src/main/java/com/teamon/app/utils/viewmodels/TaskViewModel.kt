@@ -7,18 +7,14 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.teamon.app.Model
-import com.teamon.app.R
 import com.teamon.app.attachmentsViewModel
 import com.teamon.app.commentsViewModel
-import com.teamon.app.feedbacksViewModel
 import com.teamon.app.historyViewModel
 import com.teamon.app.projectsViewModel
 import com.teamon.app.tasks.RecurringType
@@ -26,21 +22,14 @@ import com.teamon.app.tasks.Repeat
 import com.teamon.app.tasks.TaskPriority
 import com.teamon.app.tasks.TaskStatus
 import com.teamon.app.tasksViewModel
-import com.teamon.app.teamOnViewModel
-import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Attachment
 import com.teamon.app.utils.classes.Comment
-import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.History
-import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
-import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.classes.User
-import com.teamon.app.utils.graphics.HistoryIcons
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.UploadStatus
 import com.teamon.app.utils.graphics.asDate
-import com.teamon.app.utils.graphics.currentTimeSeconds
 import com.teamon.app.utils.graphics.toTimestamp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
@@ -51,15 +40,12 @@ import java.text.SimpleDateFormat
 import java.time.DateTimeException
 import java.util.Calendar
 import java.util.Locale
-import java.util.UUID
 
-class TaskViewModel(val model: Model, taskId: String) : ViewModel(){
+class TaskViewModel(val model: Model, var taskId: String) : ViewModel(){
 
     var task: StateFlow<Task> = model.getTask(taskId).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Task())
     var projectMembers = mutableStateMapOf<String,User>()
     var projectId by mutableStateOf("")
-
-    var taskId = taskId
 
     var projectColor by mutableStateOf(ProjectColors.PURPLE)
 
@@ -84,7 +70,7 @@ class TaskViewModel(val model: Model, taskId: String) : ViewModel(){
 
     private fun startCollectingTask() {
         updatingTask = viewModelScope.launch {
-            tasksViewModel!!.getTask(taskId).collect {
+            tasksViewModel.getTask(taskId).collect {
                 taskName = it.taskName
                 taskTag = it.tag
                 taskStatus = it.status
@@ -127,15 +113,6 @@ class TaskViewModel(val model: Model, taskId: String) : ViewModel(){
             }
         }
     }
-    private fun stopCollectingHistory() {
-        updatingHistory?.cancel()
-        updatingHistory = null
-    }
-
-    private fun stopCollectingAttachments() {
-        updatingAttachments?.cancel()
-        updatingAttachments = null
-    }
 
     private fun stopCollectingTask() {
         updatingTask?.cancel()
@@ -149,9 +126,9 @@ class TaskViewModel(val model: Model, taskId: String) : ViewModel(){
         startCollectingHistory()
         startCollectingComments()
         viewModelScope.launch {
-            tasksViewModel.getTaskProject(taskId).collect{
-                projectId = it.projectId
-                projectColor = it.projectColor
+            tasksViewModel.getTaskProject(taskId).collect{ project ->
+                projectId = project.projectId
+                projectColor = project.projectColor
                 projectsViewModel.getProjectMembers(projectId).collect {
                     projectMembers.clear()
                     projectMembers.putAll(it)
@@ -256,8 +233,7 @@ class TaskViewModel(val model: Model, taskId: String) : ViewModel(){
 
     var taskPriority by mutableStateOf(TaskPriority.Medium)
         private set
-    var taskPriorityError by mutableStateOf("")
-        private set
+    private var taskPriorityError by mutableStateOf("")
     fun updateTaskPriority(priority: TaskPriority) {
         taskPriority = priority
     }
@@ -267,8 +243,7 @@ class TaskViewModel(val model: Model, taskId: String) : ViewModel(){
 
     var taskStatus by mutableStateOf(TaskStatus.Progress)
         private set
-    var taskStatusError by mutableStateOf("")
-        private set
+    private var taskStatusError by mutableStateOf("")
     fun updateTaskStatus(status: TaskStatus) {
         taskStatus = status
     }
@@ -279,13 +254,6 @@ class TaskViewModel(val model: Model, taskId: String) : ViewModel(){
 
     var taskRecurringType by mutableStateOf(RecurringType.Fixed)
         private set
-    var taskRecurringTypeError by mutableStateOf("")
-        private set
-    fun updateTaskRecurringType(switch: Boolean) {
-        taskRecurringType = if (switch)
-            RecurringType.Recursive
-        else RecurringType.Fixed
-    }
 
     var taskRepeat by mutableStateOf(Repeat.Daily)
         private set
@@ -295,9 +263,7 @@ class TaskViewModel(val model: Model, taskId: String) : ViewModel(){
         taskRepeat = repeat
     }
     private fun checkRepeat(){
-        taskRepeatError = if (taskRepeat == null) {
-            "Please select repeat type"
-        } else ""
+        taskRepeatError = ""
     }
 
     var taskEndRepeat by mutableStateOf("")

@@ -1,12 +1,7 @@
 package com.teamon.app.utils.classes
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Build
-import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
-import com.teamon.app.tasks.TaskStatus
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.ProjectImages
 

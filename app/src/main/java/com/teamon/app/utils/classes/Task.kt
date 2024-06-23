@@ -1,12 +1,10 @@
 package com.teamon.app.utils.classes
 
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
 import com.teamon.app.tasks.RecurringType
 import com.teamon.app.tasks.Repeat
 import com.teamon.app.tasks.TaskPriority
-import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.tasks.TaskStatus
 
 data class Task(

@@ -1,6 +1,5 @@
 package com.teamon.app.myteams
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,9 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -36,14 +33,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -53,36 +49,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.teamon.app.Actions
 import com.teamon.app.R
 import com.teamon.app.account.FeedbackCard
-import com.teamon.app.tasks.comments.CommentCard
 import com.teamon.app.teams.feedbacks.NewTeamFeedbackDialog
-import com.teamon.app.utils.classes.Feedback
-import com.teamon.app.utils.graphics.AnimatedGrid
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.SearchBar
 import com.teamon.app.utils.graphics.asPastRelativeDate
 import com.teamon.app.utils.graphics.convertMillisToDate
 import com.teamon.app.utils.viewmodels.TeamViewModel
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,8 +70,7 @@ import java.util.TimeZone
 fun DatePickerDialogFeedback(
     onDateSelected: (String) -> Unit,
     onDismiss: () -> Unit,
-    actualDate: String,
-    firstSelectable: String? = null
+    actualDate: String
 ) {
     val datePickerState = rememberDatePickerState()
 
@@ -374,14 +353,14 @@ fun TeamFeedbacks(actions: Actions, teamVM: TeamViewModel)
     var anonymousFilter by remember { mutableStateOf(false) }
     val onAnonymousFilterChange: (Boolean) -> Unit= { anonymousFilter = it }
 
-    var startRating by remember { mutableStateOf(0) }
+    var startRating by remember { mutableIntStateOf(0) }
     val onStartRateChange: (Int) -> Unit= { startRating = it }
 
-    var fromRating by remember { mutableStateOf(10) }
+    var fromRating by remember { mutableIntStateOf(10) }
     val onFromRateChange: (Int) -> Unit= { fromRating = it }
 
     //DATE
-    var dateFilter by remember { mutableStateOf<String>("") }
+    var dateFilter by remember { mutableStateOf("") }
     val onDateFilterChange: (String) -> Unit= {
         dateFilter= it
     }

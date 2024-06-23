@@ -29,22 +29,18 @@ import com.google.firebase.Timestamp
 import com.teamon.app.Actions
 import com.teamon.app.R
 import com.teamon.app.profileViewModel
-import com.teamon.app.teamOnViewModel
 import com.teamon.app.tasks.TaskPriority
-import com.teamon.app.utils.classes.Task
 import com.teamon.app.tasks.TaskStatus
 import com.teamon.app.tasksViewModel
 import com.teamon.app.usersViewModel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.teamon.app.utils.classes.Task
+import java.util.Locale
 
 @Composable
 fun TasksViewDropdownMenu(
     mainExpanded: Boolean,
     onMainExpandedChange: (Boolean) -> Unit,
-    sortExpanded: Boolean,
     onSortExpandedChange: (Boolean) -> Unit,
-    filterExpanded: Boolean,
     onFilterExpandedChange: (Boolean) -> Unit
 ) {
     DropdownMenu(
@@ -95,13 +91,13 @@ fun TaskCardDropdownMenu(
     actions: Actions,
     taskId: String,
     projectId: String,
-    admins: List<String>,
-    onTaskDelete: (String)-> Unit) {
+    admins: List<String>
+) {
 
     var deletingTask by remember { mutableStateOf(false) }
     LaunchedEffect(deletingTask) {
         if(deletingTask) {
-            tasksViewModel!!.deleteTask(projectId,taskId)
+            tasksViewModel.deleteTask(projectId,taskId)
             deletingTask = false
         }
     }
@@ -128,7 +124,7 @@ fun TaskCardDropdownMenu(
             onClick = { actions.openTaskAttachments(selectedTabItem, taskId) }
         )
 
-        if(admins != null && admins.any { it == profileViewModel!!.userId }) {
+        if(admins.any { it == profileViewModel.userId }) {
             HorizontalDivider()
             DropdownMenuItem(
                 leadingIcon = {
@@ -186,8 +182,16 @@ fun List<Task>.prepare(
 
     if (sortingOrder)
         tasks = when (sortingOption) {
-            TasksSortingOption.ProjectName.title -> tasks.sortedByDescending { it.projectName.decapitalize() }
-            TasksSortingOption.TaskName.title -> tasks.sortedByDescending { it.taskName.decapitalize() }
+            TasksSortingOption.ProjectName.title -> tasks.sortedByDescending { it.projectName.replaceFirstChar { char ->
+                char.lowercase(
+                    Locale.getDefault()
+                )
+            } }
+            TasksSortingOption.TaskName.title -> tasks.sortedByDescending { it.taskName.replaceFirstChar { char ->
+                char.lowercase(
+                    Locale.getDefault()
+                )
+            } }
             TasksSortingOption.Members.title -> tasks.sortedByDescending { it.listUser.size }
             TasksSortingOption.Status.title -> tasks.sortedByDescending { it.status }
             TasksSortingOption.Priority.title -> tasks.sortedByDescending { it.priority }
@@ -196,8 +200,16 @@ fun List<Task>.prepare(
         }
     else
         tasks = when (sortingOption) {
-            TasksSortingOption.ProjectName.title -> tasks.sortedBy { it.projectName.decapitalize() }
-            TasksSortingOption.TaskName.title -> tasks.sortedBy { it.taskName.decapitalize() }
+            TasksSortingOption.ProjectName.title -> tasks.sortedBy { it.projectName.replaceFirstChar { char ->
+                char.lowercase(
+                    Locale.getDefault()
+                )
+            } }
+            TasksSortingOption.TaskName.title -> tasks.sortedBy { it.taskName.replaceFirstChar { char ->
+                char.lowercase(
+                    Locale.getDefault()
+                )
+            } }
             TasksSortingOption.Members.title -> tasks.sortedBy { it.listUser.size }
             TasksSortingOption.Status.title -> tasks.sortedBy { it.status }
             TasksSortingOption.Priority.title -> tasks.sortedBy { it.priority }
@@ -233,8 +245,8 @@ fun List<Task>.prepare(
     if(query.isNotBlank()) tasks = tasks.filter { Regex(query, RegexOption.IGNORE_CASE).containsMatchIn(it.taskName) }
     if(tagQuery.isNotBlank()) tasks = tasks.filter { Regex(tagQuery, RegexOption.IGNORE_CASE).containsMatchIn(it.tag) }
     if(memberQuery.isNotBlank()) tasks = tasks.filter {
-        it.listUser.any {
-            val user = usersViewModel!!.users.value[it]!!
+        it.listUser.any { userId ->
+            val user = usersViewModel.users.value[userId]!!
             Regex(memberQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.name}${user.surname}") ||
                     Regex(memberQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.surname}${user.name}")
         }

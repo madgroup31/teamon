@@ -1,7 +1,10 @@
+@file:Suppress("UNCHECKED_CAST", "KotlinConstantConditions")
+
 package com.teamon.app.board.project.tasks
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,7 +35,6 @@ import com.teamon.app.tasks.RecursiveTasksBox
 import com.teamon.app.tasks.TaskCard
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.graphics.AnimatedGrid
-import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.SearchBar
 import com.teamon.app.utils.graphics.TasksDeadlineFilteringOptions
 import com.teamon.app.utils.graphics.TasksFilteringOptionsDropdownMenu
@@ -79,9 +81,7 @@ fun TasksActions(
     TasksViewDropdownMenu(
         mainExpanded = mainExpanded,
         onMainExpandedChange = onMainExpandedChange,
-        sortExpanded = sortExpanded,
         onSortExpandedChange = onSortExpandedChange,
-        filterExpanded = filterExpanded,
         onFilterExpandedChange = onFilterExpandedChange
     )
 
@@ -129,36 +129,34 @@ fun LandscapeTasksView(
     statusFilter: String,
     priorityFilter: String,
     tagQuery: String,
-    memberQuery: String,
-    showRecursive: Boolean,
-    onTaskDelete: (String) -> Unit
+    memberQuery: String
 ) {
     val sheetState = rememberModalBottomSheetState()
-
-    if (searchActive)
-        SearchBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .zIndex(20f)
-                .padding(10.dp),
-            query = query,
-            placeholder = "Search Tasks...",
-            onQueryChange = onQueryChange,
-            searchActive = searchActive,
-            onSearchActiveChange = onSearchActiveChange
-        ) {
-            val tasks = projectVM.tasks
-                .prepare(
-                    sortingOrder,
-                    sortingOption,
-                    deadlineFilter,
-                    statusFilter,
-                    priorityFilter,
-                    tagQuery,
-                    memberQuery,
-                    query
-                )
-            if (tasks.isEmpty())
+    AnimatedContent(targetState = searchActive, label = "") { isSearching ->
+        if (isSearching)
+            SearchBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .zIndex(20f)
+                    .padding(10.dp),
+                query = query,
+                placeholder = "Search Tasks...",
+                onQueryChange = onQueryChange,
+                searchActive = searchActive,
+                onSearchActiveChange = onSearchActiveChange
+            ) {
+                val tasks = projectVM.tasks
+                    .prepare(
+                        sortingOrder,
+                        sortingOption,
+                        deadlineFilter,
+                        statusFilter,
+                        priorityFilter,
+                        tagQuery,
+                        memberQuery,
+                        query
+                    )
+                if (tasks.isEmpty())
 
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -172,43 +170,43 @@ fun LandscapeTasksView(
                             fontStyle = FontStyle.Italic
                         )
                     }
+                else
 
-            else
 
+                    AnimatedGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = StaggeredGridCells.Adaptive(250.dp),
+                        items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
+                    ) { it, _ ->
+                        val t = (it as List<Task>).sortedBy { it.endDate }
+                        if (t.size > 1)
+                            RecursiveTasksBox(
+                                tasks = t, actions = actions,
+                                snackbarHostState = snackbarHostState
+                            )
+                        else
+                            TaskCard(
+                                taskId = (t.first()).taskId,
+                                actions = actions,
+                                snackbarHostState = snackbarHostState
+                            )
 
-                AnimatedGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(250.dp),
-                    items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
-                ) { it, index ->
-                    val t = (it as List<Task>).sortedBy { it.endDate }
-                    if (t.size > 1)
-                        RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
-                    else
-                        TaskCard(
-                            orientation = Orientation.PORTRAIT,
-                            actions = actions,
-                            taskId = (t.first()).taskId,
-                            onTaskDelete = onTaskDelete,
-                            snackbarHostState = snackbarHostState
-                        )
+                    }
+            }
+        else {
 
-                }
-        }
-    else {
-
-        val tasks = projectVM.tasks
-            .prepare(
-                sortingOrder,
-                sortingOption,
-                deadlineFilter,
-                statusFilter,
-                priorityFilter,
-                tagQuery,
-                memberQuery,
-                ""
-            )
-        if (tasks.isEmpty())
+            val tasks = projectVM.tasks
+                .prepare(
+                    sortingOrder,
+                    sortingOption,
+                    deadlineFilter,
+                    statusFilter,
+                    priorityFilter,
+                    tagQuery,
+                    memberQuery,
+                    ""
+                )
+            if (tasks.isEmpty())
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -221,26 +219,27 @@ fun LandscapeTasksView(
                         fontStyle = FontStyle.Italic
                     )
                 }
+            else
+                AnimatedGrid(
+                    modifier = Modifier.fillMaxSize(),
+                    columns = StaggeredGridCells.Adaptive(250.dp),
+                    items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
+                ) { it, _ ->
+                    val t = (it as List<Task>).sortedBy { it.endDate }
+                    if (t.size > 1)
+                        RecursiveTasksBox(
+                            tasks = t, actions = actions,
+                            snackbarHostState = snackbarHostState
+                        )
+                    else
+                        TaskCard(
+                            taskId = (t.first()).taskId,
+                            actions = actions,
+                            snackbarHostState = snackbarHostState
+                        )
 
-        else
-            AnimatedGrid(
-                modifier = Modifier.fillMaxSize(),
-                columns = StaggeredGridCells.Adaptive(250.dp),
-                items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
-            ) { it, index ->
-                val t = (it as List<Task>).sortedBy { it.endDate }
-                if (t.size > 1)
-                    RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
-                else
-                    TaskCard(
-                        orientation = Orientation.PORTRAIT,
-                        actions = actions,
-                        taskId = (t.first()).taskId,
-                        onTaskDelete = onTaskDelete,
-                        snackbarHostState = snackbarHostState
-                    )
-
-            }
+                }
+        }
     }
     if (newTaskVM.isShowing) {
         ModalBottomSheet(
@@ -251,7 +250,11 @@ fun LandscapeTasksView(
             sheetState = sheetState
         ) {
             // Sheet content
-            NewTaskBottomSheetContent(newTaskVM = newTaskVM, projectVM = projectVM, myTasksViewModel = null, snackbarHostState = snackbarHostState)
+            NewTaskBottomSheetContent(
+                newTaskVM = newTaskVM,
+                projectVM = projectVM,
+                snackbarHostState = snackbarHostState
+            )
         }
     }
 }
@@ -274,23 +277,69 @@ fun PortraitTasksView(
     statusFilter: String,
     priorityFilter: String,
     tagQuery: String,
-    memberQuery: String,
-    onTaskDelete: (String) -> Unit
+    memberQuery: String
 ) {
     val sheetState = rememberModalBottomSheetState()
 
+    AnimatedContent(targetState = searchActive, label = "") { isSearching ->
+        if (isSearching)
+            SearchBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                query = query,
+                placeholder = "Search Tasks...",
+                onQueryChange = onQueryChange,
+                searchActive = true,
+                onSearchActiveChange = onSearchActiveChange
+            ) {
+                val tasks = projectVM.tasks
+                    .prepare(
+                        sortingOrder,
+                        sortingOption,
+                        deadlineFilter,
+                        statusFilter,
+                        priorityFilter,
+                        tagQuery,
+                        memberQuery,
+                        query
+                    )
+                if (tasks.isEmpty())
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "No Available Tasks.",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontStyle = FontStyle.Italic
+                        )
+                    }
+                else
 
-    if (searchActive)
-        SearchBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            query = query,
-            placeholder = "Search Tasks...",
-            onQueryChange = onQueryChange,
-            searchActive = searchActive,
-            onSearchActiveChange = onSearchActiveChange
-        ) {
+                    AnimatedGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = StaggeredGridCells.Adaptive(250.dp),
+                        items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
+                    ) { it, _ ->
+                        val t = (it as List<Task>).sortedBy { it.endDate }
+                        if (t.size > 1)
+                            RecursiveTasksBox(
+                                tasks = t, actions = actions,
+                                snackbarHostState = snackbarHostState
+                            )
+                        else
+                            TaskCard(
+                                taskId = (t.first()).taskId,
+                                actions = actions,
+                                snackbarHostState = snackbarHostState
+                            )
+
+                    }
+            }
+        else {
             val tasks = projectVM.tasks
                 .prepare(
                     sortingOrder,
@@ -300,9 +349,10 @@ fun PortraitTasksView(
                     priorityFilter,
                     tagQuery,
                     memberQuery,
-                    query
+                    ""
                 )
             if (tasks.isEmpty())
+
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -316,71 +366,26 @@ fun PortraitTasksView(
                     )
                 }
             else
-
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
                     columns = StaggeredGridCells.Adaptive(250.dp),
                     items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
-                ) { it, index ->
+                ) { it, _ ->
                     val t = (it as List<Task>).sortedBy { it.endDate }
                     if (t.size > 1)
-                        RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
+                        RecursiveTasksBox(
+                            tasks = t, actions = actions,
+                            snackbarHostState = snackbarHostState
+                        )
                     else
                         TaskCard(
-                            orientation = Orientation.PORTRAIT,
-                            actions = actions,
                             taskId = (t.first()).taskId,
-                            onTaskDelete = onTaskDelete,
+                            actions = actions,
                             snackbarHostState = snackbarHostState
                         )
 
                 }
         }
-    else {
-        val tasks = projectVM.tasks
-            .prepare(
-                sortingOrder,
-                sortingOption,
-                deadlineFilter,
-                statusFilter,
-                priorityFilter,
-                tagQuery,
-                memberQuery,
-                ""
-            )
-        if (tasks.isEmpty())
-
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "No Available Tasks.",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontStyle = FontStyle.Italic
-                )
-            }
-        else
-            AnimatedGrid(
-                modifier = Modifier.fillMaxSize(),
-                columns = StaggeredGridCells.Adaptive(250.dp),
-                items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
-            ) { it, index ->
-                val t = (it as List<Task>).sortedBy { it.endDate }
-                if (t.size > 1)
-                    RecursiveTasksBox(tasks = t, actions = actions, orientation = Orientation.PORTRAIT, snackbarHostState = snackbarHostState, onTaskDelete = onTaskDelete)
-                else
-                    TaskCard(
-                        orientation = Orientation.PORTRAIT,
-                        actions = actions,
-                        taskId = (t.first()).taskId,
-                        onTaskDelete = onTaskDelete,
-                        snackbarHostState = snackbarHostState
-                    )
-
-            }
     }
     if (newTaskVM.isShowing) {
         ModalBottomSheet(
@@ -391,7 +396,11 @@ fun PortraitTasksView(
             sheetState = sheetState
         ) {
             // Sheet content
-            NewTaskBottomSheetContent(newTaskVM = newTaskVM, projectVM = projectVM, myTasksViewModel = null, snackbarHostState = snackbarHostState)
+            NewTaskBottomSheetContent(
+                newTaskVM = newTaskVM,
+                projectVM = projectVM,
+                snackbarHostState = snackbarHostState
+            )
         }
     }
 }

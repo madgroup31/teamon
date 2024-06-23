@@ -2,21 +2,14 @@ package com.teamon.app.utils.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Timestamp
 import com.teamon.app.Model
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.classes.Chat
-import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.Message
 import com.teamon.app.utils.classes.User
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
@@ -36,9 +29,7 @@ class ChatsViewModel(val model: Model) : ViewModel() {
         awaitClose { /* Close resources if needed */ }
     }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
 
-    fun getChat(chatId: String) = model.getChatById(chatId)
-
-    fun getChats(userId: String): Flow<Map<String, Chat>> = channelFlow {
+    fun getChats(): Flow<Map<String, Chat>> = channelFlow {
         val chats = mutableMapOf<String, Chat>()
         model.getTeams().collect { teams ->
             chats.clear()
@@ -54,14 +45,13 @@ class ChatsViewModel(val model: Model) : ViewModel() {
         awaitClose { /* Close resources if needed */ }
     }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
 
-    fun getUserChats(teamId: String) = model.getUserChats(teamId)
     fun getChatMessages(userId: String, teamId: String): Flow<List<Message>> = channelFlow {
 
         model.getChat(userId, teamId).collect { chat ->
             launch {
-                model.getChatMessages(chat.chatId).collect {
-                    send(it)
-                    it.filter { it.unread.contains(profileViewModel.userId) }
+                model.getChatMessages(chat.chatId).collect { messages ->
+                    send(messages)
+                    messages.filter { it.unread.contains(profileViewModel.userId) }
                         .forEach { message ->
                             model.setMessageRead(message.messageId)
                         }
@@ -93,9 +83,9 @@ class ChatsViewModel(val model: Model) : ViewModel() {
 
     fun getUnreadMessages(teamId: String): Flow<Map<String, Int>> = channelFlow<Map<String, Int>> {
         val unreadMessages = mutableMapOf<String, Int>()
-        model.getUserChats(teamId).collect {
+        model.getUserChats(teamId).collect { chats ->
             unreadMessages.clear()
-            it.keys.forEach { chatId ->
+            chats.keys.forEach { chatId ->
                 launch {
                     model.getUnreadMessages(chatId).collect {
                         unreadMessages[chatId] = it
@@ -119,11 +109,11 @@ class ChatsViewModel(val model: Model) : ViewModel() {
     }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
 
 
-    fun getLastMessages(teamId: String): Flow<Map<String, Message>> = channelFlow<Map<String, Message>> {
+    fun getLastMessages(teamId: String): Flow<Map<String, Message>> = channelFlow {
             val lastMessages = mutableMapOf<String, Message>()
-            model.getUserChats(teamId).collect {
+            model.getUserChats(teamId).collect { chats ->
                 lastMessages.clear()
-                it.keys.forEach { chatId ->
+                chats.keys.forEach { chatId ->
                     launch {
                         model.getLastChatMessage(chatId).collect {
                             lastMessages[chatId] = it
@@ -137,10 +127,6 @@ class ChatsViewModel(val model: Model) : ViewModel() {
 
     fun deleteMessage(messageId: String) {
         this.model.deleteMessage(messageId)
-    }
-
-    fun editMessage(messageId: String, text: String) {
-        this.model.editMessage(messageId, text)
     }
 
 }

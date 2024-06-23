@@ -2,6 +2,7 @@ package com.teamon.app.teams
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -78,7 +79,7 @@ fun TeamsView(actions: Actions, joinRequest: String? = null, teamId: String? = n
     if(teamId != null) actions.openTeamChat(teamId)
     Theme(color = profileViewModel.color, applyToStatusBar = true) {
 
-        var snackbarHostState = remember { SnackbarHostState() }
+        val snackbarHostState = remember { SnackbarHostState() }
 
         var sortingOrder by rememberSaveable {
             mutableStateOf(false)
@@ -176,7 +177,7 @@ fun TeamsView(actions: Actions, joinRequest: String? = null, teamId: String? = n
 
         if (joinStatus == JoinRequest.Requesting) {
 
-            val isAlreadyPartecipating = team?.users?.contains(profileViewModel!!.userId)
+            val isAlreadyPartecipating = team?.users?.contains(profileViewModel.userId)
             Box(modifier = Modifier.fillMaxSize()) {
                 if(team != null) {
                     if (joinRequest == null || team == Team()) {
@@ -205,13 +206,13 @@ fun TeamsView(actions: Actions, joinRequest: String? = null, teamId: String? = n
                             confirmButton = {
                                 Button(onClick = {
                                     CoroutineScope(Dispatchers.IO).launch {
-                                        if (
-                                            teamsViewModel!!.addTeamMember(
-                                                profileViewModel!!.userId,
+                                        joinStatus = if (
+                                            teamsViewModel.addTeamMember(
+                                                profileViewModel.userId,
                                                 joinRequest
                                             )
-                                        ) joinStatus = JoinRequest.Accepted
-                                        else joinStatus = JoinRequest.Error
+                                        ) JoinRequest.Accepted
+                                        else JoinRequest.Error
                                     }
                                 }) {
                                     Text("Join", textAlign = TextAlign.Center)
@@ -318,7 +319,7 @@ fun LandscapeView(
         snackbarHostState = snackbarHostState,
         title = "My Teams",
         trailingTopBarActions = {
-            if(data != null && data.isNotEmpty()) {
+            if(!data.isNullOrEmpty()) {
                 var mainExpanded by remember {
                     mutableStateOf(false)
                 }
@@ -338,9 +339,7 @@ fun LandscapeView(
                 TeamsViewDropdownMenu(
                     mainExpanded = mainExpanded,
                     onMainExpandedChange = { mainExpanded = it },
-                    sortExpanded = sortExpanded,
                     onSortExpandedChange = { sortExpanded = it },
-                    filterExpanded = filterExpanded,
                     onFilterExpandedChange = { filterExpanded = it }
                 )
 
@@ -386,79 +385,82 @@ fun LandscapeView(
     ) {
         if(data == null)
             LoadingOverlay(isLoading = true)
-        else
-        if (searchActive) {
-            val teams = data.prepare(
-                sortingOrder = sortingOrder,
-                sortingOption = sortingOption,
-                memberQuery = memberQuery,
-                categoryQuery = categoryQuery,
-                adminQuery = adminQuery,
-                query = query,
-            )
-            SearchBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .zIndex(20f)
-                    .padding(10.dp),
-                query = query,
-                placeholder = "Search Teams...",
-                onQueryChange = onQueryChange,
-                searchActive = searchActive,
-                onSearchActiveChange = onSearchActiveChange
-            ) {
-                if (teams.isEmpty())
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+        else {
+            AnimatedContent(targetState = searchActive, label = "") { isSearching ->
+                if (isSearching)
+                    SearchBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .zIndex(20f)
+                            .padding(10.dp),
+                        query = query,
+                        placeholder = "Search Teams...",
+                        onQueryChange = onQueryChange,
+                        searchActive = searchActive,
+                        onSearchActiveChange = onSearchActiveChange
                     ) {
-                        Text(
-                            text = "No Available Teams.",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontStyle = FontStyle.Italic
+                        val teams = data.prepare(
+                            sortingOrder = sortingOrder,
+                            sortingOption = sortingOption,
+                            memberQuery = memberQuery,
+                            categoryQuery = categoryQuery,
+                            adminQuery = adminQuery,
+                            query = query,
                         )
+                        if (teams.isEmpty())
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "No Available Teams.",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontStyle = FontStyle.Italic
+                                )
+                            }
+                        else {
+                            AnimatedGrid(
+                                modifier = Modifier.fillMaxSize(),
+                                columns = StaggeredGridCells.Adaptive(150.dp),
+                                items = teams
+                            ) { it, _ ->
+                                TeamCard(team = it as Team, actions = actions)
+                            }
+                        }
                     }
                 else {
-                    AnimatedGrid(
-                        modifier = Modifier.fillMaxSize(),
-                        columns = StaggeredGridCells.Adaptive(150.dp),
-                        items = teams
-                    ) { it, index ->
-                        TeamCard(team = it as Team, actions = actions)
-                    }
-                }
-            }
-        } else {
-            val teams = data.prepare(
-                sortingOrder = sortingOrder,
-                sortingOption = sortingOption,
-                memberQuery = memberQuery,
-                categoryQuery = categoryQuery,
-                adminQuery = adminQuery,
-                query = "",
-            )
-            if (teams.isEmpty())
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "No Available Teams.",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontStyle = FontStyle.Italic
+                    val teams = data.prepare(
+                        sortingOrder = sortingOrder,
+                        sortingOption = sortingOption,
+                        memberQuery = memberQuery,
+                        categoryQuery = categoryQuery,
+                        adminQuery = adminQuery,
+                        query = "",
                     )
-                }
-            else {
-                AnimatedGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(150.dp),
-                    items = teams
-                ) { it, index ->
-                    TeamCard(team = it as Team, actions = actions)
+                    if (teams.isEmpty())
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "No Available Teams.",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontStyle = FontStyle.Italic
+                            )
+                        }
+                    else {
+                        AnimatedGrid(
+                            modifier = Modifier.fillMaxSize(),
+                            columns = StaggeredGridCells.Adaptive(150.dp),
+                            items = teams
+                        ) { team, _ ->
+                            TeamCard(team = team as Team, actions = actions)
+                        }
+                    }
                 }
             }
         }
@@ -475,7 +477,6 @@ fun LandscapeView(
         ) {
             // Sheet content
             ModalBottomSheetContentTeam(
-                actions = actions,
                 newTeamVM = newTeamVM
             )
         }
@@ -516,7 +517,7 @@ fun PortraitView(
         snackbarHostState = snackbarHostState,
         title = "My Teams",
         trailingTopBarActions = {
-            if(data != null && data.isNotEmpty()) {
+            if (!data.isNullOrEmpty()) {
                 var mainExpanded by remember {
                     mutableStateOf(false)
                 }
@@ -536,9 +537,7 @@ fun PortraitView(
                 TeamsViewDropdownMenu(
                     mainExpanded = mainExpanded,
                     onMainExpandedChange = { mainExpanded = it },
-                    sortExpanded = sortExpanded,
                     onSortExpandedChange = { sortExpanded = it },
-                    filterExpanded = filterExpanded,
                     onFilterExpandedChange = { filterExpanded = it }
                 )
 
@@ -580,99 +579,101 @@ fun PortraitView(
 
         }
     ) {
-        if(data == null)
+        if (data == null)
             LoadingOverlay(isLoading = true)
-        else
-        if (searchActive) {
-            val teams = data.prepare(
-                sortingOrder = sortingOrder,
-                sortingOption = sortingOption,
-                memberQuery = memberQuery,
-                categoryQuery = categoryQuery,
-                adminQuery = adminQuery,
-                query = query,
-            )
-            SearchBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .zIndex(20f)
-                    .padding(10.dp),
-                query = query,
-                placeholder = "Search Teams...",
-                onQueryChange = onQueryChange,
-                searchActive = searchActive,
-                onSearchActiveChange = onSearchActiveChange
-            ) {
-                if (teams.isEmpty())
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+        else {
+            AnimatedContent(targetState = searchActive, label = "") { isSearching ->
+                if (isSearching) {
+                    SearchBar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .zIndex(20f)
+                            .padding(10.dp),
+                        query = query,
+                        placeholder = "Search Teams...",
+                        onQueryChange = onQueryChange,
+                        searchActive = searchActive,
+                        onSearchActiveChange = onSearchActiveChange
                     ) {
-                        Text(
-                            text = "No Available Teams.",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontStyle = FontStyle.Italic
+                        val teams = data.prepare(
+                            sortingOrder = sortingOrder,
+                            sortingOption = sortingOption,
+                            memberQuery = memberQuery,
+                            categoryQuery = categoryQuery,
+                            adminQuery = adminQuery,
+                            query = query,
                         )
+                        if (teams.isEmpty())
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "No Available Teams.",
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontStyle = FontStyle.Italic
+                                )
+                            }
+                        else {
+                            AnimatedGrid(
+                                modifier = Modifier.fillMaxSize(),
+                                columns = StaggeredGridCells.Adaptive(150.dp),
+                                items = teams
+                            ) { it, _ ->
+                                TeamCard(team = it as Team, actions = actions)
+                            }
+                        }
                     }
-                else {
-                    AnimatedGrid(
-                        modifier = Modifier.fillMaxSize(),
-                        columns = StaggeredGridCells.Adaptive(150.dp),
-                        items = teams
-                    ) { it, index ->
-                        TeamCard(team = it as Team, actions = actions)
-                    }
-                }
-            }
-        } else {
-            val teams = data.prepare(
-                sortingOrder = sortingOrder,
-                sortingOption = sortingOption,
-                memberQuery = memberQuery,
-                categoryQuery = categoryQuery,
-                adminQuery = adminQuery,
-                query = "",
-            )
-            if (teams.isEmpty())
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "No Available Teams.",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontStyle = FontStyle.Italic
+                } else {
+                    val teams = data.prepare(
+                        sortingOrder = sortingOrder,
+                        sortingOption = sortingOption,
+                        memberQuery = memberQuery,
+                        categoryQuery = categoryQuery,
+                        adminQuery = adminQuery,
+                        query = "",
                     )
-                }
-            else {
-                AnimatedGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(150.dp),
-                    items = teams
-                ) { it, index ->
-                    TeamCard(team = it as Team, actions = actions)
+                    if (teams.isEmpty())
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "No Available Teams.",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontStyle = FontStyle.Italic
+                            )
+                        }
+                    else {
+                        AnimatedGrid(
+                            modifier = Modifier.fillMaxSize(),
+                            columns = StaggeredGridCells.Adaptive(150.dp),
+                            items = teams
+                        ) { team, _ ->
+                            TeamCard(team = team as Team, actions = actions)
+                        }
+                    }
                 }
             }
-        }
 
-    }
-    if (newTeamVM.isShowing) {
-        ModalBottomSheet(
-            modifier = Modifier,
-            onDismissRequest = {
-                newTeamVM.toggleShow()
-            },
-            sheetState = sheetState
-        ) {
-            // Sheet content
-            ModalBottomSheetContentTeam(
-                actions = actions,
-                newTeamVM = newTeamVM
-            )
+        }
+        if (newTeamVM.isShowing) {
+            ModalBottomSheet(
+                modifier = Modifier,
+                onDismissRequest = {
+                    newTeamVM.toggleShow()
+                },
+                sheetState = sheetState
+            ) {
+                // Sheet content
+                ModalBottomSheetContentTeam(
+                    newTeamVM = newTeamVM
+                )
+            }
         }
     }
 }

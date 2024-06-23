@@ -23,16 +23,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.teamon.app.Actions
-import com.teamon.app.MainActivity
 import com.teamon.app.R
 import com.teamon.app.profileViewModel
 import com.teamon.app.projectsViewModel
-import com.teamon.app.teamOnViewModel
 import com.teamon.app.utils.classes.Project
 
 @Composable
-fun ProjectCardDropdownMenu(expanded: Boolean, onExpandedChange: (Boolean) -> Unit, actions: Actions, projectId: String, onProjectDelete: (String)-> Unit) {
+fun ProjectCardDropdownMenu(
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    projectId: String,
+    onProjectDelete: (String) -> Unit
+) {
     var showingDeletionDialog by remember { mutableStateOf(false) }
     DropdownMenu(
         modifier = Modifier,
@@ -44,11 +46,11 @@ fun ProjectCardDropdownMenu(expanded: Boolean, onExpandedChange: (Boolean) -> Un
             text = { Text("Update") },
             onClick = { /*actions.editProject(selectedTabItem, taskId)*/ }
         )
-        val project by projectsViewModel!!.getProject(projectId).collectAsState(initial = Project())
-        val admins by projectsViewModel!!.getProjectAdmins(projectId).collectAsState(initial = emptyMap())
+        val project by projectsViewModel.getProject(projectId).collectAsState(initial = Project())
+        val admins by projectsViewModel.getProjectAdmins(projectId).collectAsState(initial = emptyMap())
 
 
-        if( admins.values.any { it.userId == profileViewModel!!.userId }) {
+        if( admins.values.any { it.userId == profileViewModel.userId }) {
             HorizontalDivider()
             DropdownMenuItem(
                 leadingIcon = {

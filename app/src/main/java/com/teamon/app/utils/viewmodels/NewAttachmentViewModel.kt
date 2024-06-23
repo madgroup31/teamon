@@ -2,10 +2,8 @@ package com.teamon.app.utils.viewmodels
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,9 +19,8 @@ import com.teamon.app.utils.graphics.getFileType
 import kotlinx.coroutines.launch
 import java.io.File
 
-class NewAttachmentViewModel(val model: Model, taskId: String): ViewModel() {
+class NewAttachmentViewModel(val model: Model, private val taskId: String): ViewModel() {
 
-    private val taskId = taskId
     var attachmentName by mutableStateOf("")
     private set
 
@@ -127,9 +124,8 @@ class NewAttachmentViewModel(val model: Model, taskId: String): ViewModel() {
                             }
 
                             is UploadStatus.Success -> {
-                                if(attachmentsViewModel!!.updateAttachment(attachmentId = attachmentId,
+                                if(!attachmentsViewModel.updateAttachment(attachmentId = attachmentId,
                                         attachment.copy(uploadedOn = Timestamp.now(), downloadUrl = status.downloadUrl)))
-                                else
                                     error = "An error occurred while uploading attachment. Please try again."
                                 clear()
                                 hide()
@@ -146,12 +142,5 @@ class NewAttachmentViewModel(val model: Model, taskId: String): ViewModel() {
     fun setErrorMessage(e: String?) {
         error = e?:""
     }
-
-    var isShowingConfirmDialog by mutableStateOf(false)
-    private set
-
-            fun toggleConfirmDialog() {
-                isShowingConfirmDialog = !isShowingConfirmDialog
-            }
 
 }

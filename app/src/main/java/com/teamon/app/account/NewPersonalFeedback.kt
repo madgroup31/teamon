@@ -45,7 +45,6 @@ fun NewPersonalFeedbackDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-            //border = BorderStroke(1.dp, Color.DarkGray),
         )
         {
             Row(

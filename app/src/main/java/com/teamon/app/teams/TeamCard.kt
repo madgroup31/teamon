@@ -1,7 +1,6 @@
 package com.teamon.app.myteams
 
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,7 +23,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -47,8 +45,6 @@ import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
 import com.teamon.app.chatsViewModel
-import com.teamon.app.projectsViewModel
-import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.classes.User
@@ -65,7 +61,7 @@ fun TeamCard(
     val selectedNavItem =
         actions.navCont.currentBackStackEntry?.destination?.route?.split("/")?.first().toString()
 
-    val unreadTeamChatMessages by chatsViewModel!!.getUnreadTeamChatMessages(team.teamId).collectAsState(initial = 0)
+    val unreadTeamChatMessages by chatsViewModel.getUnreadTeamChatMessages(team.teamId).collectAsState(initial = 0)
 
     Theme(
         applyToStatusBar = false,

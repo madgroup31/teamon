@@ -151,11 +151,7 @@ fun ProjectView(
         var teamAdminQuery by rememberSaveable {
             mutableStateOf("")
         }
-        var showRecursive by rememberSaveable {
-            mutableStateOf(false)
-        }
 
-        val onShowRecursiveChange: (Boolean) -> Unit = { showRecursive = !showRecursive }
         val onTeamSortingOrderChange: (Boolean) -> Unit = { teamSortingOrder = !it }
         val onTeamSortingOptionChange: (TeamsSortingOption) -> Unit =
             { teamSortingOption = it.title }
@@ -167,10 +163,6 @@ fun ProjectView(
             mutableStateOf("")
         }
         val onTeamQueryChange: (String) -> Unit = { teamQuery = it }
-        val onTaskDelete: (String) -> Unit = { taskId ->
-            //Log.d("TaskView", "Task deleted: $taskId")
-            //tasksViewModel!!.deleteTask(taskId)
-        }
         var teamSearchActive by rememberSaveable {
             mutableStateOf(false)
         }
@@ -180,7 +172,7 @@ fun ProjectView(
             factory = Factory(
                 LocalContext.current.applicationContext,
                 projectId = projectVM.projectId,
-                userId = profileViewModel!!.userId
+                userId = profileViewModel.userId
             )
         )
 
@@ -216,10 +208,9 @@ fun ProjectView(
             taskMemberQuery = memberQuery,
             onTaskMemberQueryChange = onMemberQueryChange,
             actions = actions,
+            pagerState = pagerState,
             newTaskViewModel = newTaskViewModel,
             projectVM = projectVM,
-            pagerState = pagerState,
-            onTaskDelete = onTaskDelete,
             teamSortingOrder = teamSortingOrder,
             onTeamSortingOrderChange = onTeamSortingOrderChange,
             teamSortingOption = teamSortingOption,
@@ -234,7 +225,6 @@ fun ProjectView(
             onTeamQueryChange = onTeamQueryChange,
             teamSearchActive = teamSearchActive,
             onTeamSearchActiveChange = onTeamSearchActiveChange,
-            showRecursive = showRecursive,
             isAddingTeam = isAddingTeam,
             onAddTeamClick = onAddTeamClick,
         )
@@ -261,7 +251,6 @@ fun ProjectView(
             pagerState = pagerState,
             newTaskViewModel = newTaskViewModel,
             projectVM = projectVM,
-            onTaskDelete = onTaskDelete,
             teamSortingOrder = teamSortingOrder,
             onTeamSortingOrderChange = onTeamSortingOrderChange,
             teamSortingOption = teamSortingOption,
@@ -309,7 +298,6 @@ fun LandscapeView(
     pagerState: PagerState,
     newTaskViewModel: NewTaskViewModel,
     projectVM: ProjectViewModel,
-    onTaskDelete: (String) -> Unit,
     teamSortingOrder: Boolean,
     onTeamSortingOrderChange: (Boolean) -> Unit,
     teamSortingOption: String,
@@ -324,7 +312,6 @@ fun LandscapeView(
     onTeamQueryChange: (String) -> Unit,
     teamSearchActive: Boolean,
     onTeamSearchActiveChange: (Boolean) -> Unit,
-    showRecursive: Boolean,
     isAddingTeam: Boolean,
     onAddTeamClick: () -> Unit,
 ) {
@@ -575,9 +562,7 @@ fun LandscapeView(
                         statusFilter = taskStatusFilter,
                         priorityFilter = taskPriorityFilter,
                         tagQuery = taskTagQuery,
-                        memberQuery = taskMemberQuery,
-                        showRecursive = showRecursive,
-                        onTaskDelete = onTaskDelete
+                        memberQuery = taskMemberQuery
                     )
                 }
 
@@ -607,7 +592,7 @@ fun LandscapeView(
                 }
 
                 4 -> {
-                    PerformanceView(actions = actions, projectVM = projectVM)
+                    PerformanceView(projectVM = projectVM)
                 }
             }
         }
@@ -640,7 +625,6 @@ fun PortraitView(
     pagerState: PagerState,
     newTaskViewModel: NewTaskViewModel,
     projectVM: ProjectViewModel,
-    onTaskDelete: (String) -> Unit,
     teamSortingOrder: Boolean,
     onTeamSortingOrderChange: (Boolean) -> Unit,
     teamSortingOption: String,
@@ -917,7 +901,6 @@ fun PortraitView(
                         priorityFilter = priorityFilter,
                         tagQuery = tagQuery,
                         memberQuery = memberQuery,
-                        onTaskDelete = onTaskDelete,
                     )
                 }
 
@@ -946,7 +929,7 @@ fun PortraitView(
                 }
 
                 4 -> {
-                    PerformanceView(actions = actions, projectVM = projectVM)
+                    PerformanceView(projectVM = projectVM)
                 }
             }
         }

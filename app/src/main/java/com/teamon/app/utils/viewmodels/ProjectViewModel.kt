@@ -1,6 +1,7 @@
 package com.teamon.app.utils.viewmodels
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,11 +11,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.teamon.app.Model
-import com.teamon.app.board.project.feedbacks.FeedbackType
 import com.teamon.app.profileViewModel
 import com.teamon.app.projectsViewModel
 import com.teamon.app.utils.classes.Feedback
-import com.teamon.app.utils.classes.Performance
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.classes.Team
@@ -22,7 +21,6 @@ import com.teamon.app.utils.classes.User
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.graphics.currentTimeSeconds
-import com.teamon.app.utils.graphics.toTimestamp
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -31,16 +29,9 @@ import java.text.SimpleDateFormat
 import java.time.DateTimeException
 import java.util.Calendar
 import java.util.Locale
-import java.util.UUID
 
 class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     var project: StateFlow<Project> = model.getProject(projectId).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Project())
-
-    /*var tasks = mutableStateListOf<String>() //lista id dei task
-    var teams= model.loadTeamsByProjectId(projectId)
-    var teamUsers= model.loadTeamUsers(projectId) //map: key= teamId, value= pair(teamName,listUsers)
-    var feedbacks= model.loadFeedbacksByProjectId(projectId)
-    var performances= model.loadPerformancesByProjectId(projectId)*/
 
     var tasks = mutableStateListOf<Task>()
         private set
@@ -54,9 +45,6 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     fun getProjectTeams() = projectsViewModel.getProjectTeams(projectId)
 
     var members = mutableStateMapOf<String, User>()
-    private set
-
-    var performances = mutableStateListOf<Performance>()
     private set
 
 
@@ -97,11 +85,6 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
         }
     }
 
-    suspend fun addTask(task: Task) {
-        this.model.addTask(task = task, projectId = projectId)
-
-    }
-
 
     var projectColor by mutableStateOf(ProjectColors.PURPLE)
         private set
@@ -137,16 +120,6 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     }
 
 
-
-
-    fun updateListUser(user: User) {
-        /*if (members.contains(user)) {
-            members = members.filter { it != user }
-        } else {
-            members = members + user
-        }*/
-    }
-
     var isWritingFeedback by mutableStateOf(false)
         private set
     fun toggleIsWritingFeedback() {
@@ -169,7 +142,7 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
         } else ""
     }
 
-    var newFeedbackRating by mutableStateOf(5)
+    var newFeedbackRating by mutableIntStateOf(5)
         private set
 
     fun updateNewFeedbackRating(rating: Float) {
@@ -195,7 +168,7 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
 
             val feedbackToAdd= Feedback(
                 feedbackId = "-1",
-                authorId = profileViewModel!!.userId,
+                authorId = profileViewModel.userId,
                 description = newFeedback,
                 value = newFeedbackRating,
                 anonymous = isFeedbackAnonymous,
@@ -322,25 +295,6 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
         checkName()
         checkDescription()
         checkEndDate()
-        //checkTag() SHOULD NOT BE MODIFIABLE
-        if (
-            projectNameError == "" &&
-            projectDescriptionError == "" &&
-            projectEndDateError == ""
-        ) {
-            /*model.updateProject(
-                project.copy(
-                    projectName = projectName,
-                    description = projectDescription,
-                    endDate = projectEndDate.toTimestamp(),
-                    //members = members,
-                )
-            )
-            isEditing = false
-            project = model.loadProject(projectId)*/
-        }
-
     }
 
-    suspend fun deleteTask(taskId: String) = model.deleteTask(projectId,taskId)
 }

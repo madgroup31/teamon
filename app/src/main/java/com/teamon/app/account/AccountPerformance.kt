@@ -39,16 +39,13 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import com.teamon.app.tasks.TaskStatus
 import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.Performance
 import com.teamon.app.utils.classes.Task
-import com.teamon.app.utils.classes.User
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.roundToInt
@@ -58,15 +55,14 @@ import kotlin.math.roundToInt
 fun Histogram(data: Performance = Performance(), selectedMonthIndex: Int) {
 
     val maxValue = data.list.maxOf { it }.toFloat()
-    val minValue = data.list.minOf { it }.toFloat()
+    data.list.minOf { it }.toFloat()
 
     val mesi: Array<String> = arrayOf("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
 
     val stepSize = if(maxValue != 0f) (200.dp / maxValue).value else (200.dp).value
-    val maxStepSize = maxValue
 
     Row{
-        val stepSizes = (0..6).map { (maxStepSize * it/6).roundToInt() }.toSet().reversed()
+        val stepSizes = (0..6).map { (maxValue * it / 6).roundToInt() }.toSet().reversed()
         Column(modifier = Modifier.height(230.dp).align(Alignment.Bottom), verticalArrangement = if(stepSizes.size > 1) Arrangement.SpaceBetween else Arrangement.Bottom, horizontalAlignment = Alignment.CenterHorizontally) {
              stepSizes.forEach {
                 Text(text = it.toString(), fontSize = 10.sp, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface)
@@ -271,7 +267,7 @@ fun Diagram(mappa: Map<Int, Performance> = emptyMap(), title: String) {
         //update the performance to show
         performanceToShow = mappa[selectedYear]
         Spacer(modifier = Modifier.height(10.dp))
-        Histogram(performanceToShow?:Performance(year = selectedYear), selectedMonthIndex)
+        Histogram(performanceToShow?:Performance(), selectedMonthIndex)
     }
 
 }
@@ -283,24 +279,24 @@ fun AccountPerformance(feedbacks: List<Feedback>, tasks: List<Task>)
    val completedTasks = tasks
        .filter { it.status == TaskStatus.Completed }
        .groupBy { it.endDate.toInstant().atZone(ZoneId.systemDefault()).year }
-       .mapValues { (year, yearTasks) ->
+       .mapValues { (_, yearTasks) ->
            val monthlyCounts = (0..11).map { 0 }.toIntArray()
            yearTasks.forEach { task ->
                val monthIndex = task.endDate.toInstant().atZone(ZoneId.systemDefault()).monthValue-1
                monthlyCounts[monthIndex]++ // Increment count for the corresponding month
            }
-           Performance(year = year, list = monthlyCounts) // Create a Performance object for the year
+           Performance(list = monthlyCounts) // Create a Performance object for the year
        }
 
     val receivedFeedbacks = feedbacks
         .groupBy { it.timestamp.toInstant().atZone(ZoneId.systemDefault()).year }
-        .mapValues { (year, yearFeedbacks) ->
+        .mapValues { (_, yearFeedbacks) ->
             val monthlyCounts = (0..11).map { 0 }.toIntArray()
             yearFeedbacks.forEach { feedback ->
                 val monthIndex = feedback.timestamp.toInstant().atZone(ZoneId.systemDefault()).monthValue-1
                 monthlyCounts[monthIndex]++ // Increment count for the corresponding month
             }
-            Performance(year = year, list = monthlyCounts) // Create a Performance object for the year
+            Performance(list = monthlyCounts) // Create a Performance object for the year
 
         }
 

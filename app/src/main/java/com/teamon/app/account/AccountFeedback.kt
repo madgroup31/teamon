@@ -23,8 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -35,7 +33,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -44,6 +41,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -67,7 +65,6 @@ import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Feedback
 import com.teamon.app.utils.classes.User
 import com.teamon.app.utils.graphics.AnimatedItem
-import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.SearchBar
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.asPastRelativeDate
@@ -77,7 +74,6 @@ import com.teamon.app.utils.viewmodels.UserViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.math.log
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,8 +81,7 @@ import kotlin.math.log
 fun DatePickerDialogFeedbackAccount(
     onDateSelected: (String) -> Unit,
     onDismiss: () -> Unit,
-    actualDate: String,
-    firstSelectable: String? = null
+    actualDate: String
 ) {
     val datePickerState = rememberDatePickerState()
 
@@ -385,7 +380,7 @@ fun FeedbackActionsAccount(anonymousFilter: Boolean,
 @Composable
 fun FeedbackCard(actions: Actions, feedback: Feedback)
 {
-    val users by usersViewModel!!.users.collectAsState()
+    val users by usersViewModel.users.collectAsState()
     var isShowingValue by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
@@ -469,11 +464,11 @@ fun FeedbackCard(actions: Actions, feedback: Feedback)
 }
 
 @Composable
-fun AccountFeedback(actions: Actions, orientation: Orientation, userVm: UserViewModel? = null)
+fun AccountFeedback(actions: Actions, userVm: UserViewModel? = null)
 {
 
     val feedbacks: List<Feedback> = when(userVm) {
-        null -> profileViewModel!!.feedbacks
+        null -> profileViewModel.feedbacks
         else -> userVm.feedbacks.toList()
     }
 
@@ -481,14 +476,14 @@ fun AccountFeedback(actions: Actions, orientation: Orientation, userVm: UserView
     var anonymousFilter by remember { mutableStateOf(false) }
     val onAnonymousFilterChange: (Boolean) -> Unit= { anonymousFilter = it }
 
-    var startRating by remember { mutableStateOf(0) }
+    var startRating by remember { mutableIntStateOf(0) }
     val onStartRateChange: (Int) -> Unit= { startRating = it }
 
-    var fromRating by remember { mutableStateOf(10) }
+    var fromRating by remember { mutableIntStateOf(10) }
     val onFromRateChange: (Int) -> Unit= { fromRating = it }
 
     //DATE
-    var dateFilter by remember { mutableStateOf<String>("") }
+    var dateFilter by remember { mutableStateOf("") }
     val onDateFilterChange: (String) -> Unit= {
         dateFilter= it
     }

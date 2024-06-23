@@ -3,6 +3,7 @@ package com.teamon.app.utils.graphics
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -93,9 +94,11 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Date
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 enum class ImageSource { MONOGRAM, CAMERA, LIBRARY, REMOTE }
 
@@ -116,10 +119,9 @@ fun HistoryIcons.getIcon(): Int {
 
 sealed class UploadStatus(
     val progress: Float = 0f,
-    val url: Uri = Uri.EMPTY,
     val message: String = ""
 ) {
-    data class Success(val downloadUrl: String) : UploadStatus(url = Uri.parse(downloadUrl))
+    data class Success(val downloadUrl: String) : UploadStatus()
     data class Progress(val currentProgress: Float) : UploadStatus(progress = currentProgress)
     data class Error(val errorMessage: String) : UploadStatus(message = errorMessage)
 }
@@ -311,21 +313,18 @@ fun hexToRgb(hex: String): Triple<Int, Int, Int> {
 fun diffColors(color1: String, color2: String): Double {
     val rgb1 = hexToRgb(color1)
     val rgb2 = hexToRgb(color2)
-    val rDiff = Math.abs(rgb1.first - rgb2.first)
-    val gDiff = Math.abs(rgb1.second - rgb2.second)
-    val bDiff = Math.abs(rgb1.third - rgb2.third)
-    return Math.sqrt(
-        Math.pow(rDiff.toDouble(), 2.toDouble()) + Math.pow(
-            gDiff.toDouble(),
-            2.toDouble()
-        ) + Math.pow(bDiff.toDouble(), 2.toDouble())
+    val rDiff = abs(rgb1.first - rgb2.first)
+    val gDiff = abs(rgb1.second - rgb2.second)
+    val bDiff = abs(rgb1.third - rgb2.third)
+    return sqrt(
+        rDiff.toDouble().pow(2.toDouble()) + gDiff.toDouble().pow(2.toDouble()) + bDiff.toDouble().pow(2.toDouble())
     )
 }
 
 @OptIn(ExperimentalStdlibApi::class)
 fun Int.toProjectColor(): ProjectColors {
 
-    val distances = ProjectColors.values()
+    val distances = ProjectColors.entries
         .map { Pair(it, diffColors(it.toInt().toHexString(), this.toHexString())) }
         .sortedBy { it.second }
     return distances.map { it.first }[0]
@@ -438,12 +437,6 @@ fun Timestamp.asTime(): String {
     val localDateTime =
         LocalDateTime.ofInstant(instant, ZoneId.systemDefault()) // Use LocalDateTime
     return DateTimeFormatter.ofPattern("HH:mm").format(localDateTime)
-}
-
-fun Timestamp.asDateTime(): String {
-    val instant = Instant.ofEpochSecond(this.toInstant().epochSecond)
-    val instantDate = instant.atZone(ZoneId.systemDefault()).toLocalDate()
-    return DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").format(instantDate)
 }
 
 fun Timestamp.asPastRelativeDateTime(): String {
@@ -677,27 +670,10 @@ fun getStorageAccess(context: Context): StorageAccess {
 }
 
 
+@SuppressLint("SimpleDateFormat")
 fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("dd-MM-yyyy")
     return formatter.format(Date(millis))
-}
-
-fun convertMillisToTime(millis: Long): String {
-    val timeFormatter = SimpleDateFormat("HH:mm")
-    val dateTime = Instant.ofEpochMilli(millis)
-    return timeFormatter.format(Date(dateTime.toEpochMilli()))
-}
-
-fun convertMillisToDateTime(millis: Long): String {
-    val dateTimeFormatter = SimpleDateFormat("dd MMMM yyyy, HH:mm")
-    val timeFormatter = SimpleDateFormat("HH:mm")
-
-    val dateTime = Instant.ofEpochMilli(millis)
-
-    val midnight = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant()
-
-    return if (dateTime > midnight) "Today, " + timeFormatter.format(Date(dateTime.toEpochMilli()))
-    else dateTimeFormatter.format(Date(dateTime.toEpochMilli()))
 }
 
 fun getFileType(file: File): String {
@@ -864,14 +840,14 @@ fun AnimatedGrid(
 
         itemsIndexed(items.toList(), key = { index, it ->
             when (it) {
-                is Project -> (it as Project).projectId
-                is Task -> (it as Task).taskId
-                is Team -> (it as Team).teamId
-                is Comment -> (it as Comment).commentId
-                is History -> (it as History).historyId
-                is Attachment -> (it as Attachment).attachmentId
-                is Message -> (it as Message).messageId
-                is Feedback -> (it as Feedback).feedbackId
+                is Project -> it.projectId
+                is Task -> it.taskId
+                is Team -> it.teamId
+                is Comment -> it.commentId
+                is History -> it.historyId
+                is Attachment -> it.attachmentId
+                is Message -> it.messageId
+                is Feedback -> it.feedbackId
                 else -> index
             }
 

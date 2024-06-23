@@ -1,6 +1,5 @@
 package com.teamon.app.tasks.history
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,19 +21,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.teamon.app.R
-import com.teamon.app.teamOnViewModel
 import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.History
 import com.teamon.app.utils.classes.User
-import com.teamon.app.utils.graphics.HistoryIcons
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.asTime
-import com.teamon.app.utils.graphics.convertMillisToTime
 import com.teamon.app.utils.graphics.getIcon
 
 @Composable

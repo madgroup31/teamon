@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.teamon.app.TeamOn
 
 
+@Suppress("UNCHECKED_CAST")
 class Factory(context: Context, val taskId: String? = null, val projectId: String? = null, val teamId: String? = null, val userId: String? = null) :
 
 

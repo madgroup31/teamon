@@ -56,8 +56,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
 
     var emailValue by mutableStateOf("")
         private set
-    var emailError by mutableStateOf("")
-        private set
+    private var emailError by mutableStateOf("")
 
     init {
         val auth = Firebase.auth
@@ -65,7 +64,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
             userId = auth.currentUser!!.uid
             startCollectingUser(userId)
             startCollectingFeedbacks(userId)
-            startCollectingTasks(userId)
+            startCollectingTasks()
             startCollectingNotifications()
             emailValue = auth.currentUser?.email?: ""
         }
@@ -79,7 +78,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
             emailValue = auth.currentUser?.email?: ""
             startCollectingUser(userId)
             startCollectingFeedbacks(userId)
-            startCollectingTasks(userId)
+            startCollectingTasks()
             startCollectingNotifications()
         }
         if(result.data != null && result.isAnonymous) {
@@ -99,7 +98,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
                     startCollectingUser(userId)
                     startCollectingFeedbacks(userId)
                     startCollectingNotifications()
-                    startCollectingTasks(userId)
+                    startCollectingTasks()
                 }
             }
         }
@@ -132,7 +131,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
             }
         }
         chatsNotifications = viewModelScope.launch {
-            chatsViewModel.getChats(userId).collect {
+            chatsViewModel.getChats().collect {
                 it.values.forEach { chat ->
                     MessagingService.subscribe(chat.chatId)
                 }
@@ -150,20 +149,20 @@ class ProfileViewModel(val model: Model) : ViewModel() {
 
     private fun startCollectingUser(userId: String) {
         updatingUser = viewModelScope.launch {
-            usersViewModel.getUser(userId).collect {
-                nameValue = it.name
-                surnameValue = it.surname
-                nicknameValue = it.nickname
-                emailValue = it.email
-                locationValue = it.location
-                birthdateValue = it.birthdate.asDate()
-                bioValue = it.biography
-                color = it.color
-                it.profileImage?.let { profileImageUri = it.toUri() }
-                lastUpdate = it.lastUpdate
-                profileImageSource = it.profileImageSource
+            usersViewModel.getUser(userId).collect { user ->
+                nameValue = user.name
+                surnameValue = user.surname
+                nicknameValue = user.nickname
+                emailValue = user.email
+                locationValue = user.location
+                birthdateValue = user.birthdate.asDate()
+                bioValue = user.biography
+                color = user.color
+                user.profileImage?.let { profileImageUri = it.toUri() }
+                lastUpdate = user.lastUpdate
+                profileImageSource = user.profileImageSource
                 favoritesProjects.clear()
-                favoritesProjects.addAll(it.favorites.toMutableStateList())
+                favoritesProjects.addAll(user.favorites.toMutableStateList())
             }
         }
     }
@@ -175,7 +174,7 @@ class ProfileViewModel(val model: Model) : ViewModel() {
 
     private fun startCollectingFeedbacks(userId: String) {
         updatingFeedbacks = viewModelScope.launch {
-            feedbacksViewModel!!.getUserFeedbacks(userId).collect {
+            feedbacksViewModel.getUserFeedbacks(userId).collect {
                 feedbacks.clear()
                 feedbacks.addAll(it.values)
             }
@@ -187,9 +186,9 @@ class ProfileViewModel(val model: Model) : ViewModel() {
         updatingFeedbacks = null
     }
 
-    private fun startCollectingTasks(userId: String) {
+    private fun startCollectingTasks() {
         updatingTasks = viewModelScope.launch {
-            tasksViewModel!!.getUserTasks().collect {
+            tasksViewModel.getUserTasks().collect {
                 tasks.clear()
                 tasks.addAll(it.values)
             }
@@ -338,15 +337,15 @@ class ProfileViewModel(val model: Model) : ViewModel() {
         when (source) {
             ImageSource.CAMERA, ImageSource.LIBRARY -> {
                 viewModelScope.launch {
-                    context?.let {
-                        var bitmap: Bitmap? = null
-                        val inputStream = it.contentResolver.openInputStream(uri)
+                    context?.let { context ->
+                        val bitmap: Bitmap?
+                        val inputStream = context.contentResolver.openInputStream(uri)
                         bitmap = BitmapFactory.decodeStream(inputStream)
 
                             val file = saveBitmapAsJpeg(context, bitmap, "$userId.jpg")
                             file?.let { jpegFile ->
 
-                                usersViewModel!!.uploadProfileImage(userId = userId, file = jpegFile).collect {
+                                usersViewModel.uploadProfileImage(userId = userId, file = jpegFile).collect {
                                        uploadStatus = it
                                         if(uploadStatus is UploadStatus.Success) {
                                             profileImageUri = (it as UploadStatus.Success).downloadUrl.toUri()
@@ -498,10 +497,6 @@ class ProfileViewModel(val model: Model) : ViewModel() {
 
     var lastUpdate by mutableStateOf(Timestamp.now())
         private set
-
-    fun setUpdate(now: Timestamp) {
-        lastUpdate = now
-    }
 
 }
 

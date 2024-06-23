@@ -2,15 +2,12 @@ package com.teamon.app
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-class Location() {
+class Location {
     companion object {
         fun initialize(context: Context, activity: Activity):Boolean {
             if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION)

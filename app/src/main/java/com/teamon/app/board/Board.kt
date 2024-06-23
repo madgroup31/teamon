@@ -78,7 +78,7 @@ fun BoardView(actions: Actions) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LandscapeView(
     actions: Actions,
@@ -130,11 +130,10 @@ fun LandscapeView(
                     modifier = Modifier.fillMaxSize(),
                     columns = StaggeredGridCells.Adaptive(250.dp),
                     items = data
-                ) { it, index ->
+                ) { project, _ ->
                     ProjectCard(
-                        orientation = Orientation.PORTRAIT,
                         actions = actions,
-                        project = it as Project,
+                        project = project as Project,
                         snackbarHostState = snackbarHostState
                     )
                 }
@@ -156,7 +155,7 @@ fun LandscapeView(
 }
 
 @SuppressLint("SuspiciousIndentation")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PortraitView(
     actions: Actions,
@@ -207,15 +206,14 @@ fun PortraitView(
                 modifier = Modifier.fillMaxSize(),
                 columns = StaggeredGridCells.Adaptive(250.dp),
                 items = data.sortedByDescending {
-                    profileViewModel!!.favoritesProjects.contains(
+                    profileViewModel.favoritesProjects.contains(
                         it.projectId
                     )
                 }
-            ) { it, _ ->
+            ) { project, _ ->
                 ProjectCard(
-                    orientation = Orientation.PORTRAIT,
                     actions = actions,
-                    project = it as Project,
+                    project = project as Project,
                     snackbarHostState = snackbarHostState
                 )
             }

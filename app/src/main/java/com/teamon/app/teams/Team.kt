@@ -230,7 +230,7 @@ fun LandscapeViewTeam(
     onMessageTextChange: (String) -> Unit,
 ) {
 
-    val keyboardController = LocalSoftwareKeyboardController.current
+    LocalSoftwareKeyboardController.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     Theme(
@@ -412,7 +412,7 @@ fun LandscapeViewTeam(
                     }
 
                     5 -> {
-                        TeamAchievement(actions = actions, teamVM = teamVM)
+                        TeamAchievement(teamVM = teamVM)
                     }
                 }
             }
@@ -619,7 +619,7 @@ fun PortraitViewTeam(
                     }
 
                     5 -> {
-                        TeamAchievement(actions = actions, teamVM = teamVM)
+                        TeamAchievement(teamVM = teamVM)
                     }
 
                     else -> {}

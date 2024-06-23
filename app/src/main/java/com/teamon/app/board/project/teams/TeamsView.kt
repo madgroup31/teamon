@@ -1,3 +1,5 @@
+@file:Suppress("KotlinConstantConditions")
+
 package com.teamon.app.board.project.teams
 
 
@@ -87,9 +89,7 @@ fun TeamsActions(
     TeamsViewDropdownMenu(
         mainExpanded = mainExpanded,
         onMainExpandedChange = onMainExpandedChange,
-        sortExpanded = sortExpanded,
         onSortExpandedChange = onSortExpandedChange,
-        filterExpanded = filterExpanded,
         onFilterExpandedChange = onFilterExpandedChange
     )
 
@@ -169,7 +169,7 @@ fun PortraitTeamsView(
                         modifier = Modifier.fillMaxSize(),
                         columns = StaggeredGridCells.Adaptive(150.dp),
                         items = listOf("No Available Teams.")
-                    ) { it, index ->
+                    ) { it, _ ->
                         Text(
                             text = it as String,
                             textAlign = TextAlign.Center,
@@ -183,7 +183,7 @@ fun PortraitTeamsView(
                     modifier = Modifier.fillMaxSize(),
                     columns = StaggeredGridCells.Adaptive(150.dp),
                     items = teams
-                ) { it, index ->
+                ) { it, _ ->
                     TeamCard(team = it as Team, actions = actions)
                 }
             }
@@ -207,7 +207,7 @@ fun PortraitTeamsView(
                     modifier = Modifier.fillMaxSize(),
                     columns = StaggeredGridCells.Adaptive(150.dp),
                     items = listOf("No Available Teams.")
-                ) { it, index ->
+                ) { it, _ ->
                     Text(
                         text = it as String,
                         textAlign = TextAlign.Center,
@@ -226,7 +226,7 @@ fun PortraitTeamsView(
                 modifier = Modifier.fillMaxSize(),
                 columns = StaggeredGridCells.Adaptive(150.dp),
                 items = displayItems
-            ) { it, index ->
+            ) { it, _ ->
                 if (it is String) {
                     AddTeamCard(
                         onAddTeamClick = {
@@ -324,7 +324,7 @@ fun LandscapeTeamsView(
                         modifier = Modifier.fillMaxSize(),
                         columns = StaggeredGridCells.Adaptive(150.dp),
                         items = listOf("No Available Teams.")
-                    ) { it, index ->
+                    ) { it, _ ->
                         Text(
                             text = it as String,
                             textAlign = TextAlign.Center,
@@ -338,7 +338,7 @@ fun LandscapeTeamsView(
                     modifier = Modifier.fillMaxSize(),
                     columns = StaggeredGridCells.Adaptive(150.dp),
                     items = teams
-                ) { it, index ->
+                ) { it, _ ->
                     TeamCard(team = it as Team, actions = actions)
                 }
             }
@@ -362,7 +362,7 @@ fun LandscapeTeamsView(
                     modifier = Modifier.fillMaxSize(),
                     columns = StaggeredGridCells.Adaptive(150.dp),
                     items = listOf("No Available Teams.")
-                ) { it, index ->
+                ) { it, _ ->
                     Text(
                         text = it as String,
                         textAlign = TextAlign.Center,
@@ -381,7 +381,7 @@ fun LandscapeTeamsView(
                 modifier = Modifier.fillMaxSize(),
                 columns = StaggeredGridCells.Adaptive(150.dp),
                 items = displayItems
-            ) { it, index ->
+            ) { it, _ ->
                 if (it is String) {
                     AddTeamCard(
                         onAddTeamClick = {
@@ -464,7 +464,7 @@ fun AddTeamDialog(
     onSelected: (String) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    val teams by teamsViewModel.getTeams().collectAsState(initial = emptyMap<String,Team>())
+    val teams by teamsViewModel.getTeams().collectAsState(initial = emptyMap())
 
     Dialog(onDismissRequest = { onDismissRequest() }) {
         OutlinedCard(

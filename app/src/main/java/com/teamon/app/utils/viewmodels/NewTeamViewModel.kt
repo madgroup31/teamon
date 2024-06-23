@@ -9,19 +9,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
 import com.teamon.app.Model
-import com.teamon.app.usersViewModel
-import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.classes.User
+import com.teamon.app.utils.graphics.ImageSource
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.graphics.toTimestamp
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.Calendar
-import java.util.UUID
 
 class NewTeamViewModel(val model: Model, userId: String) : ViewModel()
 {
@@ -29,13 +23,13 @@ class NewTeamViewModel(val model: Model, userId: String) : ViewModel()
     var selectedCollaborators by mutableStateOf<Map<User, Boolean>>(emptyMap())
         private set
 
-    val myID = userId
+    private val myID = userId
 
 
     init {
         viewModelScope.launch {
-            model.getUsers().collect{
-                selectedCollaborators=  it.toSortedMap(compareBy { it }).
+            model.getUsers().collect{ user ->
+                selectedCollaborators=  user.toSortedMap(compareBy { it }).
                 map{if(it.value.userId != myID) Pair(it.value,false) else Pair(it.value,true) }
                     .toMutableStateMap()
             }
@@ -65,14 +59,13 @@ class NewTeamViewModel(val model: Model, userId: String) : ViewModel()
     var teamDescription by mutableStateOf("")
         private set
 
-    val calendar = Calendar.getInstance()
     var teamCreationDate: String = Timestamp.now().asDate()
 
 
     var teamCategory by mutableStateOf("")
         private set
 
-    var teamImage: String by mutableStateOf("https://upload.wikimedia.org/wikipedia/commons/4/49/A_black_image.jpg")
+    private var teamImage: String by mutableStateOf("https://upload.wikimedia.org/wikipedia/commons/4/49/A_black_image.jpg")
     var teamImageSource by mutableStateOf(ImageSource.MONOGRAM)
         private set
 
@@ -90,7 +83,7 @@ class NewTeamViewModel(val model: Model, userId: String) : ViewModel()
     private fun createNewTeam()
     {
 
-        var listUsersId= selectedCollaborators.filter { it.value==true }.map { it.key.userId }
+        val listUsersId= selectedCollaborators.filter { it.value }.map { it.key.userId }
 
         val team= Team(
             teamId= "-1",
@@ -139,8 +132,7 @@ class NewTeamViewModel(val model: Model, userId: String) : ViewModel()
         private set
     fun editCategory(c: String){teamCategory= c}
 
-    var teamListUsersError by mutableStateOf("")
-        private set
+    private var teamListUsersError by mutableStateOf("")
 
     private fun checkTeamName(){
         teamNameError = if (teamName.isBlank()) {

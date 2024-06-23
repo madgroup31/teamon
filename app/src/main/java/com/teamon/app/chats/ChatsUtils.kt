@@ -2,7 +2,6 @@ package com.teamon.app.chats
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,8 +35,6 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalButton
@@ -52,7 +48,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,7 +77,6 @@ import com.teamon.app.chatsViewModel
 import com.teamon.app.profileViewModel
 import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
-import com.teamon.app.utils.classes.Chat
 import com.teamon.app.utils.classes.Message
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.classes.User
@@ -101,11 +95,11 @@ fun Chats(  //TODO: Move from here
     //unreadTeamChatMessages: Int
 ) {
 
-    val team by teamsViewModel!!.getTeam(teamId).collectAsState(initial = Team())
+    val team by teamsViewModel.getTeam(teamId).collectAsState(initial = Team())
     //val userChats by chatsViewModel!!.getUserChats(teamId).collectAsState(initial = emptyMap())
 
-    val unreadTeamChatMessages by chatsViewModel!!.getUnreadTeamChatMessages(teamId).collectAsState(initial = 0)
-    val unreadMessages by chatsViewModel!!.getUnreadMessages(teamId).collectAsState(initial = emptyMap())
+    val unreadTeamChatMessages by chatsViewModel.getUnreadTeamChatMessages(teamId).collectAsState(initial = 0)
+    val unreadMessages by chatsViewModel.getUnreadMessages(teamId).collectAsState(initial = emptyMap())
     val lastMessages by chatsViewModel.getLastMessages(teamId).collectAsState(initial = emptyMap())
 
     //Log.d("chat", "userChats: $userChats")
@@ -422,7 +416,7 @@ fun Chats(  //TODO: Move from here
                             lastMessages
                                 .entries
                                 .sortedByDescending { it.value.timestamp }
-                                .forEachIndexed { index, (chatId, message) ->
+                                .forEachIndexed { index, (chatId, _) ->
                                         //val userId = chat.userIds.first { id -> id != profileViewModel!!.userId }
                                         PersonalChatCard(
                                             actions = actions,
@@ -471,9 +465,9 @@ fun PersonalChatCard(
     //zombie: Boolean,
     //unread: Int
 ) {
-    val lastMessage by chatsViewModel!!.getLastChatMessage(chatId).collectAsState(initial = Message())
-    val unreadMessages by chatsViewModel!!.getUnreadMessagesInChat(chatId).collectAsState(initial = 0)
-    val user by chatsViewModel!!.getCorrespondent(chatId).collectAsState(initial = User())
+    val lastMessage by chatsViewModel.getLastChatMessage(chatId).collectAsState(initial = Message())
+    val unreadMessages by chatsViewModel.getUnreadMessagesInChat(chatId).collectAsState(initial = 0)
+    val user by chatsViewModel.getCorrespondent(chatId).collectAsState(initial = User())
 
     val zombie = !team.users.contains(user.userId)
 
@@ -539,16 +533,14 @@ fun PersonalChatCard(
 
 
 
-                    if (lastMessage != null) {
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            modifier = Modifier.align(Alignment.CenterVertically),
-                            text = lastMessage.timestamp.asCompactPastRelativeDateTime(),
-                            style = MaterialTheme.typography.labelSmall.copy(fontStyle = FontStyle.Italic),
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.End
-                        )
-                    }
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    text = lastMessage.timestamp.asCompactPastRelativeDateTime(),
+                    style = MaterialTheme.typography.labelSmall.copy(fontStyle = FontStyle.Italic),
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.End
+                )
 
             }
             Row(
@@ -558,14 +550,13 @@ fun PersonalChatCard(
                 horizontalArrangement = Arrangement.Center,
             )
             {
-                if (lastMessage != null)
                 Column(
                     modifier = Modifier
                         .weight(0.7f)
 
                 ) {
                     Row {
-                        var content = lastMessage.content
+                        val content = lastMessage.content
                         Text(
                             text = content,
                             overflow = TextOverflow.Ellipsis,
@@ -573,8 +564,8 @@ fun PersonalChatCard(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        if (lastMessage.senderId == profileViewModel!!.userId) {
-                            val isMessageRead by chatsViewModel!!.isMessageRead(
+                        if (lastMessage.senderId == profileViewModel.userId) {
+                            val isMessageRead by chatsViewModel.isMessageRead(
                                 lastMessage.messageId,
                                 user.userId
                             ).collectAsState(initial = false)
@@ -736,9 +727,8 @@ fun PartecipantCard_(
 
     //val selectedNavItem =
     //   actions.navCont.currentBackStackEntry?.destination?.route?.split("/")?.first().toString()
-    var loading by remember { mutableStateOf(true) }
 
-    val user by usersViewModel!!.getUser(userId).collectAsState(initial = User())
+    val user by usersViewModel.getUser(userId).collectAsState(initial = User())
 
     ListItem(
         modifier = Modifier.padding(start = 10.dp, end = 10.dp),

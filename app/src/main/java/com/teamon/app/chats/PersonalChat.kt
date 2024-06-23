@@ -1,22 +1,17 @@
 package com.teamon.app.chats
 
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -45,37 +40,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
-import com.teamon.app.chatsViewModel
 import com.teamon.app.profileViewModel
-import com.teamon.app.teamsViewModel
-import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.classes.User
 import com.teamon.app.utils.graphics.AppSurface
 import com.teamon.app.utils.graphics.ChatDeleteDialog
-import com.teamon.app.utils.graphics.MessageDeleteDialog
 import com.teamon.app.utils.graphics.Orientation
-import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.asPastRelativeDate
-import com.teamon.app.utils.themes.teamon.TeamOnTheme
 import com.teamon.app.utils.viewmodels.ChatViewModel
-import kotlinx.coroutines.flow.stateIn
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun PersonalChatView(actions: Actions, chatVm: ChatViewModel) {
@@ -132,12 +114,9 @@ fun PersonalChatView(actions: Actions, chatVm: ChatViewModel) {
             query = query,
             isQuerying = isQuerying,
             onQueryChange = onQueryChange,
-            newMessage = newMessage,
-            onMessageChange = onMessageChange,
             chatVm = chatVm,
-            isShowingDeleteChat = isShowingDeleteChat,
-            toggleShowingDeleteChat = toggleShowingDeleteChat,
-            onConfirmDeleteChat = onConfirmDeleteChat
+            newMessage = newMessage,
+            onMessageChange = onMessageChange
         )
         else PortraitView(
             actions = actions,
@@ -360,7 +339,7 @@ fun PortraitView(
                                 DayHeader(it.first().timestamp.asPastRelativeDate())
                                 it.forEach { message ->
                                     when (message.senderId) {
-                                        profileViewModel!!.userId -> SentPersonalMessageCard(
+                                        profileViewModel.userId -> SentPersonalMessageCard(
                                             message = message,
                                             query = query,
                                             isQuerying = isQuerying,
@@ -414,9 +393,6 @@ fun LandscapeView(
     chatVm: ChatViewModel,
     newMessage: String,
     onMessageChange: (String) -> Unit,
-    isShowingDeleteChat: Boolean,
-    toggleShowingDeleteChat: () -> Unit,
-    onConfirmDeleteChat: () -> Unit,
 ) {
     val team by chatVm.team.collectAsState(initial = Team())
     val addressee by chatVm.addressee.collectAsState(initial = User())
@@ -581,7 +557,7 @@ fun LandscapeView(
                                 DayHeader(it.first().timestamp.asPastRelativeDate())
                                 it.forEach { message ->
                                     when (message.senderId) {
-                                        profileViewModel!!.userId -> SentPersonalMessageCard(
+                                        profileViewModel.userId -> SentPersonalMessageCard(
                                             message = message,
                                             query = query,
                                             isQuerying = isQuerying,

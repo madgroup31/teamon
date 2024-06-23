@@ -1,7 +1,5 @@
 package com.teamon.app.board.project
 
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -44,10 +42,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,20 +61,15 @@ import androidx.core.net.toUri
 import com.google.firebase.Timestamp
 import com.teamon.app.R
 import com.teamon.app.projectsViewModel
-import com.teamon.app.utils.graphics.ImageSource
-import com.teamon.app.teamOnViewModel
 import com.teamon.app.teamsViewModel
-import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.ProjectImages
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.diffColors
-import com.teamon.app.utils.graphics.toTimestamp
 import com.teamon.app.utils.graphics.toInt
 import com.teamon.app.utils.viewmodels.NewProjectViewModel
-import java.util.UUID
 
 @Composable
 fun NewProjectBottomSheetContent(
@@ -440,7 +431,6 @@ fun Collaborator(
     selected: Boolean,
     onSelected: (String, Boolean) -> Unit
 ) {
-    var loading by remember { mutableStateOf(true) }
     ListItem(
         modifier = Modifier.padding(start = 10.dp, end = 10.dp),
         headlineContent = { Text(team.name) },
@@ -640,7 +630,6 @@ fun ColorOption(
 
 }
 
-@OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun ImagePickerDialog(
     previouslySelected: ProjectImages,

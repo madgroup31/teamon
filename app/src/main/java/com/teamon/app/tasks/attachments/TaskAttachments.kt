@@ -81,6 +81,7 @@ import com.teamon.app.utils.viewmodels.TaskViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
 fun TaskAttachmentInfo(attachment: Attachment, actions: Actions) {
@@ -169,7 +170,7 @@ fun TaskAttachmentInfo(attachment: Attachment, actions: Actions) {
                         )
                         Spacer(modifier = Modifier.height(5.dp))
                         if (attachment.ownerId != "") {
-                            val author by usersViewModel!!.getUser(attachment.ownerId)
+                            val author by usersViewModel.getUser(attachment.ownerId)
                                 .collectAsState(initial = User())
                             OutlinedTextField(
                                 label = { Text("Owner") },
@@ -208,6 +209,7 @@ fun TaskAttachmentInfo(attachment: Attachment, actions: Actions) {
                                 OutlinedTextField(
                                     label = { Text("File Size") },
                                     value = String.format(
+                                        Locale.getDefault(),
                                         "%.2f",
                                         (attachment.fileSize.toFloat() / (1024 * 1024))
                                     ) + " MB",
@@ -321,7 +323,7 @@ fun TaskAttachment(
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                     )
                 }
-                if (profileViewModel!!.userId == attachment.ownerId)
+                if (profileViewModel.userId == attachment.ownerId)
                     IconButton(onClick = {
                         showDialog = true
                     }) {
@@ -635,6 +637,7 @@ fun TaskAttachments(
                             readOnly = true,
                             enabled = newAttachmentVM.file != null,
                             value = String.format(
+                                Locale.getDefault(),
                                 "%.2f",
                                 ((newAttachmentVM.file?.length()?.toFloat() ?: 0f) / (1024 * 1024))
                             ) + " MB",

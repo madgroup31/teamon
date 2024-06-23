@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.teamon.app.tasks.comments
 
 import android.content.res.Configuration
@@ -30,7 +32,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.teamon.app.Actions
 import com.teamon.app.utils.classes.Comment
 import com.teamon.app.utils.graphics.AnimatedGrid
 import com.teamon.app.utils.graphics.AnimatedItem
@@ -56,9 +57,6 @@ fun DayHeader(day: String) {
 
 @Composable
 fun TaskComments(
-    actions: Actions,
-    modified: Boolean,
-    onModifiedChange: (Boolean) -> Unit,
     search: Boolean,
     onSearchChange: (Boolean) -> Unit,
     query: String,
@@ -72,26 +70,20 @@ fun TaskComments(
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     if (landscape) LandscapeTaskCommentView(
-        actions = actions,
         taskViewModel = taskViewModel,
-        modified = modified,
         search = search,
         onSearchChange = onSearchChange,
         query = query,
         isQuerying = isQuerying,
-        onQueryChange = onQueryChange,
-        onModifiedChange = onModifiedChange
+        onQueryChange = onQueryChange
     )
     else PortraitTaskCommentView(
-        actions = actions,
-        taskViewModel = taskViewModel,
-        modified = modified,
         search = search,
         onSearchChange = onSearchChange,
         query = query,
         isQuerying = isQuerying,
         onQueryChange = onQueryChange,
-        onModifiedChange = onModifiedChange
+        taskViewModel = taskViewModel
     )
 
 }
@@ -99,9 +91,6 @@ fun TaskComments(
 
 @Composable
 fun PortraitTaskCommentView(
-    modified: Boolean,
-    onModifiedChange: (Boolean) -> Unit,
-    actions: Actions,
     search: Boolean,
     onSearchChange: (Boolean) -> Unit,
     query: String,
@@ -166,11 +155,11 @@ fun PortraitTaskCommentView(
                 columns = StaggeredGridCells.Adaptive(400.dp),
                 items = taskViewModel.comments.sortedBy { it.timestamp }
                     .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()
-            ) { it, index ->
+            ) { it, _ ->
                 val list = it as List<Comment>
                 Column {
                     DayHeader(list.first().timestamp.asPastRelativeDate())
-                    list.forEachIndexed { index, it ->
+                    list.forEachIndexed { _, it ->
                         CommentCard(
                             comment = it,
                             query = query,
@@ -189,9 +178,6 @@ fun PortraitTaskCommentView(
 
 @Composable
 fun LandscapeTaskCommentView(
-    actions: Actions,
-    modified: Boolean,
-    onModifiedChange: (Boolean) -> Unit,
     taskViewModel: TaskViewModel,
     search: Boolean,
     onSearchChange: (Boolean) -> Unit,
@@ -216,62 +202,62 @@ fun LandscapeTaskCommentView(
 
         }
     } else
-    Column {
-        if (search) {
-            Row {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                ) {
-                    OutlinedTextField(
-                        value = query,
-                        maxLines = 1,
-                        shape = RoundedCornerShape(20.dp),
-                        onValueChange = { onQueryChange(it) },
-                        label = { Text("Search in comments") },
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                onSearchChange(false)
-                                onQueryChange("")
-                            }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Clear,
-                                    contentDescription = "Stop Search",
-                                )
-                            }
-                        },
+        Column {
+            if (search) {
+                Row {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 8.dp)
-                    )
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        OutlinedTextField(
+                            value = query,
+                            maxLines = 1,
+                            shape = RoundedCornerShape(20.dp),
+                            onValueChange = { onQueryChange(it) },
+                            label = { Text("Search in comments") },
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    onSearchChange(false)
+                                    onQueryChange("")
+                                }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Clear,
+                                        contentDescription = "Stop Search",
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 8.dp)
+                        )
+                    }
                 }
             }
-        }
 
 
-        AnimatedGrid(modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 80.dp),
-            columns = StaggeredGridCells.Adaptive(400.dp),
-            scrollToLast = true,
-            items = taskViewModel.comments.sortedBy { it.timestamp }
-                .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()
-        ) { it, index ->
-            val list = it as List<Comment>
-            list.forEach {
-                Column {
-                    DayHeader(list.first().timestamp.asPastRelativeDate())
-                    CommentCard(
-                        comment = it,
-                        query = query,
-                        isQuerying = isQuerying,
-                    )
+            AnimatedGrid(modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 80.dp),
+                columns = StaggeredGridCells.Adaptive(400.dp),
+                scrollToLast = true,
+                items = taskViewModel.comments.sortedBy { it.timestamp }
+                    .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()
+            ) { it, _ ->
+                val list = it as List<Comment>
+                list.forEach {
+                    Column {
+                        DayHeader(list.first().timestamp.asPastRelativeDate())
+                        CommentCard(
+                            comment = it,
+                            query = query,
+                            isQuerying = isQuerying,
+                        )
+                    }
                 }
-            }
 
+            }
         }
-    }
 
 
 }

@@ -51,6 +51,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -92,8 +93,6 @@ import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.log
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PartecipantCard(
     taskViewModel: TaskViewModel,
@@ -153,10 +152,10 @@ fun PartecipantCard(
                             else Modifier
                                 .size(50.dp)
                                 .clip(CircleShape),
-                            source = profileViewModel!!.profileImageSource,
-                            uri = profileViewModel!!.profileImageUri,
-                            name = profileViewModel!!.nameValue,
-                            surname = profileViewModel!!.surnameValue,
+                            source = profileViewModel.profileImageSource,
+                            uri = profileViewModel.profileImageUri,
+                            name = profileViewModel.nameValue,
+                            surname = profileViewModel.surnameValue,
                             color = profileViewModel.color,
                             description = "My profile picture"
                         )
@@ -267,8 +266,7 @@ fun TaskInfo(actions: Actions, taskViewModel: TaskViewModel) {
 
     var isStatusExpanded by remember { mutableStateOf(false) }
     var isRepeatExpanded by remember { mutableStateOf(false) }
-    var isChecked by remember { mutableStateOf(taskViewModel.taskRecurringType == RecurringType.Recursive) }
-    var datePickerDialog by remember { mutableStateOf(0) }
+    var datePickerDialog by remember { mutableIntStateOf(0) }
     val creationDate = taskViewModel.taskCreationDate.toTimestamp().toInstant().epochSecond
     val endDate = taskViewModel.taskEndDate.toTimestamp().toInstant().epochSecond
     val now = Timestamp.now().toInstant().epochSecond
@@ -298,7 +296,7 @@ fun TaskInfo(actions: Actions, taskViewModel: TaskViewModel) {
                 ) {
 
                     val deadline = taskViewModel.taskEndDate
-                    val creationDate = taskViewModel.taskCreationDate
+                    val creation = taskViewModel.taskCreationDate
 
                     Row(
                         modifier = Modifier
@@ -322,8 +320,8 @@ fun TaskInfo(actions: Actions, taskViewModel: TaskViewModel) {
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (progress > 0.8f && taskViewModel.taskStatus != TaskStatus.Completed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Medium,
-                                text = if (creationDate.toTimestamp() < Timestamp.now()) creationDate.toTimestamp()
-                                    .asPastRelativeDate() else creationDate.toTimestamp()
+                                text = if (creation.toTimestamp() < Timestamp.now()) creation.toTimestamp()
+                                    .asPastRelativeDate() else creation.toTimestamp()
                                     .asFutureRelativeDate()
                             )
                         }
@@ -336,7 +334,7 @@ fun TaskInfo(actions: Actions, taskViewModel: TaskViewModel) {
                                 onValueChange = {},
                                 colors = SliderDefaults.colors(activeTrackColor = if (progress > 0.8f && taskViewModel.taskStatus != TaskStatus.Completed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary),
                                 thumb = {
-                                    if (creationDate.toTimestamp() < Timestamp.now())
+                                    if (creation.toTimestamp() < Timestamp.now())
                                         Box(
                                             modifier = Modifier
                                                 .size(24.dp)
@@ -542,7 +540,7 @@ fun TaskInfo(actions: Actions, taskViewModel: TaskViewModel) {
                                     }
                                 }
                                 OutlinedTextField(
-                                    value = if (taskViewModel.taskRepeat != null) taskViewModel.taskRepeat.toString() else "None",
+                                    value = taskViewModel.taskRepeat.toString(),
                                     onValueChange = {},
                                     readOnly = true,
                                     label = { Text("Repeat") },
@@ -823,13 +821,12 @@ fun TaskInfo(actions: Actions, taskViewModel: TaskViewModel) {
                 }
             }
         }
-
-        /* TODO aggiustare il DB: ha utenti di teams che non fanno parte del progetto */
+        
         if (taskViewModel.projectMembers.isNotEmpty()) {
             val size = if (expandedPartecipants) taskViewModel.projectMembers.size
             else log(taskViewModel.listUser.size.toDouble(), 2.0).toInt()
             val members =
-                taskViewModel.projectMembers.values.toList()
+                taskViewModel.projectMembers.values.asSequence()
                     .sortedByDescending { it.userId in taskViewModel.listUser }
                     .take(size.takeIf { it > 0 } ?: 1)
                     .toSet().toList()

@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,9 +25,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.teamon.app.profileViewModel
 import com.teamon.app.projectsViewModel
-import com.teamon.app.teamOnViewModel
-import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.ProjectColors
+import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.viewmodels.UserViewModel
 
 @Composable

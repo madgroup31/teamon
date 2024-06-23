@@ -259,12 +259,12 @@ fun LandscapeView(
                                         onValueChange = { bio -> profileViewModel.setBio(bio) },
                                         isError = profileViewModel.bioError.isNotBlank()
                                     )
-                                    if (profileViewModel!!.bioError.isNotBlank()) {
+                                    if (profileViewModel.bioError.isNotBlank()) {
                                         Text(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(20.dp, 0.dp, 20.dp, 0.dp),
-                                            text = profileViewModel!!.bioError,
+                                            text = profileViewModel.bioError,
                                             color = MaterialTheme.colorScheme.error,
                                             style = MaterialTheme.typography.labelSmall
                                         )
@@ -278,15 +278,14 @@ fun LandscapeView(
                             AnimatedItem(index = 2) {
                                 AccountFeedback(
                                     actions = actions,
-                                    orientation = Orientation.LANDSCAPE,
                                 )
                             }
                         }
                         item {
                             AnimatedItem(index = 3) {
                                 AccountPerformance(
-                                    profileViewModel!!.feedbacks,
-                                    profileViewModel!!.tasks
+                                    profileViewModel.feedbacks,
+                                    profileViewModel.tasks
                                 )
                             }
                         }
@@ -401,7 +400,6 @@ fun LandscapeView(
                         AnimatedItem(index = 2) {
                             AccountFeedback(
                                 actions = actions,
-                                orientation = Orientation.LANDSCAPE,
                                 userVm
                             )
                         }
@@ -474,11 +472,11 @@ fun PortraitView(
 
                             IconButton(onClick = {
                                 if(!animate) {
-                                    prefs.edit().putBoolean("animate", true).apply();
+                                    prefs.edit().putBoolean("animate", true).apply()
                                     animate = true
                                 }
                                 else {
-                                    prefs.edit().putBoolean("animate", false).apply();
+                                    prefs.edit().putBoolean("animate", false).apply()
                                     animate = false
                                 }
                                 CoroutineScope(Dispatchers.Main).launch {
@@ -554,7 +552,6 @@ fun PortraitView(
                             AnimatedItem(index = 3) {
                                 AccountFeedback(
                                     actions = actions,
-                                    orientation = Orientation.PORTRAIT,
                                 )
                             }
                         }
@@ -583,7 +580,7 @@ fun PortraitView(
                                             containerColor = MaterialTheme.colorScheme.errorContainer
                                         ),
                                         onClick = {
-                                            profileViewModel.signOut();
+                                            profileViewModel.signOut()
                                             actions.navCont.navigate(Screen.Login.route) {
                                                 popUpTo(Screen.Login.route) { inclusive = true }
                                             }
@@ -598,7 +595,7 @@ fun PortraitView(
                                             containerColor = MaterialTheme.colorScheme.error
                                         ),
                                         onClick = {
-                                            profileViewModel.deleteAccount();
+                                            profileViewModel.deleteAccount()
                                             actions.navCont.navigate(Screen.Login.route) {
                                                 popUpTo(Screen.Login.route) { inclusive = true }
                                             }
@@ -665,7 +662,6 @@ fun PortraitView(
                         AnimatedItem(index = 3) {
                             AccountFeedback(
                                 actions = actions,
-                                orientation = Orientation.PORTRAIT,
                                 userVm
                             )
                         }
