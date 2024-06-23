@@ -19,11 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -164,25 +161,25 @@ fun LandscapeView(
                                 )
                             )
                         }
-                        var showDropdown by rememberSaveable { mutableStateOf(false) }
-                        IconButton(onClick = { showDropdown = true }) {
+
+                        IconButton(onClick = {
+                            if(!animate) {
+                                prefs.edit().putBoolean("animate", true).apply()
+                                animate = true
+                            }
+                            else {
+                                prefs.edit().putBoolean("animate", false).apply()
+                                animate = false
+                            }
+                            CoroutineScope(Dispatchers.Main).launch {
+                                snackbarHostState.showSnackbar(if(animate) "Animations enabled" else "Animations disabled")
+                            }
+                        }) {
+
                             Icon(
-                                Icons.Rounded.MoreVert,
-                                contentDescription = "More account options"
+                                painter = painterResource(if (!animate) R.drawable.baseline_macro_off_24 else R.drawable.baseline_local_florist_24),
+                                contentDescription = "Stop animation"
                             )
-                        }
-                        DropdownMenu(
-                            expanded = showDropdown,
-                            onDismissRequest = { showDropdown = false }) {
-                            DropdownMenuItem(text = {
-                                Text(
-                                    if (animate) "Disable animations" else "Enable animations",
-                                    color = if (animate) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                                )
-                            }, onClick = {
-                                prefs.edit().putBoolean("animate", !animate).apply(); animate =
-                                !animate
-                            })
                         }
                     }
                 },
@@ -480,12 +477,12 @@ fun PortraitView(
                                     animate = false
                                 }
                                 CoroutineScope(Dispatchers.Main).launch {
-                                    snackbarHostState.showSnackbar(if(!animate) "Animations enabled" else "Animations disabled")
+                                    snackbarHostState.showSnackbar(if(animate) "Animations enabled" else "Animations disabled")
                                 }
                             }) {
 
                                 Icon(
-                                    painter = painterResource(if (animate) R.drawable.baseline_macro_off_24 else R.drawable.baseline_local_florist_24),
+                                    painter = painterResource(if (!animate) R.drawable.baseline_macro_off_24 else R.drawable.baseline_local_florist_24),
                                     contentDescription = "Stop animation"
                                 )
                             }
