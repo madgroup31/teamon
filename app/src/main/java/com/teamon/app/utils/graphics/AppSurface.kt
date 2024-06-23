@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Build
@@ -141,7 +140,14 @@ fun AppSurface(
                     snackbarHost = { SnackbarHost(modifier = Modifier, hostState = snackbarHostState) },
                     topBar = {
                                 Column {
-                                    TopBar(scrollBehavior = topAppBarScrollBehavior, title = title, composableTitle = composableTitle, orientation = orientation, leadingTopBarActions, trailingTopBarActions)
+                                    TopBar(
+                                        scrollBehavior = topAppBarScrollBehavior,
+                                        title = title,
+                                        composableTitle = composableTitle,
+                                        orientation = orientation,
+                                        snackbarHostState = snackbarHostState,
+                                        leadingTopBarActions = leadingTopBarActions,
+                                        trailingTopBarActions = trailingTopBarActions)
                                     tabActions()
                                 }
                              },

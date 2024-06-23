@@ -5,26 +5,18 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,10 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,15 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import com.teamon.app.Actions
-import com.teamon.app.board.project.AssignProjectDialog
-import com.teamon.app.board.project.Collaborator
 import com.teamon.app.myteams.AddTeamCard
-import com.teamon.app.utils.viewmodels.ProjectViewModel
 import com.teamon.app.myteams.TeamCard
 import com.teamon.app.teamsViewModel
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.graphics.AnimatedGrid
-import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.SearchBar
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.TeamsFilteringOptionsDropdownMenu
@@ -66,6 +50,7 @@ import com.teamon.app.utils.graphics.TeamsSortingOption
 import com.teamon.app.utils.graphics.TeamsSortingOptionsDropdownMenu
 import com.teamon.app.utils.graphics.TeamsViewDropdownMenu
 import com.teamon.app.utils.graphics.prepare
+import com.teamon.app.utils.viewmodels.ProjectViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -182,7 +167,7 @@ fun PortraitTeamsView(
                 ) {
                     AnimatedGrid(
                         modifier = Modifier.fillMaxSize(),
-                        columns = GridCells.Adaptive(minSize = 150.dp),
+                        columns = StaggeredGridCells.Adaptive(150.dp),
                         items = listOf("No Available Teams.")
                     ) { it, index ->
                         Text(
@@ -196,7 +181,7 @@ fun PortraitTeamsView(
             else {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 150.dp),
+                    columns = StaggeredGridCells.Adaptive(150.dp),
                     items = teams
                 ) { it, index ->
                     TeamCard(team = it as Team, actions = actions)
@@ -220,7 +205,7 @@ fun PortraitTeamsView(
             ) {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 150.dp),
+                    columns = StaggeredGridCells.Adaptive(150.dp),
                     items = listOf("No Available Teams.")
                 ) { it, index ->
                     Text(
@@ -239,7 +224,7 @@ fun PortraitTeamsView(
             }
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Adaptive(minSize = 150.dp),
+                columns = StaggeredGridCells.Adaptive(150.dp),
                 items = displayItems
             ) { it, index ->
                 if (it is String) {
@@ -337,7 +322,7 @@ fun LandscapeTeamsView(
                 ) {
                     AnimatedGrid(
                         modifier = Modifier.fillMaxSize(),
-                        columns = GridCells.Adaptive(minSize = 150.dp),
+                        columns = StaggeredGridCells.Adaptive(150.dp),
                         items = listOf("No Available Teams.")
                     ) { it, index ->
                         Text(
@@ -351,7 +336,7 @@ fun LandscapeTeamsView(
             else {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 150.dp),
+                    columns = StaggeredGridCells.Adaptive(150.dp),
                     items = teams
                 ) { it, index ->
                     TeamCard(team = it as Team, actions = actions)
@@ -375,7 +360,7 @@ fun LandscapeTeamsView(
             ) {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 150.dp),
+                    columns = StaggeredGridCells.Adaptive(150.dp),
                     items = listOf("No Available Teams.")
                 ) { it, index ->
                     Text(
@@ -394,7 +379,7 @@ fun LandscapeTeamsView(
             }
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Adaptive(minSize = 150.dp),
+                columns = StaggeredGridCells.Adaptive(150.dp),
                 items = displayItems
             ) { it, index ->
                 if (it is String) {

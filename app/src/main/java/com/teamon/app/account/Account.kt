@@ -6,9 +6,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.location.Geocoder
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,13 +16,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,60 +51,21 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.teamon.app.Actions
 import com.teamon.app.Location
-import com.teamon.app.NavigationItem
 import com.teamon.app.R
 import com.teamon.app.Screen
 import com.teamon.app.prefs
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.AppSurface
-import com.teamon.app.utils.graphics.LoadingOverlay
 import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.UploadStatus
-import com.teamon.app.utils.themes.teamon.TeamOnTheme
 import com.teamon.app.utils.viewmodels.UserViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
-import android.content.Context
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.EaseInCirc
-import androidx.compose.animation.core.EaseInCubic
-import androidx.compose.animation.core.EaseInElastic
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
-import androidx.compose.animation.with
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.runtime.*
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.withContext
-import java.util.*
 
 
 @Composable
@@ -470,7 +430,6 @@ fun LandscapeView(
 
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PortraitView(
     actions: Actions,
@@ -513,58 +472,24 @@ fun PortraitView(
                             )
                         }
 
-                        val infiniteTransition = rememberInfiniteTransition()
-                        val anim by infiniteTransition.animateFloat(
-                            initialValue = 0.9f,
-                            targetValue = 0.1f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(durationMillis = 3000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Reverse
-                            )
-                        )
+                            IconButton(onClick = {
+                                if(!animate) {
+                                    prefs.edit().putBoolean("animate", true).apply();
+                                    animate = true
+                                }
+                                else {
+                                    prefs.edit().putBoolean("animate", false).apply();
+                                    animate = false
+                                }
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    snackbarHostState.showSnackbar(if(!animate) "Animations enabled" else "Animations disabled")
+                                }
+                            }) {
 
-                        if (!animate) {
-                            IconButton(onClick = {
-                                prefs.edit().putBoolean("animate", true).apply();
-                                animate = true
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    snackbarHostState.showSnackbar("Animations enabled")
-                                }
-                            }) {
-                                Box(modifier = Modifier.fillMaxSize()) {
-                                    Icon(
-                                        modifier = Modifier.align(Alignment.Center),
-                                        painter = painterResource(R.drawable.round_hdr_weak_24),
-                                        contentDescription = "Stop animation"
-                                    )
-                                }
-                            }
-                        } else
-                            IconButton(onClick = {
-                                prefs.edit().putBoolean("animate", false).apply();
-                                animate = false
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    snackbarHostState.showSnackbar("Animations disabled")
-                                }
-                            }) {
-                                AnimatedContent(targetState = anim >= 0.5f, transitionSpec = {
-                                    fadeIn(animationSpec = tween(1500)) togetherWith fadeOut(
-                                        animationSpec = tween(1500)
-                                    )
-                                }) { targetState ->
-                                    val iconPainter: Painter = if (targetState) {
-                                        painterResource(R.drawable.round_hdr_weak_24)
-                                    } else {
-                                        painterResource(R.drawable.round_hdr_strong_24)
-                                    }
-                                    Icon(
-                                        painter = iconPainter,
-                                        contentDescription = "More account options",
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .alpha(if (targetState) anim else 1f - anim)
-                                    )
-                                }
+                                Icon(
+                                    painter = painterResource(if (animate) R.drawable.baseline_macro_off_24 else R.drawable.baseline_local_florist_24),
+                                    contentDescription = "Stop animation"
+                                )
                             }
                     }
                 },

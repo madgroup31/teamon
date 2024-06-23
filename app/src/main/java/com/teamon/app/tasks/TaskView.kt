@@ -3,7 +3,6 @@ package com.teamon.app.tasks
 
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,13 +25,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -43,8 +38,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -58,7 +51,6 @@ import com.teamon.app.tasks.attachments.TaskAttachments
 import com.teamon.app.tasks.comments.TaskComments
 import com.teamon.app.tasks.history.TaskHistory
 import com.teamon.app.tasks.info.TaskInfo
-import com.teamon.app.usersViewModel
 import com.teamon.app.utils.graphics.AppSurface
 import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.ScrollableTab
@@ -194,8 +186,10 @@ fun LandscapeTaskView(
                 0 -> {}
                 1 -> {}
                 2 -> {
-                    IconButton(onClick = { onSearchChange(true) }) {
-                        Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
+                    if (taskViewModel.comments.isNotEmpty()) {
+                        IconButton(onClick = { onSearchChange(true) }) {
+                            Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
+                        }
                     }
                 }
 
@@ -430,8 +424,10 @@ fun PortraitTaskView(
                 0 -> {}
                 1 -> {}
                 2 -> {
-                    IconButton(onClick = { onSearchChange(true) }) {
-                        Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
+                    if (taskViewModel.comments.isNotEmpty()) {
+                        IconButton(onClick = { onSearchChange(true) }) {
+                            Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
+                        }
                     }
                 }
 

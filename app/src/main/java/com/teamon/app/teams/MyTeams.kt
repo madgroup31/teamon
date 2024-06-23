@@ -2,26 +2,20 @@ package com.teamon.app.teams
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
@@ -29,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
@@ -38,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,26 +43,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.teamon.app.Actions
-import com.teamon.app.utils.viewmodels.Factory
 import com.teamon.app.NavigationItem
 import com.teamon.app.R
-import com.teamon.app.board.project.ProjectCard
 import com.teamon.app.myteams.TeamCard
 import com.teamon.app.profileViewModel
-import com.teamon.app.teamOnViewModel
-import com.teamon.app.utils.viewmodels.NewTeamViewModel
 import com.teamon.app.teamsViewModel
-import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.graphics.AnimatedGrid
-import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.AppSurface
+import com.teamon.app.utils.graphics.LoadingOverlay
 import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.SearchBar
 import com.teamon.app.utils.graphics.TeamsFilteringOptionsDropdownMenu
@@ -79,14 +64,11 @@ import com.teamon.app.utils.graphics.TeamsSortingOptionsDropdownMenu
 import com.teamon.app.utils.graphics.TeamsViewDropdownMenu
 import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.prepare
-import com.teamon.app.utils.themes.teamon.TeamOnTheme
+import com.teamon.app.utils.viewmodels.Factory
+import com.teamon.app.utils.viewmodels.NewTeamViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-
-import kotlinx.coroutines.flow.map
 
 
 enum class JoinRequest { Accepted, Rejected, AlreadyPartecipating, NotFound, Requesting, Error }
@@ -147,10 +129,12 @@ fun TeamsView(actions: Actions, joinRequest: String? = null, teamId: String? = n
         )
 
 
+        val teams by teamsViewModel.getTeams().collectAsState(initial = null)
         if (landscape) LandscapeView(
             snackbarHostState = snackbarHostState,
             actions = actions,
             newTeamVM = newTeamViewModel,
+            data = teams?.values?.toList(),
             query = query,
             onQueryChange = onQueryChange,
             searchActive = searchActive,
@@ -171,6 +155,7 @@ fun TeamsView(actions: Actions, joinRequest: String? = null, teamId: String? = n
             actions = actions,
             newTeamVM = newTeamViewModel,
             query = query,
+            data = teams?.values?.toList(),
             onQueryChange = onQueryChange,
             searchActive = searchActive,
             onSearchActiveChange = onSearchActiveChange,
@@ -309,6 +294,7 @@ fun LandscapeView(
     actions: Actions,
     newTeamVM: NewTeamViewModel,
     query: String,
+    data: List<Team>?,
     onQueryChange: (String) -> Unit,
     searchActive: Boolean,
     onSearchActiveChange: (Boolean) -> Unit,
@@ -324,9 +310,6 @@ fun LandscapeView(
     onCategoryQueryChange: (String) -> Unit
 ) {
 
-    val teams by teamsViewModel!!.getTeams().collectAsState(initial = emptyMap())
-
-
     val sheetState = rememberModalBottomSheetState()
 
     AppSurface(
@@ -335,51 +318,53 @@ fun LandscapeView(
         snackbarHostState = snackbarHostState,
         title = "My Teams",
         trailingTopBarActions = {
-            var mainExpanded by remember {
-                mutableStateOf(false)
-            }
-            var filterExpanded by remember {
-                mutableStateOf(false)
-            }
-            var sortExpanded by remember {
-                mutableStateOf(false)
-            }
-            IconButton(onClick = { onSearchActiveChange(true) }) {
-                Icon(Icons.Rounded.Search, contentDescription = "Search tasks")
-            }
-            IconButton(onClick = { mainExpanded = !mainExpanded }) {
-                Icon(Icons.Rounded.MoreVert, contentDescription = "More tasks options")
-            }
+            if(data != null && data.isNotEmpty()) {
+                var mainExpanded by remember {
+                    mutableStateOf(false)
+                }
+                var filterExpanded by remember {
+                    mutableStateOf(false)
+                }
+                var sortExpanded by remember {
+                    mutableStateOf(false)
+                }
+                IconButton(onClick = { onSearchActiveChange(true) }) {
+                    Icon(Icons.Rounded.Search, contentDescription = "Search tasks")
+                }
+                IconButton(onClick = { mainExpanded = !mainExpanded }) {
+                    Icon(Icons.Rounded.MoreVert, contentDescription = "More tasks options")
+                }
 
-            TeamsViewDropdownMenu(
-                mainExpanded = mainExpanded,
-                onMainExpandedChange = { mainExpanded = it },
-                sortExpanded = sortExpanded,
-                onSortExpandedChange = { sortExpanded = it },
-                filterExpanded = filterExpanded,
-                onFilterExpandedChange = { filterExpanded = it }
-            )
+                TeamsViewDropdownMenu(
+                    mainExpanded = mainExpanded,
+                    onMainExpandedChange = { mainExpanded = it },
+                    sortExpanded = sortExpanded,
+                    onSortExpandedChange = { sortExpanded = it },
+                    filterExpanded = filterExpanded,
+                    onFilterExpandedChange = { filterExpanded = it }
+                )
 
-            TeamsSortingOptionsDropdownMenu(
-                sortExpanded = sortExpanded,
-                sortingOrder = sortingOrder,
-                onSortingOrderChange = onSortingOrderChange,
-                onSortExpandedChange = { sortExpanded = it },
-                onMainExpandedChange = { mainExpanded = it },
-                sortingOption = sortingOption,
-                onSortingOptionChange = onSortingOptionChange
-            )
+                TeamsSortingOptionsDropdownMenu(
+                    sortExpanded = sortExpanded,
+                    sortingOrder = sortingOrder,
+                    onSortingOrderChange = onSortingOrderChange,
+                    onSortExpandedChange = { sortExpanded = it },
+                    onMainExpandedChange = { mainExpanded = it },
+                    sortingOption = sortingOption,
+                    onSortingOptionChange = onSortingOptionChange
+                )
 
-            TeamsFilteringOptionsDropdownMenu(
-                filterExpanded = filterExpanded,
-                onFilterExpandedChange = { filterExpanded = it },
-                categoryQuery = categoryQuery,
-                onCategoryQueryChange = onCategoryQueryChange,
-                memberQuery = memberQuery,
-                onMemberQueryChange = onMemberQueryChange,
-                adminQuery = adminQuery,
-                onAdminQueryChange = onAdminQueryChange
-            )
+                TeamsFilteringOptionsDropdownMenu(
+                    filterExpanded = filterExpanded,
+                    onFilterExpandedChange = { filterExpanded = it },
+                    categoryQuery = categoryQuery,
+                    onCategoryQueryChange = onCategoryQueryChange,
+                    memberQuery = memberQuery,
+                    onMemberQueryChange = onMemberQueryChange,
+                    adminQuery = adminQuery,
+                    onAdminQueryChange = onAdminQueryChange
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -399,9 +384,11 @@ fun LandscapeView(
 
         }
     ) {
-
+        if(data == null)
+            LoadingOverlay(isLoading = true)
+        else
         if (searchActive) {
-            val teams = teams.values.toList().prepare(
+            val teams = data.prepare(
                 sortingOrder = sortingOrder,
                 sortingOption = sortingOption,
                 memberQuery = memberQuery,
@@ -436,7 +423,7 @@ fun LandscapeView(
                 else {
                     AnimatedGrid(
                         modifier = Modifier.fillMaxSize(),
-                        columns = GridCells.Adaptive(minSize = 150.dp),
+                        columns = StaggeredGridCells.Adaptive(150.dp),
                         items = teams
                     ) { it, index ->
                         TeamCard(team = it as Team, actions = actions)
@@ -444,7 +431,7 @@ fun LandscapeView(
                 }
             }
         } else {
-            val teams = teams.values.toList().prepare(
+            val teams = data.prepare(
                 sortingOrder = sortingOrder,
                 sortingOption = sortingOption,
                 memberQuery = memberQuery,
@@ -468,7 +455,7 @@ fun LandscapeView(
             else {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 150.dp),
+                    columns = StaggeredGridCells.Adaptive(150.dp),
                     items = teams
                 ) { it, index ->
                     TeamCard(team = it as Team, actions = actions)
@@ -504,6 +491,7 @@ fun PortraitView(
     actions: Actions,
     newTeamVM: NewTeamViewModel,
     query: String,
+    data: List<Team>?,
     onQueryChange: (String) -> Unit,
     searchActive: Boolean,
     onSearchActiveChange: (Boolean) -> Unit,
@@ -520,8 +508,6 @@ fun PortraitView(
 
 ) {
 
-    val teams by teamsViewModel!!.getTeams().collectAsState(initial = emptyMap())
-
     val sheetState = rememberModalBottomSheetState()
 
     AppSurface(
@@ -530,51 +516,53 @@ fun PortraitView(
         snackbarHostState = snackbarHostState,
         title = "My Teams",
         trailingTopBarActions = {
-            var mainExpanded by remember {
-                mutableStateOf(false)
-            }
-            var filterExpanded by remember {
-                mutableStateOf(false)
-            }
-            var sortExpanded by remember {
-                mutableStateOf(false)
-            }
-            IconButton(onClick = { onSearchActiveChange(true) }) {
-                Icon(Icons.Rounded.Search, contentDescription = "Search tasks")
-            }
-            IconButton(onClick = { mainExpanded = !mainExpanded }) {
-                Icon(Icons.Rounded.MoreVert, contentDescription = "More tasks options")
-            }
+            if(data != null && data.isNotEmpty()) {
+                var mainExpanded by remember {
+                    mutableStateOf(false)
+                }
+                var filterExpanded by remember {
+                    mutableStateOf(false)
+                }
+                var sortExpanded by remember {
+                    mutableStateOf(false)
+                }
+                IconButton(onClick = { onSearchActiveChange(true) }) {
+                    Icon(Icons.Rounded.Search, contentDescription = "Search tasks")
+                }
+                IconButton(onClick = { mainExpanded = !mainExpanded }) {
+                    Icon(Icons.Rounded.MoreVert, contentDescription = "More tasks options")
+                }
 
-            TeamsViewDropdownMenu(
-                mainExpanded = mainExpanded,
-                onMainExpandedChange = { mainExpanded = it },
-                sortExpanded = sortExpanded,
-                onSortExpandedChange = { sortExpanded = it },
-                filterExpanded = filterExpanded,
-                onFilterExpandedChange = { filterExpanded = it }
-            )
+                TeamsViewDropdownMenu(
+                    mainExpanded = mainExpanded,
+                    onMainExpandedChange = { mainExpanded = it },
+                    sortExpanded = sortExpanded,
+                    onSortExpandedChange = { sortExpanded = it },
+                    filterExpanded = filterExpanded,
+                    onFilterExpandedChange = { filterExpanded = it }
+                )
 
-            TeamsSortingOptionsDropdownMenu(
-                sortExpanded = sortExpanded,
-                sortingOrder = sortingOrder,
-                onSortingOrderChange = onSortingOrderChange,
-                onSortExpandedChange = { sortExpanded = it },
-                onMainExpandedChange = { mainExpanded = it },
-                sortingOption = sortingOption,
-                onSortingOptionChange = onSortingOptionChange
-            )
+                TeamsSortingOptionsDropdownMenu(
+                    sortExpanded = sortExpanded,
+                    sortingOrder = sortingOrder,
+                    onSortingOrderChange = onSortingOrderChange,
+                    onSortExpandedChange = { sortExpanded = it },
+                    onMainExpandedChange = { mainExpanded = it },
+                    sortingOption = sortingOption,
+                    onSortingOptionChange = onSortingOptionChange
+                )
 
-            TeamsFilteringOptionsDropdownMenu(
-                filterExpanded = filterExpanded,
-                onFilterExpandedChange = { filterExpanded = it },
-                categoryQuery = categoryQuery,
-                onCategoryQueryChange = onCategoryQueryChange,
-                memberQuery = memberQuery,
-                onMemberQueryChange = onMemberQueryChange,
-                adminQuery = adminQuery,
-                onAdminQueryChange = onAdminQueryChange
-            )
+                TeamsFilteringOptionsDropdownMenu(
+                    filterExpanded = filterExpanded,
+                    onFilterExpandedChange = { filterExpanded = it },
+                    categoryQuery = categoryQuery,
+                    onCategoryQueryChange = onCategoryQueryChange,
+                    memberQuery = memberQuery,
+                    onMemberQueryChange = onMemberQueryChange,
+                    adminQuery = adminQuery,
+                    onAdminQueryChange = onAdminQueryChange
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -592,8 +580,11 @@ fun PortraitView(
 
         }
     ) {
+        if(data == null)
+            LoadingOverlay(isLoading = true)
+        else
         if (searchActive) {
-            val teams = teams.values.toList().prepare(
+            val teams = data.prepare(
                 sortingOrder = sortingOrder,
                 sortingOption = sortingOption,
                 memberQuery = memberQuery,
@@ -628,7 +619,7 @@ fun PortraitView(
                 else {
                     AnimatedGrid(
                         modifier = Modifier.fillMaxSize(),
-                        columns = GridCells.Adaptive(minSize = 150.dp),
+                        columns = StaggeredGridCells.Adaptive(150.dp),
                         items = teams
                     ) { it, index ->
                         TeamCard(team = it as Team, actions = actions)
@@ -636,7 +627,7 @@ fun PortraitView(
                 }
             }
         } else {
-            val teams = teams.values.toList().prepare(
+            val teams = data.prepare(
                 sortingOrder = sortingOrder,
                 sortingOption = sortingOption,
                 memberQuery = memberQuery,
@@ -660,7 +651,7 @@ fun PortraitView(
             else {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 150.dp),
+                    columns = StaggeredGridCells.Adaptive(150.dp),
                     items = teams
                 ) { it, index ->
                     TeamCard(team = it as Team, actions = actions)

@@ -2,10 +2,7 @@ package com.teamon.app.board.project
 
 import android.content.res.Configuration
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -27,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,35 +37,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teamon.app.Actions
-import com.teamon.app.utils.viewmodels.Factory
 import com.teamon.app.R
 import com.teamon.app.board.project.feedbacks.FeedbacksView
 import com.teamon.app.board.project.info.LandscapeProjectInfoView
 import com.teamon.app.board.project.info.PortraitProjectInfoView
-import com.teamon.app.board.project.teams.LandscapeTeamsView
-import com.teamon.app.board.project.teams.TeamsActions
-import com.teamon.app.board.project.teams.PortraitTeamsView
 import com.teamon.app.board.project.performance.PerformanceActions
 import com.teamon.app.board.project.performance.PerformanceView
 import com.teamon.app.board.project.tasks.LandscapeTasksView
-import com.teamon.app.utils.viewmodels.NewTaskViewModel
 import com.teamon.app.board.project.tasks.PortraitTasksView
 import com.teamon.app.board.project.tasks.TasksActions
+import com.teamon.app.board.project.teams.LandscapeTeamsView
+import com.teamon.app.board.project.teams.PortraitTeamsView
+import com.teamon.app.board.project.teams.TeamsActions
 import com.teamon.app.profileViewModel
-import com.teamon.app.tasksViewModel
-import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.graphics.AppSurface
-import com.teamon.app.utils.graphics.Theme
-import com.teamon.app.utils.graphics.TasksDeadlineFilteringOptions
 import com.teamon.app.utils.graphics.Orientation
-import com.teamon.app.utils.graphics.TasksPriorityFilteringOptions
 import com.teamon.app.utils.graphics.ScrollableTab
-import com.teamon.app.utils.graphics.TasksStatusFilteringOptions
 import com.teamon.app.utils.graphics.TabItem
+import com.teamon.app.utils.graphics.TasksDeadlineFilteringOptions
+import com.teamon.app.utils.graphics.TasksPriorityFilteringOptions
 import com.teamon.app.utils.graphics.TasksSortingOption
+import com.teamon.app.utils.graphics.TasksStatusFilteringOptions
 import com.teamon.app.utils.graphics.TeamsSortingOption
+import com.teamon.app.utils.graphics.Theme
+import com.teamon.app.utils.viewmodels.Factory
+import com.teamon.app.utils.viewmodels.NewTaskViewModel
 import com.teamon.app.utils.viewmodels.ProjectViewModel
-import kotlinx.coroutines.CoroutineScope
 
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -366,42 +359,45 @@ fun LandscapeView(
             when (pagerState.currentPage) {
                 0 -> {}
                 1 -> {
-                    var mainExpanded by remember {
-                        mutableStateOf(false)
-                    }
-                    var filterExpanded by remember {
-                        mutableStateOf(false)
-                    }
-                    var sortExpanded by remember {
-                        mutableStateOf(false)
-                    }
+                    if(projectVM.tasks.isNotEmpty()) {
+                        var mainExpanded by remember {
+                            mutableStateOf(false)
+                        }
+                        var filterExpanded by remember {
+                            mutableStateOf(false)
+                        }
+                        var sortExpanded by remember {
+                            mutableStateOf(false)
+                        }
 
-                    TasksActions(
-                        mainExpanded = mainExpanded,
-                        onMainExpandedChange = { mainExpanded = it },
-                        sortExpanded = sortExpanded,
-                        onSortExpandedChange = { sortExpanded = it },
-                        filterExpanded = filterExpanded,
-                        onFilterExpandedChange = { filterExpanded = it },
-                        sortingOrder = taskSortingOrder,
-                        onSortingOrderChange = onTaskSortingOrderChange,
-                        sortingOption = taskSortingOption,
-                        onSortingOptionChange = onTaskSortingOptionChange,
-                        deadlineFilter = taskDeadlineFilter,
-                        onDeadlineFilterChange = onTaskDeadlineFilterChange,
-                        statusFilter = taskStatusFilter,
-                        onStatusFilterChange = onTaskStatusFilterChange,
-                        priorityFilter = taskPriorityFilter,
-                        onPriorityFilterChange = onTaskPriorityFilterChange,
-                        tagQuery = taskTagQuery,
-                        onTagQueryChange = onTaskTagQueryChange,
-                        memberQuery = taskMemberQuery,
-                        onMemberQueryChange = onTaskMemberQueryChange,
-                        onSearchActiveChange = onTaskSearchActiveChange,
-                    )
+                        TasksActions(
+                            mainExpanded = mainExpanded,
+                            onMainExpandedChange = { mainExpanded = it },
+                            sortExpanded = sortExpanded,
+                            onSortExpandedChange = { sortExpanded = it },
+                            filterExpanded = filterExpanded,
+                            onFilterExpandedChange = { filterExpanded = it },
+                            sortingOrder = taskSortingOrder,
+                            onSortingOrderChange = onTaskSortingOrderChange,
+                            sortingOption = taskSortingOption,
+                            onSortingOptionChange = onTaskSortingOptionChange,
+                            deadlineFilter = taskDeadlineFilter,
+                            onDeadlineFilterChange = onTaskDeadlineFilterChange,
+                            statusFilter = taskStatusFilter,
+                            onStatusFilterChange = onTaskStatusFilterChange,
+                            priorityFilter = taskPriorityFilter,
+                            onPriorityFilterChange = onTaskPriorityFilterChange,
+                            tagQuery = taskTagQuery,
+                            onTagQueryChange = onTaskTagQueryChange,
+                            memberQuery = taskMemberQuery,
+                            onMemberQueryChange = onTaskMemberQueryChange,
+                            onSearchActiveChange = onTaskSearchActiveChange,
+                        )
+                    }
                 }
 
                 2 -> {
+                    if(projectVM.teams.isNotEmpty()) {
                     var mainExpanded by remember {
                         mutableStateOf(false)
                     }
@@ -431,6 +427,7 @@ fun LandscapeView(
                             onAdminQueryChange = onTeamAdminQueryChange,
                             onSearchActiveChange = onTeamSearchActiveChange,
                         )
+                    }
                     }
                 }
 
@@ -697,43 +694,46 @@ fun PortraitView(
                 0 -> {}
 
                 1 -> {
-                    var mainExpanded by remember {
-                        mutableStateOf(false)
-                    }
-                    var filterExpanded by remember {
-                        mutableStateOf(false)
-                    }
-                    var sortExpanded by remember {
-                        mutableStateOf(false)
-                    }
+                    if(projectVM.tasks.isNotEmpty()) {
+                        var mainExpanded by remember {
+                            mutableStateOf(false)
+                        }
+                        var filterExpanded by remember {
+                            mutableStateOf(false)
+                        }
+                        var sortExpanded by remember {
+                            mutableStateOf(false)
+                        }
 
-                    TasksActions(
-                        mainExpanded = mainExpanded,
-                        onMainExpandedChange = { mainExpanded = it },
-                        sortExpanded = sortExpanded,
-                        onSortExpandedChange = { sortExpanded = it },
-                        filterExpanded = filterExpanded,
-                        onFilterExpandedChange = { filterExpanded = it },
-                        sortingOrder = sortingOrder,
-                        onSortingOrderChange = onSortingOrderChange,
-                        sortingOption = sortingOption,
-                        onSortingOptionChange = onSortingOptionChange,
-                        deadlineFilter = deadlineFilter,
-                        onDeadlineFilterChange = onDeadlineFilterChange,
-                        statusFilter = statusFilter,
-                        onStatusFilterChange = onStatusFilterChange,
-                        priorityFilter = priorityFilter,
-                        onPriorityFilterChange = onPriorityFilterChange,
-                        tagQuery = tagQuery,
-                        onTagQueryChange = onTagQueryChange,
-                        memberQuery = memberQuery,
-                        onMemberQueryChange = onMemberQueryChange,
-                        onSearchActiveChange = onSearchActiveChange,
-                    )
+                        TasksActions(
+                            mainExpanded = mainExpanded,
+                            onMainExpandedChange = { mainExpanded = it },
+                            sortExpanded = sortExpanded,
+                            onSortExpandedChange = { sortExpanded = it },
+                            filterExpanded = filterExpanded,
+                            onFilterExpandedChange = { filterExpanded = it },
+                            sortingOrder = sortingOrder,
+                            onSortingOrderChange = onSortingOrderChange,
+                            sortingOption = sortingOption,
+                            onSortingOptionChange = onSortingOptionChange,
+                            deadlineFilter = deadlineFilter,
+                            onDeadlineFilterChange = onDeadlineFilterChange,
+                            statusFilter = statusFilter,
+                            onStatusFilterChange = onStatusFilterChange,
+                            priorityFilter = priorityFilter,
+                            onPriorityFilterChange = onPriorityFilterChange,
+                            tagQuery = tagQuery,
+                            onTagQueryChange = onTagQueryChange,
+                            memberQuery = memberQuery,
+                            onMemberQueryChange = onMemberQueryChange,
+                            onSearchActiveChange = onSearchActiveChange,
+                        )
+                    }
                 }
 
 
                 2 -> {
+                    if(projectVM.teams.isNotEmpty()) {
                     if(!projectVM.isEditingTeams) {
                         var mainExpanded by remember {
                             mutableStateOf(false)
@@ -764,6 +764,7 @@ fun PortraitView(
                             onAdminQueryChange = onTeamAdminQueryChange,
                             onSearchActiveChange = onTeamSearchActiveChange,
                         )
+                    }
                     }
                 }
 

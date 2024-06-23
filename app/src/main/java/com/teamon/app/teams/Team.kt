@@ -3,17 +3,13 @@ package com.teamon.app.myteams
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
-
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -38,7 +33,6 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,11 +58,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
-import com.teamon.app.teams.chat.TeamChat
 import com.teamon.app.profileViewModel
-import com.teamon.app.teamOnViewModel
+import com.teamon.app.teams.chat.TeamChat
 import com.teamon.app.teamsViewModel
-import com.teamon.app.usersViewModel
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.graphics.AppSurface
 import com.teamon.app.utils.graphics.Orientation
@@ -275,10 +267,17 @@ fun LandscapeViewTeam(
                 }
             },
             trailingTopBarActions = {
-                TeamActions(teamId = teamVM.teamId, snackbarHostState = snackbarHostState)
-                IconButton(onClick = { onSearchChange(true) }) {
-                    Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
+                when(pagerState.currentPage) {
+                    2 -> {
+                        if(teamVM.messages.isNotEmpty()) {
+                            IconButton(onClick = { onSearchChange(true) }) {
+                                Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
+                            }
+                        }
+                    }
+                    else -> {}
                 }
+                TeamActions(teamId = teamVM.teamId, snackbarHostState = snackbarHostState)
             },
             floatingActionButton = {
                 when (pagerState.currentPage) {
@@ -473,10 +472,17 @@ fun PortraitViewTeam(
                 }
             },
             trailingTopBarActions = {
-                TeamActions(teamId = teamVM.teamId, snackbarHostState = snackbarHostState)
-                IconButton(onClick = { onSearchChange(true) }) {
-                    Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
+                when(pagerState.currentPage) {
+                    2 -> {
+                        if(teamVM.messages.isNotEmpty()) {
+                            IconButton(onClick = { onSearchChange(true) }) {
+                                Icon(Icons.Rounded.Search, contentDescription = "Search a comment")
+                            }
+                        }
+                    }
+                    else -> {}
                 }
+                TeamActions(teamId = teamVM.teamId, snackbarHostState = snackbarHostState)
             },
             floatingActionButton = {
                 when (pagerState.currentPage) {

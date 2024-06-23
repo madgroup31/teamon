@@ -1,13 +1,5 @@
 package com.teamon.app.utils.graphics
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
@@ -15,14 +7,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.icu.text.RelativeDateTimeFormatter
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.collection.emptyLongSet
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -35,44 +28,25 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.get
-import coil.ImageLoader
-import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -81,7 +55,6 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import com.teamon.app.R
-import com.teamon.app.board.project.ProjectCard
 import com.teamon.app.prefs
 import com.teamon.app.utils.classes.Attachment
 import com.teamon.app.utils.classes.Comment
@@ -91,7 +64,6 @@ import com.teamon.app.utils.classes.Message
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.classes.Team
-
 import com.teamon.app.utils.themes.amber.AmberTheme
 import com.teamon.app.utils.themes.blue.BlueTheme
 import com.teamon.app.utils.themes.cerulean.CeruleanTheme
@@ -107,20 +79,15 @@ import com.teamon.app.utils.themes.purple.PurpleTheme
 import com.teamon.app.utils.themes.robin.RobinTheme
 import com.teamon.app.utils.themes.seance.SeanceTheme
 import com.teamon.app.utils.themes.sushi.SushiTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.apache.tika.Tika
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -869,13 +836,13 @@ fun AnimatedItem(
 @Composable
 fun AnimatedGrid(
     modifier: Modifier = Modifier,
-    columns: GridCells,
+    columns: StaggeredGridCells,
     items: Collection<Any>,
     scrollToLast: Boolean = false,
     content: @Composable (item: Any, index: Int) -> Unit
 ) {
     val visibles = remember { mutableStateListOf<Int>() }
-    val lazyGridState = rememberLazyGridState()
+    val lazyGridState = rememberLazyStaggeredGridState()
     val animate = prefs.getBoolean("animate", true)
 
 
@@ -889,7 +856,7 @@ fun AnimatedGrid(
 
     }
 
-    LazyVerticalGrid(
+    LazyVerticalStaggeredGrid(
         state = lazyGridState,
         modifier = modifier,
         columns = columns
@@ -911,10 +878,6 @@ fun AnimatedGrid(
         }) { index, it ->
 
             Box(modifier = if (animate) Modifier.animateItemPlacement() else Modifier) {
-                /*if(animate) AnimatedItem(index = index, visibles = visibles) {
-                    content(it, index)
-                }
-                else*/
                 content(it, index)
             }
 
@@ -967,5 +930,38 @@ fun saveBitmapAsJpeg(context: Context, bitmap: Bitmap, filename: String): File? 
     } catch (e: IOException) {
         e.printStackTrace()
         null
+    }
+}
+
+fun networkConnectivityFlow(context: Context): Flow<Boolean> = callbackFlow {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+            if (networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true) {
+                trySend(true)
+            }
+        }
+
+        override fun onLost(network: Network) {
+            trySend(false)
+        }
+    }
+
+    val networkRequest = NetworkRequest.Builder()
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        .build()
+
+    connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+
+    // Emit initial connectivity status
+    val activeNetwork = connectivityManager.activeNetwork
+    val initialNetworkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+    val isConnected = initialNetworkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    trySend(isConnected)
+
+    awaitClose {
+        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 }

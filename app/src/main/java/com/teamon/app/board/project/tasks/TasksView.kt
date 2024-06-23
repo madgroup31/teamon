@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
@@ -27,23 +27,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.teamon.app.Actions
-import com.teamon.app.tasks.RecursiveTasksBox
-import com.teamon.app.utils.viewmodels.ProjectViewModel
 import com.teamon.app.tasks.NewTaskBottomSheetContent
-import com.teamon.app.utils.viewmodels.NewTaskViewModel
+import com.teamon.app.tasks.RecursiveTasksBox
 import com.teamon.app.tasks.TaskCard
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.graphics.AnimatedGrid
+import com.teamon.app.utils.graphics.Orientation
+import com.teamon.app.utils.graphics.SearchBar
 import com.teamon.app.utils.graphics.TasksDeadlineFilteringOptions
 import com.teamon.app.utils.graphics.TasksFilteringOptionsDropdownMenu
-import com.teamon.app.utils.graphics.Orientation
 import com.teamon.app.utils.graphics.TasksPriorityFilteringOptions
-import com.teamon.app.utils.graphics.SearchBar
+import com.teamon.app.utils.graphics.TasksSortingOption
 import com.teamon.app.utils.graphics.TasksSortingOptionsDropdownMenu
 import com.teamon.app.utils.graphics.TasksStatusFilteringOptions
-import com.teamon.app.utils.graphics.TasksSortingOption
 import com.teamon.app.utils.graphics.TasksViewDropdownMenu
 import com.teamon.app.utils.graphics.prepare
+import com.teamon.app.utils.viewmodels.NewTaskViewModel
+import com.teamon.app.utils.viewmodels.ProjectViewModel
 
 @Composable
 fun TasksActions(
@@ -178,7 +178,7 @@ fun LandscapeTasksView(
 
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 350.dp),
+                    columns = StaggeredGridCells.Adaptive(250.dp),
                     items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                 ) { it, index ->
                     val t = (it as List<Task>).sortedBy { it.endDate }
@@ -225,7 +225,7 @@ fun LandscapeTasksView(
         else
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Adaptive(minSize = 350.dp),
+                columns = StaggeredGridCells.Adaptive(250.dp),
                 items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
             ) { it, index ->
                 val t = (it as List<Task>).sortedBy { it.endDate }
@@ -319,7 +319,7 @@ fun PortraitTasksView(
 
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = GridCells.Adaptive(minSize = 350.dp),
+                    columns = StaggeredGridCells.Adaptive(250.dp),
                     items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                 ) { it, index ->
                     val t = (it as List<Task>).sortedBy { it.endDate }
@@ -365,7 +365,7 @@ fun PortraitTasksView(
         else
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Adaptive(minSize = 350.dp),
+                columns = StaggeredGridCells.Adaptive(250.dp),
                 items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
             ) { it, index ->
                 val t = (it as List<Task>).sortedBy { it.endDate }

@@ -1,7 +1,6 @@
 package com.teamon.app
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Build
@@ -33,25 +32,18 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.teamon.app.account.AccountView
 import com.teamon.app.account.SignUpView
-import com.teamon.app.utils.viewmodels.UserViewModel
 import com.teamon.app.board.BoardView
 import com.teamon.app.board.project.ProjectView
-import com.teamon.app.utils.viewmodels.ProjectViewModel
-import com.teamon.app.utils.viewmodels.ChatViewModel
 import com.teamon.app.chats.ChatsView
 import com.teamon.app.chats.PersonalChatView
 import com.teamon.app.login.GoogleAuthUiClient
 import com.teamon.app.login.Login
 import com.teamon.app.myteams.TeamView
-import com.teamon.app.utils.viewmodels.TeamViewModel
-import com.teamon.app.utils.viewmodels.TasksViewModel
 import com.teamon.app.tasks.TaskView
-import com.teamon.app.utils.viewmodels.TaskViewModel
 import com.teamon.app.tasks.TasksView
 import com.teamon.app.tasks.attachments.TaskAttachmentInfo
 import com.teamon.app.teams.TeamsView
@@ -59,10 +51,16 @@ import com.teamon.app.utils.classes.Attachment
 import com.teamon.app.utils.classes.Project
 import com.teamon.app.utils.classes.Task
 import com.teamon.app.utils.graphics.LoadingOverlay
-import com.teamon.app.utils.graphics.Theme
 import com.teamon.app.utils.graphics.TabItem
+import com.teamon.app.utils.graphics.Theme
+import com.teamon.app.utils.viewmodels.ChatViewModel
 import com.teamon.app.utils.viewmodels.Factory
 import com.teamon.app.utils.viewmodels.NewAccountViewModel
+import com.teamon.app.utils.viewmodels.ProjectViewModel
+import com.teamon.app.utils.viewmodels.TaskViewModel
+import com.teamon.app.utils.viewmodels.TasksViewModel
+import com.teamon.app.utils.viewmodels.TeamViewModel
+import com.teamon.app.utils.viewmodels.UserViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,8 +108,8 @@ sealed class NavigationItem(
     data object Account :
         NavigationItem(
             "account",
-            focusedIcon = R.drawable.avatar,
-            icon = R.drawable.avatar
+            focusedIcon = R.drawable.round_account_circle_24,
+            icon = R.drawable.round_account_circle_24
         )
 }
 
