@@ -2,7 +2,9 @@ package com.teamon.app.chats
 
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
+import com.teamon.app.prefs
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.classes.User
@@ -73,16 +76,6 @@ fun PersonalChatView(actions: Actions, chatVm: ChatViewModel) {
         val onMessageChange = { message: String ->
             newMessage = message
         }
-
-        /*
-        modified: Boolean,
-        onModifiedChange: (Boolean) -> Unit,
-        search: Boolean,
-        onSearchChange: (Boolean) -> Unit,
-        query: String,
-        isQuerying: () -> Boolean,
-        onQueryChange: (String) -> Unit,
-         */
 
         var search by remember { mutableStateOf(false) }
         val onSearchChange = { it: Boolean ->
@@ -136,6 +129,7 @@ fun PersonalChatView(actions: Actions, chatVm: ChatViewModel) {
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PortraitView(
     actions: Actions,
@@ -323,9 +317,16 @@ fun PortraitView(
                     }
                 }
                 Row {
+                    val animate = prefs.getBoolean(
+                        "animate",
+                        true
+                    )
                     if (chatVm.messages.isNotEmpty()) {
                         LaunchedEffect(chatVm.messages.size) {
+                            if(animate)
                             listState.animateScrollToItem(chatVm.messages.size - 1, 2)
+                            else
+                                listState.scrollToItem(chatVm.messages.size - 1, 2)
                         }
                         LazyColumn(
                             state = listState,
@@ -334,26 +335,33 @@ fun PortraitView(
                                 .padding(5.dp)
                                 .padding(bottom = 80.dp)
                         ) {
-                            items(chatVm.messages.sortedBy { it.timestamp }
-                                .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()) {
-                                DayHeader(it.first().timestamp.asPastRelativeDate())
-                                it.forEach { message ->
-                                    when (message.senderId) {
-                                        profileViewModel.userId -> SentPersonalMessageCard(
-                                            message = message,
-                                            query = query,
-                                            isQuerying = isQuerying,
-                                        )
+                            val messages = chatVm.messages.sortedBy { it.timestamp }
+                                .groupBy { it.timestamp.asPastRelativeDate() }
 
-                                        else -> ReceivedPersonalMessageCard(
-                                            message = message,
-                                            query = query,
-                                            isQuerying = isQuerying,
-                                        )
+                            messages.forEach { (date, messagesForDate) ->
+                                stickyHeader(date, String) {
+                                    DayHeader(date)
+                                }
+
+                                items(messagesForDate, key = { it.messageId }) { message ->
+                                    Box(modifier = if(animate) Modifier.animateItemPlacement() else Modifier) {
+                                        when (message.senderId) {
+                                            profileViewModel.userId -> SentPersonalMessageCard(
+                                                message = message,
+                                                query = query,
+                                                isQuerying = isQuerying,
+                                            )
+                                            else -> ReceivedPersonalMessageCard(
+                                                message = message,
+                                                query = query,
+                                                isQuerying = isQuerying,
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
+
                     } else {
                         Column(
                             modifier = Modifier.fillMaxSize(),
@@ -382,6 +390,7 @@ fun PortraitView(
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LandscapeView(
     actions: Actions,
@@ -541,9 +550,13 @@ fun LandscapeView(
                     }
                 }
                 Row {
+                    val animate = prefs.getBoolean("animate", true)
                     if (chatVm.messages.isNotEmpty()) {
                         LaunchedEffect(chatVm.messages.size) {
+                            if(animate)
                             listState.animateScrollToItem(chatVm.messages.size - 1, 2)
+                            else
+                                listState.scrollToItem(chatVm.messages.size-1, 2)
                         }
                         LazyColumn(
                             state = listState,
@@ -552,22 +565,28 @@ fun LandscapeView(
                                 .padding(5.dp)
                                 .padding(bottom = 80.dp)
                         ) {
-                            items(chatVm.messages.sortedBy { it.timestamp }
-                                .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()) {
-                                DayHeader(it.first().timestamp.asPastRelativeDate())
-                                it.forEach { message ->
-                                    when (message.senderId) {
-                                        profileViewModel.userId -> SentPersonalMessageCard(
-                                            message = message,
-                                            query = query,
-                                            isQuerying = isQuerying,
-                                        )
+                            val messages = chatVm.messages.sortedBy { it.timestamp }
+                                .groupBy { it.timestamp.asPastRelativeDate() }
 
-                                        else -> ReceivedPersonalMessageCard(
+                            messages.forEach { (date, messagesForDate) ->
+                                stickyHeader(date, String) {
+                                    DayHeader(date)
+                                }
+
+                                items(messagesForDate, key = { it.messageId }) { message ->
+                                    Box(modifier = if(animate) Modifier.animateItemPlacement() else Modifier) {
+                                    when (message.senderId) {
+                                            profileViewModel.userId -> SentPersonalMessageCard(
                                             message = message,
                                             query = query,
                                             isQuerying = isQuerying,
-                                        )
+                                            )
+                                            else -> ReceivedPersonalMessageCard(
+                                            message = message,
+                                            query = query,
+                                            isQuerying = isQuerying,
+                                            )
+                                        }
                                     }
                                 }
                             }

@@ -492,14 +492,14 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                         if (!expandedMembers) {
                             item {
                                 TextButton(onClick = { expandedMembers = true }) {
-                                    Text(text = "Show others ${members.size - 5} members")
+                                    Text(text = "Show others ${members.size - 5} members", style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
                         }
                         if (expandedMembers) {
                             item {
                                 TextButton(onClick = { expandedMembers = false }) {
-                                    Text(text = "Show fewer members")
+                                    Text(text = "Show fewer members",  style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
                         }
@@ -533,7 +533,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
                                             text = "Leave the team",
-                                            style = MaterialTheme.typography.bodyLarge
+                                            style = MaterialTheme.typography.labelLarge
                                         )
                                     }
 
@@ -558,7 +558,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                         Text(
                                             text = "Delete team",
                                             color = MaterialTheme.colorScheme.error,
-                                            style = MaterialTheme.typography.bodyLarge
+                                            style = MaterialTheme.typography.labelLarge
                                         )
                                     }
 

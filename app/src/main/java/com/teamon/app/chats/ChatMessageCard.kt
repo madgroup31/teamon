@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,17 +58,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun DayHeader(day: String?) {
-    Box(modifier = Modifier.padding(5.dp)) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center)
-        ) {
-            HorizontalDivider(
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceContainerLowest
-            )
-        }
+    Box(modifier = Modifier.padding(5.dp).fillMaxWidth()) {
         Box(modifier = Modifier.align(Alignment.Center)) {
             Row(
                 modifier = Modifier
@@ -207,7 +196,7 @@ fun SentTeamMessageCard(
                             Text(
                                 text = readBy.toString(),
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
                             )
                             Icon(
                                 modifier = Modifier

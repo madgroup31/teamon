@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -47,9 +48,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -230,7 +231,7 @@ fun LandscapeViewTeam(
     onMessageTextChange: (String) -> Unit,
 ) {
 
-    LocalSoftwareKeyboardController.current
+    var textBoxHeight by remember { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     Theme(
@@ -314,9 +315,10 @@ fun LandscapeViewTeam(
                     2 -> {
                         Row(
                             modifier = Modifier
-                                .height(60.dp)
+                                .wrapContentHeight()
                                 .fillMaxWidth()
-                                .padding(start = 45.dp, end = 10.dp),
+                                .padding(start = 35.dp)
+                                .onGloballyPositioned { textBoxHeight = it.size.height },
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -324,14 +326,14 @@ fun LandscapeViewTeam(
                                 value = messageText,
                                 onValueChange = { onMessageTextChange(it) },
                                 shape = RoundedCornerShape(20.dp),
-                                maxLines = 1,
+                                maxLines = 2,
                                 placeholder = {
                                     Text(
                                         text = "Write a message...",
                                         fontStyle = FontStyle.Italic
                                     )
                                 },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f).wrapContentHeight()
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             FloatingActionButton(
@@ -398,6 +400,7 @@ fun LandscapeViewTeam(
                             search = search,
                             onSearchChange = onSearchChange,
                             query = query,
+                            textBoxHeight = textBoxHeight,
                             isQuerying = isQuerying,
                             onQueryChange = onQueryChange,
                         )
@@ -437,6 +440,7 @@ fun PortraitViewTeam(
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
+    var textBoxHeight by remember { mutableIntStateOf(0) }
 
     Theme(
         applyToStatusBar = true,
@@ -518,9 +522,10 @@ fun PortraitViewTeam(
                     2 -> {
                         Row(
                             modifier = Modifier
-                                .height(60.dp)
+                                .wrapContentHeight()
                                 .fillMaxWidth()
-                                .padding(start = 45.dp, end = 10.dp),
+                                .onGloballyPositioned { textBoxHeight = it.size.height }
+                                .padding(start = 35.dp),
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -528,14 +533,14 @@ fun PortraitViewTeam(
                                 value = messageText,
                                 onValueChange = { onMessageTextChange(it) },
                                 shape = RoundedCornerShape(20.dp),
-                                maxLines = 1,
+                                maxLines = 5,
                                 placeholder = {
                                     Text(
                                         text = "Write a message...",
                                         fontStyle = FontStyle.Italic
                                     )
                                 },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f).wrapContentHeight()
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             FloatingActionButton(
@@ -607,6 +612,7 @@ fun PortraitViewTeam(
                             query = query,
                             isQuerying = isQuerying,
                             onQueryChange = onQueryChange,
+                            textBoxHeight = textBoxHeight
                         )
                     }
 

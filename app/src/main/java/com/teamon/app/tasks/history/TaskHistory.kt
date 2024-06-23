@@ -1,8 +1,9 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package com.teamon.app.tasks.history
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,8 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.teamon.app.prefs
 import com.teamon.app.utils.classes.History
-import com.teamon.app.utils.graphics.AnimatedGrid
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.asPastRelativeDate
 
@@ -32,6 +34,7 @@ fun DayHeader(day: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .padding(start = 12.dp, end = 12.dp, top = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -44,6 +47,7 @@ fun DayHeader(day: String) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskHistory(history: List<History>) {
     val listState = rememberLazyListState()
@@ -69,21 +73,28 @@ fun TaskHistory(history: List<History>) {
             }
 
         }
-    } else
-        AnimatedGrid(
+    } else {
+        val animate = prefs.getBoolean("animate", true)
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(5.dp),
-            columns = StaggeredGridCells.Adaptive(400.dp),
-            items = history.sortedBy { it.timestamp }.reversed()
-                .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()
-        ) { it, _ ->
-            val list = it as List<History>
-            Column {
-                DayHeader(list.first().timestamp.asPastRelativeDate())
-                list.forEach {
-                    TaskHistoryCard(it)
+                .padding(5.dp)
+        ) {
+
+
+            val historyItems = history.sortedBy { it.timestamp }.reversed()
+                .groupBy { it.timestamp.asPastRelativeDate() }
+            historyItems.forEach { (day, historyPerDay) ->
+                stickyHeader(day, String) {
+                    DayHeader(day)
+                }
+                items(historyPerDay, key = { it.historyId }) {
+                    Box(modifier = if(animate) Modifier.animateItemPlacement() else Modifier) {
+                        TaskHistoryCard(it)
+                    }
                 }
             }
+
         }
+    }
 }

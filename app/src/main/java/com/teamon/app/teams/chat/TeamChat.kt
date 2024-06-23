@@ -1,15 +1,16 @@
 package com.teamon.app.teams.chat
 
 import android.content.res.Configuration
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,7 @@ import com.teamon.app.Actions
 import com.teamon.app.chats.DayHeader
 import com.teamon.app.chats.ReceivedTeamMessageCard
 import com.teamon.app.chats.SentTeamMessageCard
+import com.teamon.app.prefs
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.asPastRelativeDate
@@ -46,6 +49,7 @@ fun TeamChat(
     search: Boolean,
     onSearchChange: (Boolean) -> Unit,
     query: String,
+    textBoxHeight: Int,
     isQuerying: () -> Boolean,
     onQueryChange: (String) -> Unit,
     teamVm: TeamViewModel,
@@ -63,6 +67,7 @@ fun TeamChat(
         query = query,
         isQuerying = isQuerying,
         onQueryChange = onQueryChange,
+        textBoxHeight = textBoxHeight
     )
     else PortraitTeamChatView(
         actions = actions,
@@ -72,17 +77,20 @@ fun TeamChat(
         query = query,
         isQuerying = isQuerying,
         onQueryChange = onQueryChange,
+        textBoxHeight = textBoxHeight
     )
 
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PortraitTeamChatView(
     actions: Actions,
     search: Boolean,
     onSearchChange: (Boolean) -> Unit,
     query: String,
+    textBoxHeight: Int,
     isQuerying: () -> Boolean,
     onQueryChange: (String) -> Unit,
     teamVm: TeamViewModel,
@@ -124,39 +132,47 @@ fun PortraitTeamChatView(
         }
         Row {
             if (teamVm.messages.isNotEmpty()) {
+                val animate = prefs.getBoolean("animate", true)
                 LaunchedEffect(teamVm.messages.size) {
+                    if(animate)
                     listState.animateScrollToItem(teamVm.messages.size - 1, 2)
+                    else
+                        listState.scrollToItem(teamVm.messages.size - 1,2)
+                }
+                val height = with(LocalDensity.current) {
+                    textBoxHeight.toDp().value.toInt().dp + 15.dp
                 }
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .fillMaxHeight()
+                        //.fillMaxHeight(0.8f)
                         .padding(5.dp)
-                        .padding(bottom = 80.dp)
+                        .padding(bottom = height)
                 ) {
-                    itemsIndexed(teamVm.messages.sortedBy { it.timestamp }
-                        .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()) { index, it ->
-                        AnimatedItem(index = index) {
-                            Column {
-                                DayHeader(it.first().timestamp.asPastRelativeDate())
-                                it.forEach { message ->
-                                    when (message.senderId) {
-                                        profileViewModel.userId -> SentTeamMessageCard(
-                                            message = message,
-                                            query = query,
-                                            isQuerying = isQuerying,
-                                            partecipants = teamVm.users.size
-                                        )
+                    val messages = teamVm.messages.sortedBy { it.timestamp }
+                        .groupBy { it.timestamp.asPastRelativeDate() }
 
-                                        else ->
-                                            ReceivedTeamMessageCard(
-                                                message = message,
-                                                query = query,
-                                                isQuerying = isQuerying,
-                                                actions = actions,
-                                            )
+                    messages.forEach { (date, messagesForDate) ->
+                        stickyHeader(date, String) {
+                            DayHeader(date)
+                        }
 
-                                    }
+                        items(messagesForDate) { message ->
+                            Box(modifier = if(animate) Modifier.animateItemPlacement() else Modifier) {
+                                when (message.senderId) {
+                                    profileViewModel.userId -> SentTeamMessageCard(
+                                        message = message,
+                                        query = query,
+                                        isQuerying = isQuerying,
+                                        partecipants = teamVm.users.size
+                                    )
+
+                                    else -> ReceivedTeamMessageCard(
+                                        actions = actions,
+                                        message = message,
+                                        query = query,
+                                        isQuerying = isQuerying,
+                                    )
                                 }
                             }
                         }
@@ -187,6 +203,7 @@ fun PortraitTeamChatView(
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LandscapeTeamChatView(
     actions: Actions,
@@ -194,6 +211,7 @@ fun LandscapeTeamChatView(
     search: Boolean,
     onSearchChange: (Boolean) -> Unit,
     query: String,
+    textBoxHeight: Int,
     isQuerying: () -> Boolean,
     onQueryChange: (String) -> Unit,
 ) {
@@ -233,39 +251,46 @@ fun LandscapeTeamChatView(
         }
         Row {
             if (teamVm.messages.isNotEmpty()) {
+                val animate = prefs.getBoolean("animate", true)
                 LaunchedEffect(teamVm.messages.size) {
+                    if(animate)
                     listState.animateScrollToItem(teamVm.messages.size - 1, 2)
+                    else
+                        listState.scrollToItem(teamVm.messages.size - 1,2)
+                }
+                val height = with(LocalDensity.current) {
+                    textBoxHeight.toDp().value.toInt().dp + 15.dp
                 }
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .fillMaxHeight()
                         .padding(5.dp)
-                        .padding(bottom = 80.dp)
+                        .padding(bottom = height)
                 ) {
-                    itemsIndexed(teamVm.messages.sortedBy { it.timestamp }
-                        .groupBy { it.timestamp.asPastRelativeDate() }.values.toList()) { index, it ->
-                        AnimatedItem(index = index) {
-                            Column {
-                                DayHeader(it.first().timestamp.asPastRelativeDate())
-                                it.forEach { message ->
-                                    when (message.senderId) {
-                                        profileViewModel.userId -> SentTeamMessageCard(
-                                            message = message,
-                                            query = query,
-                                            isQuerying = isQuerying,
-                                            partecipants = teamVm.users.size
-                                        )
+                    val messages = teamVm.messages.sortedBy { it.timestamp }
+                        .groupBy { it.timestamp.asPastRelativeDate() }
 
-                                        else ->
-                                            ReceivedTeamMessageCard(
-                                                message = message,
-                                                query = query,
-                                                isQuerying = isQuerying,
-                                                actions = actions,
-                                            )
+                    messages.forEach { (date, messagesForDate) ->
+                        stickyHeader(date, String) {
+                            DayHeader(date)
+                        }
 
-                                    }
+                        items(messagesForDate) { message ->
+                            Box(modifier = if(animate) Modifier.animateItemPlacement() else Modifier) {
+                                when (message.senderId) {
+                                    profileViewModel.userId -> SentTeamMessageCard(
+                                        message = message,
+                                        query = query,
+                                        isQuerying = isQuerying,
+                                        partecipants = teamVm.users.size
+                                    )
+
+                                    else -> ReceivedTeamMessageCard(
+                                        actions = actions,
+                                        message = message,
+                                        query = query,
+                                        isQuerying = isQuerying,
+                                    )
                                 }
                             }
                         }
