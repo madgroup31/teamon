@@ -3,17 +3,12 @@ package com.teamon.app.chats
 
 //import com.teamon.app.utils.ui.theme.UserProfileTheme
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.teamon.app.Actions
 import com.teamon.app.profileViewModel
 import com.teamon.app.teamsViewModel
+import com.teamon.app.utils.graphics.AnimatedGrid
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.AppSurface
 import com.teamon.app.utils.graphics.LoadingOverlay
@@ -85,6 +81,7 @@ fun ChatsView(actions: Actions, userId: String?, teamId: String?) {
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun LandscapeView(
     actions: Actions,
@@ -117,23 +114,19 @@ fun LandscapeView(
                 )
             }
         } else {
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Adaptive(minSize = 350.dp),
-                contentPadding = PaddingValues(8.dp),
-                content = {
-                    itemsIndexed(data) { index, teamId ->
+            AnimatedGrid(columns = StaggeredGridCells.Adaptive(minSize = 350.dp), items = data) { teamId, index ->
                         AnimatedItem(index = index) {
 
                             Chats(
-                                teamId,
+                                teamId as String,
                                 actions,
                                 startNewChat = startNewChat,
                             )
                         }
-                        //ChatElevatedCard(teamChat = fake_team_chat, actions = actions)
+
                     }
-                }
-            )
+
+
             if (isStartingNewChat) {
                 NewChatDialog(
                     onDismissRequest = { onNewChatStarted() },
@@ -147,6 +140,7 @@ fun LandscapeView(
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun PortraitView(
     actions: Actions,
@@ -180,23 +174,17 @@ fun PortraitView(
                 )
             }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 350.dp),
-                contentPadding = PaddingValues(8.dp),
-                content = {
-                    itemsIndexed(data) { index, teamId ->
-                        AnimatedItem(index = index) {
+            AnimatedGrid(columns = StaggeredGridCells.Adaptive(minSize = 350.dp), items = data) { teamId, index ->
+                AnimatedItem(index = index) {
 
-                            Chats(
-                                teamId,
-                                actions,
-                                startNewChat = startNewChat,
-                            )
-                        }
-                        //ChatElevatedCard(teamChat = fake_team_chat, actions = actions)
-                    }
+                    Chats(
+                        teamId as String,
+                        actions,
+                        startNewChat = startNewChat,
+                    )
                 }
-            )
+
+            }
             if (isStartingNewChat) {
                 NewChatDialog(
                     onDismissRequest = { onNewChatStarted() },
