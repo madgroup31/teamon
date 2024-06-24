@@ -87,6 +87,7 @@ fun RecursiveTasksBox(
 
             }
         }
+
         Box(
             modifier = Modifier
                 .height(boxHeight)
