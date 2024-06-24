@@ -3,6 +3,8 @@ package com.teamon.app.utils.graphics
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -26,6 +28,7 @@ import java.util.Locale
 
 @Composable
 fun TeamsViewDropdownMenu(
+    filterBadge: Boolean,
     mainExpanded: Boolean,
     onMainExpandedChange: (Boolean) -> Unit,
     onSortExpandedChange: (Boolean) -> Unit,
@@ -52,7 +55,12 @@ fun TeamsViewDropdownMenu(
             }
         )
         DropdownMenuItem(
-            text = { Text("Filter") },
+            text = {
+                BadgedBox(badge = { if (filterBadge) Badge() }) {
+                    Text("Filter")
+                }
+
+            },
             leadingIcon = {
                 Icon(
                     Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
@@ -81,88 +89,122 @@ fun List<Team>.prepare(
 ): List<Team> {
     var teams = this.asSequence()
 
+    if (query.isNotBlank()) teams =
+        teams.filter { Regex(query, RegexOption.IGNORE_CASE).containsMatchIn(it.name) }
+    if (categoryQuery.isNotBlank()) teams =
+        teams.filter { Regex(categoryQuery, RegexOption.IGNORE_CASE).containsMatchIn(it.category) }
+    if (memberQuery.isNotBlank()) teams = teams.filter {
+        it.users.any { userId ->
+            usersViewModel.users.value[userId]?.let { user ->
+                Regex(
+                    memberQuery.replace(" ", ""),
+                    RegexOption.IGNORE_CASE
+                ).containsMatchIn("${user.name}${user.surname}") ||
+                        Regex(
+                            memberQuery.replace(" ", ""),
+                            RegexOption.IGNORE_CASE
+                        ).containsMatchIn("${user.surname}${user.name}")
+            } ?: false
+        }
+    }
+    if (adminQuery.isNotBlank()) teams = teams.filter {
+        it.admin.any { userId ->
+            usersViewModel.users.value[userId]?.let { user ->
+                Regex(
+                    adminQuery.replace(" ", ""),
+                    RegexOption.IGNORE_CASE
+                ).containsMatchIn("${user.name}${user.surname}") ||
+                        Regex(adminQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn(
+                            "${user.surname}${user.name}"
+                        )
+            } ?: false
+        }
+    }
+
     if (sortingOrder)
         teams = when (sortingOption) {
-            TeamsSortingOption.TeamName.title -> teams.sortedByDescending { it.name.replaceFirstChar { char ->
-                char.lowercase(
-                    Locale.getDefault()
-                )
-            } }
+            TeamsSortingOption.TeamName.title -> teams.sortedByDescending {
+                it.name.replaceFirstChar { char ->
+                    char.lowercase(
+                        Locale.getDefault()
+                    )
+                }
+            }
+
             TeamsSortingOption.Members.title -> teams.sortedByDescending { it.users.size }
             TeamsSortingOption.CreationDate.title -> teams.sortedByDescending { it.creationDate }
-            TeamsSortingOption.Category.title -> teams.sortedByDescending { it.category.replaceFirstChar { char ->
-                char.lowercase(
-                    Locale.getDefault()
-                )
-            } }
+            TeamsSortingOption.Category.title -> teams.sortedByDescending {
+                it.category.replaceFirstChar { char ->
+                    char.lowercase(
+                        Locale.getDefault()
+                    )
+                }
+            }
+
             TeamsSortingOption.CompletedTasks.title -> teams.sortedByDescending { team ->
                 var completed by mutableIntStateOf(0)
                 CoroutineScope(Dispatchers.IO).launch {
-                    projectsViewModel.getTeamProjects(team.teamId).collect {projects ->
+                    projectsViewModel.getTeamProjects(team.teamId).collect { projects ->
                         completed = 0
                         projects.map { project ->
                             launch {
-                                projectsViewModel.getProjectCompletedTasks(project.projectId).collect {
-                                    completed += it.size
-                                }
+                                projectsViewModel.getProjectCompletedTasks(project.projectId)
+                                    .collect {
+                                        completed += it.size
+                                    }
                             }
                         }
                     }
                 }
                 completed
             }
-            else -> { teams }
+
+            else -> {
+                teams
+            }
         }
     else
         teams = when (sortingOption) {
-            TeamsSortingOption.TeamName.title -> teams.sortedBy { it.name.replaceFirstChar { char ->
-                char.lowercase(
-                    Locale.getDefault()
-                )
-            } }
+            TeamsSortingOption.TeamName.title -> teams.sortedBy {
+                it.name.replaceFirstChar { char ->
+                    char.lowercase(
+                        Locale.getDefault()
+                    )
+                }
+            }
+
             TeamsSortingOption.Members.title -> teams.sortedBy { it.users.size }
             TeamsSortingOption.CreationDate.title -> teams.sortedBy { it.creationDate }
-            TeamsSortingOption.Category.title -> teams.sortedBy { it.category.replaceFirstChar { char ->
-                char.lowercase(
-                    Locale.getDefault()
-                )
-            } }
+            TeamsSortingOption.Category.title -> teams.sortedBy {
+                it.category.replaceFirstChar { char ->
+                    char.lowercase(
+                        Locale.getDefault()
+                    )
+                }
+            }
+
             TeamsSortingOption.CompletedTasks.title -> teams.sortedBy { team ->
                 var completed by mutableIntStateOf(0)
                 CoroutineScope(Dispatchers.IO).launch {
-                    projectsViewModel.getTeamProjects(team.teamId).collect {projects ->
+                    projectsViewModel.getTeamProjects(team.teamId).collect { projects ->
                         completed = 0
                         projects.map { project ->
                             launch {
-                                projectsViewModel.getProjectCompletedTasks(project.projectId).collect {
-                                    completed += it.size
-                                }
+                                projectsViewModel.getProjectCompletedTasks(project.projectId)
+                                    .collect {
+                                        completed += it.size
+                                    }
                             }
                         }
                     }
                 }
                 completed
             }
-            else -> { teams }
-        }
 
-
-    if(query.isNotBlank()) teams = teams.filter { Regex(query, RegexOption.IGNORE_CASE).containsMatchIn(it.name) }
-    if(categoryQuery.isNotBlank()) teams = teams.filter { Regex(categoryQuery, RegexOption.IGNORE_CASE).containsMatchIn(it.category) }
-    if(memberQuery.isNotBlank()) teams = teams.filter {
-        it.users.any { userId ->
-            val user = usersViewModel.users.value[userId]!!
-            Regex(memberQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.name}${user.surname}") ||
-                    Regex(memberQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.surname}${user.name}")
+            else -> {
+                teams
+            }
         }
-    }
-    if(adminQuery.isNotBlank()) teams = teams.filter {
-        it.admin.any { userId ->
-            val user = usersViewModel.users.value[userId]!!
-            Regex(adminQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.name}${user.surname}") ||
-                    Regex(adminQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.surname}${user.name}")
-        }
-    }
 
     return teams.toList()
 }

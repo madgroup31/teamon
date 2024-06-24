@@ -151,7 +151,7 @@ fun TasksFilteringOptionsDropdownMenu(
             TasksPriorityFilteringOptions.Medium,
             TasksPriorityFilteringOptions.High
         )
-        if (deadlineFilter != TasksDeadlineFilteringOptions.InTime.title
+        if (deadlineFilter != TasksDeadlineFilteringOptions.All.title
             || statusFilter != TasksStatusFilteringOptions.All.title
             || priorityFilter != TasksPriorityFilteringOptions.All.title
             || tagQuery.isNotBlank()
@@ -174,13 +174,14 @@ fun TasksFilteringOptionsDropdownMenu(
             HorizontalDivider(modifier = Modifier.padding(10.dp))
         }
         Column {
-            Text(
-                text = "Deadline",
-                modifier = Modifier.padding(15.dp, 10.dp, 0.dp, 0.dp),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                Text(
+                    text = "Deadline",
+                    modifier = Modifier.padding(15.dp, 10.dp, 0.dp, 0.dp),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
             deadlineOptions.forEach {
                 DropdownMenuItem(
                     text = { Text(it.title) },
@@ -231,33 +232,38 @@ fun TasksFilteringOptionsDropdownMenu(
         }
         HorizontalDivider(modifier = Modifier.padding(10.dp))
         Column {
-            OutlinedTextField(
-                label = { Text("Tag")},
-                modifier = Modifier.padding(start = 10.dp, top = 5.dp, end = 10.dp, bottom = 5.dp).width(150.dp),
-                placeholder = { Text("All", fontStyle = FontStyle.Italic)},
-                value = tagQuery, onValueChange = {onTagQueryChange(it)},
-                maxLines = 1)
+                OutlinedTextField(
+                    label = { Text("Tag")},
+                    modifier = Modifier
+                        .padding(start = 10.dp, top = 5.dp, end = 10.dp, bottom = 5.dp)
+                        .width(150.dp),
+                    placeholder = { Text("All", fontStyle = FontStyle.Italic)},
+                    value = tagQuery, onValueChange = {onTagQueryChange(it)},
+                    maxLines = 1)
 
         }
         HorizontalDivider(modifier = Modifier.padding(10.dp))
         Column {
-            OutlinedTextField(
-                label = { Text("Member") },
-                modifier = Modifier.padding(start = 10.dp, top = 5.dp, end = 10.dp, bottom = 5.dp).width(150.dp),
-                placeholder = { Text("All", fontStyle = FontStyle.Italic)},
-                value = memberQuery, onValueChange = {onMemberQueryChange(it)},
-                maxLines = 1)
+                OutlinedTextField(
+                    label = { Text("Member") },
+                    modifier = Modifier
+                        .padding(start = 10.dp, top = 5.dp, end = 10.dp, bottom = 5.dp)
+                        .width(150.dp),
+                    placeholder = { Text("All", fontStyle = FontStyle.Italic)},
+                    value = memberQuery, onValueChange = {onMemberQueryChange(it)},
+                    maxLines = 1)
+
         }
 
         HorizontalDivider(modifier = Modifier.padding(10.dp))
         Column {
-            Text(
-                text = "Priority",
-                modifier = Modifier.padding(15.dp, 10.dp, 0.dp, 0.dp),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                Text(
+                    text = "Priority",
+                    modifier = Modifier.padding(15.dp, 10.dp, 0.dp, 0.dp),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             priorityOptions.forEach {
                 DropdownMenuItem(
                     text = { Text(it.title) },

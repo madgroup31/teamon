@@ -6,6 +6,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -38,6 +40,7 @@ import java.util.Locale
 
 @Composable
 fun TasksViewDropdownMenu(
+    filterBadge: Boolean,
     mainExpanded: Boolean,
     onMainExpandedChange: (Boolean) -> Unit,
     onSortExpandedChange: (Boolean) -> Unit,
@@ -64,7 +67,11 @@ fun TasksViewDropdownMenu(
             }
         )
         DropdownMenuItem(
-            text = { Text("Filter") },
+            text = {
+                BadgedBox(badge = { if (filterBadge) Badge() }) {
+                    Text("Filter")
+                }
+            },
             leadingIcon = {
                 Icon(
                     Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
@@ -96,13 +103,13 @@ fun TaskCardDropdownMenu(
 
     var deletingTask by remember { mutableStateOf(false) }
     LaunchedEffect(deletingTask) {
-        if(deletingTask) {
-            tasksViewModel.deleteTask(projectId,taskId)
+        if (deletingTask) {
+            tasksViewModel.deleteTask(projectId, taskId)
             deletingTask = false
         }
     }
 
-    var showingDeletionDialog by remember { mutableStateOf(false)}
+    var showingDeletionDialog by remember { mutableStateOf(false) }
     DropdownMenu(
         modifier = Modifier,
         expanded = expanded,
@@ -114,17 +121,29 @@ fun TaskCardDropdownMenu(
             onClick = { actions.editTask(selectedTabItem, taskId) }
         )
         DropdownMenuItem(
-            leadingIcon = { Image(painter = painterResource(id = R.drawable.outline_comment_24), colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface), contentDescription = "Add a comment") },
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.outline_comment_24),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                    contentDescription = "Add a comment"
+                )
+            },
             text = { Text("Add a comment") },
             onClick = { actions.openTaskComments(selectedTabItem, taskId) }
         )
         DropdownMenuItem(
-            leadingIcon = { Image(painter = painterResource(id = R.drawable.outline_content_paste_24), colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),  contentDescription = "Add attachment") },
+            leadingIcon = {
+                Image(
+                    painter = painterResource(id = R.drawable.outline_content_paste_24),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                    contentDescription = "Add attachment"
+                )
+            },
             text = { Text("Add an attachment") },
             onClick = { actions.openTaskAttachments(selectedTabItem, taskId) }
         )
 
-        if(admins.any { it == profileViewModel.userId }) {
+        if (admins.any { it == profileViewModel.userId }) {
             HorizontalDivider()
             DropdownMenuItem(
                 leadingIcon = {
@@ -180,47 +199,13 @@ fun List<Task>.prepare(
 ): List<Task> {
     var tasks = this.asSequence()
 
-    if (sortingOrder)
-        tasks = when (sortingOption) {
-            TasksSortingOption.ProjectName.title -> tasks.sortedByDescending { it.projectName.replaceFirstChar { char ->
-                char.lowercase(
-                    Locale.getDefault()
-                )
-            } }
-            TasksSortingOption.TaskName.title -> tasks.sortedByDescending { it.taskName.replaceFirstChar { char ->
-                char.lowercase(
-                    Locale.getDefault()
-                )
-            } }
-            TasksSortingOption.Members.title -> tasks.sortedByDescending { it.listUser.size }
-            TasksSortingOption.Status.title -> tasks.sortedByDescending { it.status }
-            TasksSortingOption.Priority.title -> tasks.sortedByDescending { it.priority }
-            else -> tasks.sortedByDescending { it.endDate }
-
-        }
-    else
-        tasks = when (sortingOption) {
-            TasksSortingOption.ProjectName.title -> tasks.sortedBy { it.projectName.replaceFirstChar { char ->
-                char.lowercase(
-                    Locale.getDefault()
-                )
-            } }
-            TasksSortingOption.TaskName.title -> tasks.sortedBy { it.taskName.replaceFirstChar { char ->
-                char.lowercase(
-                    Locale.getDefault()
-                )
-            } }
-            TasksSortingOption.Members.title -> tasks.sortedBy { it.listUser.size }
-            TasksSortingOption.Status.title -> tasks.sortedBy { it.status }
-            TasksSortingOption.Priority.title -> tasks.sortedBy { it.priority }
-            else -> tasks.sortedBy { it.endDate }
-        }
-
     tasks = when (deadlineFilter) {
         TasksDeadlineFilteringOptions.NotStarted.title -> tasks.filter { it.creationDate > Timestamp.now() }
         TasksDeadlineFilteringOptions.Overdue.title -> tasks.filter { it.creationDate < Timestamp.now() && it.endDate < Timestamp.now() }
         TasksDeadlineFilteringOptions.InTime.title -> tasks.filter { it.creationDate < Timestamp.now() && it.endDate > Timestamp.now() }
-        else -> { tasks }
+        else -> {
+            tasks
+        }
     }
 
     tasks = when (statusFilter) {
@@ -242,15 +227,72 @@ fun List<Task>.prepare(
         }
     }
 
-    if(query.isNotBlank()) tasks = tasks.filter { Regex(query, RegexOption.IGNORE_CASE).containsMatchIn(it.taskName) }
-    if(tagQuery.isNotBlank()) tasks = tasks.filter { Regex(tagQuery, RegexOption.IGNORE_CASE).containsMatchIn(it.tag) }
-    if(memberQuery.isNotBlank()) tasks = tasks.filter {
+    if (query.isNotBlank()) tasks =
+        tasks.filter { Regex(query, RegexOption.IGNORE_CASE).containsMatchIn(it.taskName) }
+    if (tagQuery.isNotBlank()) tasks =
+        tasks.filter { Regex(tagQuery, RegexOption.IGNORE_CASE).containsMatchIn(it.tag) }
+    if (memberQuery.isNotBlank()) tasks = tasks.filter {
         it.listUser.any { userId ->
-            val user = usersViewModel.users.value[userId]!!
-            Regex(memberQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.name}${user.surname}") ||
-                    Regex(memberQuery.replace(" ", ""), RegexOption.IGNORE_CASE).containsMatchIn("${user.surname}${user.name}")
+            usersViewModel.users.value[userId]?.let { user ->
+                Regex(
+                    memberQuery.replace(" ", ""),
+                    RegexOption.IGNORE_CASE
+                ).containsMatchIn("${user.name}${user.surname}") ||
+                        Regex(
+                            memberQuery.replace(" ", ""),
+                            RegexOption.IGNORE_CASE
+                        ).containsMatchIn("${user.surname}${user.name}")
+            } ?: false
         }
     }
+
+    if (sortingOrder)
+        tasks = when (sortingOption) {
+            TasksSortingOption.ProjectName.title -> tasks.sortedByDescending {
+                it.projectName.replaceFirstChar { char ->
+                    char.lowercase(
+                        Locale.getDefault()
+                    )
+                }
+            }
+
+            TasksSortingOption.TaskName.title -> tasks.sortedByDescending {
+                it.taskName.replaceFirstChar { char ->
+                    char.lowercase(
+                        Locale.getDefault()
+                    )
+                }
+            }
+
+            TasksSortingOption.Members.title -> tasks.sortedByDescending { it.listUser.size }
+            TasksSortingOption.Status.title -> tasks.sortedByDescending { it.status }
+            TasksSortingOption.Priority.title -> tasks.sortedByDescending { it.priority }
+            else -> tasks.sortedByDescending { it.endDate }
+
+        }
+    else
+        tasks = when (sortingOption) {
+            TasksSortingOption.ProjectName.title -> tasks.sortedBy {
+                it.projectName.replaceFirstChar { char ->
+                    char.lowercase(
+                        Locale.getDefault()
+                    )
+                }
+            }
+
+            TasksSortingOption.TaskName.title -> tasks.sortedBy {
+                it.taskName.replaceFirstChar { char ->
+                    char.lowercase(
+                        Locale.getDefault()
+                    )
+                }
+            }
+
+            TasksSortingOption.Members.title -> tasks.sortedBy { it.listUser.size }
+            TasksSortingOption.Status.title -> tasks.sortedBy { it.status }
+            TasksSortingOption.Priority.title -> tasks.sortedBy { it.priority }
+            else -> tasks.sortedBy { it.endDate }
+        }
 
     return tasks.toList()
 }

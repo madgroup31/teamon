@@ -87,6 +87,7 @@ fun TeamsActions(
     }
 
     TeamsViewDropdownMenu(
+        filterBadge = categoryQuery.isNotBlank() || memberQuery.isNotBlank() || adminQuery.isNotBlank(),
         mainExpanded = mainExpanded,
         onMainExpandedChange = onMainExpandedChange,
         onSortExpandedChange = onSortExpandedChange,

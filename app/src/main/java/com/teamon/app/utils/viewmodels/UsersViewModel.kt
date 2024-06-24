@@ -1,5 +1,6 @@
 package com.teamon.app.utils.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamon.app.Model
@@ -25,6 +26,7 @@ class UsersViewModel(val model: Model) : ViewModel() {
                 initialValue = emptyMap()
             )
         }
+        Log.d("users", "users: $users")
     }
 
     suspend fun exists(userId: String) = model.exists(userId)

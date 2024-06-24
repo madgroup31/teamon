@@ -9,13 +9,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -333,10 +337,22 @@ fun LandscapeView(
                     Icon(Icons.Rounded.Search, contentDescription = "Search tasks")
                 }
                 IconButton(onClick = { mainExpanded = !mainExpanded }) {
-                    Icon(Icons.Rounded.MoreVert, contentDescription = "More tasks options")
+                    BadgedBox(
+                        modifier = Modifier.wrapContentSize(),
+                        badge = {
+                            if(categoryQuery.isNotBlank() ||
+                                adminQuery.isNotBlank() ||
+                                memberQuery.isNotBlank())
+                                Badge(modifier = Modifier.offset(x = (-5).dp))
+                        }) {
+                        Icon(Icons.Rounded.MoreVert, contentDescription = "More tasks options")
+                    }
                 }
 
                 TeamsViewDropdownMenu(
+                    filterBadge = categoryQuery.isNotBlank() ||
+                            adminQuery.isNotBlank() ||
+                            memberQuery.isNotBlank(),
                     mainExpanded = mainExpanded,
                     onMainExpandedChange = { mainExpanded = it },
                     onSortExpandedChange = { sortExpanded = it },
@@ -531,10 +547,22 @@ fun PortraitView(
                     Icon(Icons.Rounded.Search, contentDescription = "Search tasks")
                 }
                 IconButton(onClick = { mainExpanded = !mainExpanded }) {
-                    Icon(Icons.Rounded.MoreVert, contentDescription = "More tasks options")
+                    BadgedBox(
+                        modifier = Modifier.wrapContentSize(),
+                        badge = {
+                            if(categoryQuery.isNotBlank() ||
+                                adminQuery.isNotBlank() ||
+                                memberQuery.isNotBlank())
+                                Badge(modifier = Modifier.offset(x = (-5).dp))
+                        }) {
+                        Icon(Icons.Rounded.MoreVert, contentDescription = "More tasks options")
+                    }
                 }
 
                 TeamsViewDropdownMenu(
+                    filterBadge = categoryQuery.isNotBlank() ||
+                            adminQuery.isNotBlank() ||
+                            memberQuery.isNotBlank(),
                     mainExpanded = mainExpanded,
                     onMainExpandedChange = { mainExpanded = it },
                     onSortExpandedChange = { sortExpanded = it },
