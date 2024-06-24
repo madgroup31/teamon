@@ -190,6 +190,7 @@ fun Chats(  //TODO: Move from here
                         ),
                         content = {
                             BadgedBox(
+                                modifier = Modifier.align(Alignment.CenterVertically),
                                 badge = {
                                     if (unreadTeamChatMessages > 0) {
                                         Badge(modifier = Modifier.offset(x = 10.dp)) {

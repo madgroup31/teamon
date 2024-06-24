@@ -483,7 +483,7 @@ fun Timestamp.asCompactPastRelativeDateTime(): String {
     return when {
         duration.seconds < 60 -> "Now"
         duration.toMinutes() < 60 -> "${duration.toMinutes()} mins ago"
-        duration.toHours() < 24 -> "${duration.toHours()} h ago"
+        duration.toHours() < 24 -> "${duration.toHours()}h ago"
         duration.toDays() < 2 -> RelativeDateTimeFormatter.getInstance().format(
             RelativeDateTimeFormatter.Direction.LAST,
             RelativeDateTimeFormatter.AbsoluteUnit.DAY
