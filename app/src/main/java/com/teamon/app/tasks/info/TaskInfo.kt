@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -78,7 +77,6 @@ import com.teamon.app.tasks.Repeat
 import com.teamon.app.tasks.TaskPriority
 import com.teamon.app.tasks.TaskStatus
 import com.teamon.app.tasksViewModel
-import com.teamon.app.utils.viewmodels.TaskViewModel
 import com.teamon.app.utils.classes.User
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.TeamOnImage
@@ -86,6 +84,7 @@ import com.teamon.app.utils.graphics.asFutureRelativeDate
 import com.teamon.app.utils.graphics.asPastRelativeDate
 import com.teamon.app.utils.graphics.convertMillisToDate
 import com.teamon.app.utils.graphics.toTimestamp
+import com.teamon.app.utils.viewmodels.TaskViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -141,15 +140,7 @@ fun PartecipantCard(
 
                     if (me) {
                         TeamOnImage(
-                            modifier = if (isAdmin) Modifier
-                                .size(50.dp)
-                                .clip(CircleShape)
-                                .border(
-                                    2.dp,
-                                    MaterialTheme.colorScheme.primary,
-                                    CircleShape
-                                )
-                            else Modifier
+                            modifier = Modifier
                                 .size(50.dp)
                                 .clip(CircleShape),
                             source = profileViewModel.profileImageSource,
@@ -161,15 +152,7 @@ fun PartecipantCard(
                         )
                     } else {
                         TeamOnImage(
-                            modifier = if (isAdmin) Modifier
-                                .size(50.dp)
-                                .clip(CircleShape)
-                                .border(
-                                    2.dp,
-                                    MaterialTheme.colorScheme.primary,
-                                    CircleShape
-                                )
-                            else Modifier
+                            modifier = Modifier
                                 .size(50.dp)
                                 .clip(CircleShape),
                             source = user.profileImageSource,
@@ -198,13 +181,19 @@ fun PartecipantCard(
                 Column {
 
                     if (isAdmin)
+                        Row {
+                            Text(
+                                text = "Admin",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary
 
-                        Text(
-                            text = "Admin",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary
+                            )
+                            Image(modifier = Modifier.size(14.dp),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                painter = painterResource(id = R.drawable.ic_admin),
+                                contentDescription = "Admin badge")
 
-                        )
+                        }
 
                     Text(
                         text = if (me) "${user.name} ${user.surname} (Me)"

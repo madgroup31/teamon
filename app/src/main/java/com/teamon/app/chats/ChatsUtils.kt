@@ -1,7 +1,7 @@
 package com.teamon.app.chats
 
 import android.annotation.SuppressLint
-import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -26,8 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
@@ -58,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -69,6 +68,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import com.teamon.app.Actions
@@ -100,11 +100,8 @@ fun Chats(  //TODO: Move from here
 
     val unreadTeamChatMessages by chatsViewModel.getUnreadTeamChatMessages(teamId).collectAsState(initial = 0)
     val unreadMessages by chatsViewModel.getUnreadMessages(teamId).collectAsState(initial = emptyMap())
-    val lastMessages by chatsViewModel.getLastMessages(teamId).collectAsState(initial = emptyMap())
+    val lastMessages by chatsViewModel.getLastMessages(teamId).collectAsState(initial = null)
 
-    //Log.d("chat", "userChats: $userChats")
-    Log.d("chat", "unreadMessages: $unreadMessages")
-    Log.d("chat", "lastMessages: $lastMessages")
 
 
     var isExpanded by remember { mutableStateOf(true) }
@@ -117,34 +114,18 @@ fun Chats(  //TODO: Move from here
             //colors = CardDefaults.elevatedCardColors(color.toColor()),
             shape = RoundedCornerShape(20.dp),
             modifier =
-            if (isExpanded) {
-                Modifier
-                    .padding(8.dp)
-                    .height(
-                        if (lastMessages.size > 2) 448.dp
-                        else (lastMessages.size * 80 + 225).dp
-                    )
-                    .verticalScroll(rememberScrollState())
-                    //.wrapContentHeight()
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        RoundedCornerShape(20.dp)
-                    )
-                    .fillMaxWidth()
-            } else {
-                Modifier
-                    .padding(8.dp)
-                    //.verticalScroll(rememberScrollState())
-                    //.height(height)
-                    .wrapContentHeight()
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                        RoundedCornerShape(20.dp)
-                    )
-                    .fillMaxWidth()
-            },
+            Modifier
+                .padding(8.dp)
+                //.verticalScroll(rememberScrollState())
+                //.height(height)
+                .wrapContentHeight()
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                    RoundedCornerShape(20.dp)
+                )
+                .fillMaxWidth()
+            ,
             //.heightIn(max = 350.dp) ,
             content = {
                 Row(
@@ -328,38 +309,30 @@ fun Chats(  //TODO: Move from here
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(
-                                onClick = { startNewChat(teamId) },
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .padding(horizontal = 0.dp)
-                                    .wrapContentWidth()
-                            )
-                            {
-                                Icon(
-                                    imageVector = Icons.Filled.AddCircle,
-                                    contentDescription = "Start new chat",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                )
-                            }
 
                             TextButton(
                                 onClick = { startNewChat(teamId) },
                                 modifier = Modifier,
                             ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.round_add_circle_24),
+                                    contentDescription = "Start new chat",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
                                     text = "Start a new chat",
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = MaterialTheme.typography.labelLarge,
                                     color = MaterialTheme.colorScheme.primary,
                                     textAlign = TextAlign.Center
                                 )
                             }
                         }
                     }
-                    if (lastMessages.isNotEmpty()) {
+                    if (lastMessages?.isNotEmpty() == true) {
                         Column(
-                            modifier = Modifier
-                            //.weight(0.3f)
+                            modifier = Modifier,
+                            horizontalAlignment = Alignment.End
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
@@ -376,17 +349,9 @@ fun Chats(  //TODO: Move from here
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.primary,
                                     )
-                                }
-                                IconButton(
-                                    onClick = { isExpanded = !isExpanded },
-                                    modifier = Modifier
-                                        .padding(horizontal = 0.dp)
-                                        .wrapContentWidth()
-                                )
-                                {
                                     Icon(
                                         imageVector = if (!isExpanded) Icons.Rounded.KeyboardArrowDown else Icons.Rounded.KeyboardArrowUp,
-                                        contentDescription = "Expand",
+                                        contentDescription = "Contract/Expand",
                                         tint = MaterialTheme.colorScheme.primary,
                                     )
                                 }
@@ -398,54 +363,57 @@ fun Chats(  //TODO: Move from here
                     OutlinedCard(
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
-                            .padding(horizontal = 8.dp, vertical = 0.dp)
+                            .padding(10.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                             .border(
                                 1.dp,
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                                 RoundedCornerShape(20.dp)
                             )
                             .align(Alignment.CenterHorizontally),
                     ) {
+                        val height = lastMessages?.let {it.size * 70.dp} ?: 70.dp
                         Column(
                             modifier = Modifier
-                                .height(if (lastMessages.size > 2) 200.dp else (lastMessages.size * 80).dp)
+                                .height(height)
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            lastMessages
-                                .entries
+                            lastMessages?.let { messages ->
+                                messages.entries
                                 .sortedByDescending { it.value.timestamp }
                                 .forEachIndexed { index, (chatId, _) ->
-                                        //val userId = chat.userIds.first { id -> id != profileViewModel!!.userId }
-                                        PersonalChatCard(
-                                            actions = actions,
-                                            chatId = chatId,
-                                            //userId = userId,
-                                            //userId = profileViewModel!!.userId,
-                                            team = team,
-                                            //lastMessage = message.messageId,
-                                            //zombie = !team.users.contains(userId),
-                                            //userId = chat.userIds.first { id -> id != profileViewModel!!.userId },
-                                            //lastMessage = chat.messages.maxBy { message -> message.timestamp },
-                                            //unread = chat.messages.count { message -> message.unread },
-                                        )
+                                    //val userId = chat.userIds.first { id -> id != profileViewModel!!.userId }
+                                    PersonalChatCard(
+                                        actions = actions,
+                                        chatId = chatId,
+                                        //userId = userId,
+                                        //userId = profileViewModel!!.userId,
+                                        team = team,
+                                        //lastMessage = message.messageId,
+                                        //zombie = !team.users.contains(userId),
+                                        //userId = chat.userIds.first { id -> id != profileViewModel!!.userId },
+                                        //lastMessage = chat.messages.maxBy { message -> message.timestamp },
+                                        //unread = chat.messages.count { message -> message.unread },
+                                    )
 
-                                    if (index != lastMessages.size - 1) {
+                                    if (index != messages.size - 1) {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth(),
                                             horizontalArrangement = Arrangement.Center
                                         ) {
                                             HorizontalDivider(
+                                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                                                 modifier = Modifier
-                                                    .fillMaxWidth(0.8f)
+                                                    .fillMaxWidth(0.85f)
                                                     .padding(0.dp),
                                                 thickness = 1.dp,
                                             )
                                         }
                                     }
                                 }
+                            }
                         }
                     }
                 }
@@ -474,8 +442,7 @@ fun PersonalChatCard(
 
     Row(
         modifier = Modifier
-            .padding(3.dp)
-            .fillMaxSize(),
+            .padding(10.dp)
     ) {
         Column(
             modifier = Modifier
@@ -488,22 +455,33 @@ fun PersonalChatCard(
             val selectedNavItem =
                 actions.navCont.currentBackStackEntry?.destination?.route?.split("/")?.first()
                     .toString()
-                    TeamOnImage(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .alpha(if (zombie) 0.5f else 1f)
-                            .clip(CircleShape)
-                            .clickable { actions.openProfile(selectedNavItem, user.userId) },
-                        source = user.profileImageSource,
-                        uri = user.profileImage?.toUri(),
-                        name = user.name,
-                        surname = user.surname,
-                        color = user.color,
-                        description = "User profile image",
-                    )
+            Box(contentAlignment = Alignment.Center) {
+                TeamOnImage(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .alpha(if (zombie) 0.5f else 1f)
+                        .clip(CircleShape)
+                        .clickable { actions.openProfile(selectedNavItem, user.userId) },
+                    source = user.profileImageSource,
+                    uri = user.profileImage?.toUri(),
+                    name = user.name,
+                    surname = user.surname,
+                    color = user.color,
+                    description = "User profile image",
+                )
+                if(team.admin.contains(user.userId))
+                Image(modifier = Modifier
+                    .size(14.dp)
+                    .align(Alignment.BottomEnd),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                    painter = painterResource(id = R.drawable.ic_admin),
+                    contentDescription = "Admin badge")
+
+            }
 
 
         }
+        Spacer(modifier = Modifier.weight(0.3f))
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -524,7 +502,7 @@ fun PersonalChatCard(
                         modifier = Modifier
                             .align(Alignment.Bottom)
                             .clickable { actions.openProfile(selectedNavItem, user.userId) },
-                        text = "${user.name} ${user.surname}",
+                        text = user.nickname,
                         style = MaterialTheme.typography.titleMedium.copy(textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None),
                         fontStyle = if (zombie) FontStyle.Italic else FontStyle.Normal,
                         maxLines = 1,
@@ -572,7 +550,9 @@ fun PersonalChatCard(
                             if (isMessageRead) {
                                 Box{
                                     Icon(
-                                        modifier = Modifier.size(18.dp).alpha(0.75f),
+                                        modifier = Modifier
+                                            .size(18.dp)
+                                            .alpha(0.75f),
                                         imageVector = Icons.Rounded.Check,
                                         contentDescription = null
                                     )
@@ -602,12 +582,13 @@ fun PersonalChatCard(
             Box(contentAlignment = Alignment.Center) {
                 IconButton(
                     onClick = { actions.openPersonalChat(user.userId, team.teamId) },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    )
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.primary),
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        Icons.AutoMirrored.Rounded.Send,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .align(Alignment.Center),
                         contentDescription = "Go to Chat",
                     )
                 }

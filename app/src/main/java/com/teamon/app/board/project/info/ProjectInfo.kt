@@ -1,7 +1,6 @@
 package com.teamon.app.board.project.info
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -306,7 +305,7 @@ fun PortraitProjectInfoView(
 
 
                 //COLLABORATORS
-                users.take(size).forEachIndexed { index, user ->
+                users.sortedByDescending { user-> projectVM.teams.filter { it.users.contains(user.userId) }.any { it.admin.contains(user.userId)} }.take(size).forEachIndexed { index, user ->
 
                     val isAdmin = projectVM.teams.filter { it.users.contains(user.userId) }
                         .any { it.admin.contains(user.userId) }
@@ -344,18 +343,10 @@ fun PortraitProjectInfoView(
                                                 .height(70.dp),
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            user.profileImage
+
                                             if (me) {
                                                 TeamOnImage(
-                                                    modifier = if (isAdmin) Modifier
-                                                        .size(50.dp)
-                                                        .clip(CircleShape)
-                                                        .border(
-                                                            2.dp,
-                                                            MaterialTheme.colorScheme.primary,
-                                                            CircleShape
-                                                        )
-                                                    else Modifier
+                                                    modifier = Modifier
                                                         .size(50.dp)
                                                         .clip(CircleShape),
                                                     source = profileViewModel.profileImageSource,
@@ -367,15 +358,7 @@ fun PortraitProjectInfoView(
                                                 )
                                             } else {
                                                 TeamOnImage(
-                                                    modifier = if (isAdmin) Modifier
-                                                        .size(50.dp)
-                                                        .clip(CircleShape)
-                                                        .border(
-                                                            2.dp,
-                                                            MaterialTheme.colorScheme.primary,
-                                                            CircleShape
-                                                        )
-                                                    else Modifier
+                                                    modifier = Modifier
                                                         .size(50.dp)
                                                         .clip(CircleShape),
                                                     source = user.profileImageSource,
@@ -404,6 +387,10 @@ fun PortraitProjectInfoView(
                                                 color = MaterialTheme.colorScheme.primary
 
                                             )
+                                            Image(modifier = Modifier.size(14.dp),
+                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                                painter = painterResource(id = R.drawable.ic_admin),
+                                                contentDescription = "Admin badge")
                                         }
                                     Row(modifier = Modifier)
                                     {
@@ -422,7 +409,8 @@ fun PortraitProjectInfoView(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 )
                                 {
-
+                                    Text("Teams", style = MaterialTheme.typography.bodySmall)
+                                    Spacer(modifier = Modifier.height(2.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.Center,
@@ -432,7 +420,9 @@ fun PortraitProjectInfoView(
                                             projectVM.teams.filter { it.users.contains(user.userId) }
                                         t.take(2).forEach {
                                             TeamOnImage(
-                                                modifier = Modifier.size(24.dp).clip(CircleShape),
+                                                modifier = Modifier
+                                                    .size(24.dp)
+                                                    .clip(CircleShape),
                                                 source = it.imageSource,
                                                 name = it.name,
                                                 surname = "",
@@ -468,7 +458,7 @@ fun PortraitProjectInfoView(
                         onSearchActiveChange = onSearchActiveChange
                     ) {
 
-                        val filteredCollaborators = users.filter { user ->
+                        val filteredCollaborators = users.sortedByDescending { user -> projectVM.teams.filter { it.users.contains( user.userId ) }.any { it.admin.contains(user.userId) } }.filter { user ->
                             user.name.contains(query, ignoreCase = true) ||
                                     user.surname.contains(query, ignoreCase = true)
                         }
@@ -532,15 +522,7 @@ fun PortraitProjectInfoView(
                                                     ) {
                                                         if (me) {
                                                             TeamOnImage(
-                                                                modifier = if (isAdmin) Modifier
-                                                                    .size(50.dp)
-                                                                    .clip(CircleShape)
-                                                                    .border(
-                                                                        2.dp,
-                                                                        MaterialTheme.colorScheme.primary,
-                                                                        CircleShape
-                                                                    )
-                                                                else Modifier
+                                                                modifier = Modifier
                                                                     .size(50.dp)
                                                                     .clip(CircleShape),
                                                                 source = profileViewModel.profileImageSource,
@@ -552,15 +534,7 @@ fun PortraitProjectInfoView(
                                                             )
                                                         } else {
                                                             TeamOnImage(
-                                                                modifier = if (isAdmin) Modifier
-                                                                    .size(50.dp)
-                                                                    .clip(CircleShape)
-                                                                    .border(
-                                                                        2.dp,
-                                                                        MaterialTheme.colorScheme.primary,
-                                                                        CircleShape
-                                                                    )
-                                                                else Modifier
+                                                                modifier = Modifier
                                                                     .size(50.dp)
                                                                     .clip(CircleShape),
                                                                 source = user.profileImageSource,
@@ -586,6 +560,11 @@ fun PortraitProjectInfoView(
                                                             style = MaterialTheme.typography.labelMedium,
                                                             color = MaterialTheme.colorScheme.primary
                                                         )
+                                                        Image(modifier = Modifier.size(14.dp),
+                                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                                            painter = painterResource(id = R.drawable.ic_admin),
+                                                            contentDescription = "Admin badge")
+
                                                     }
                                                 }
                                                 Row {
@@ -601,6 +580,7 @@ fun PortraitProjectInfoView(
                                                 verticalArrangement = Arrangement.Center,
                                                 horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
+                                                Text("Teams", style = MaterialTheme.typography.bodySmall)
                                                 Row(
                                                     modifier = Modifier.fillMaxWidth(),
                                                     horizontalArrangement = Arrangement.Center,
@@ -611,7 +591,9 @@ fun PortraitProjectInfoView(
                                                     }
                                                     teamsWithUser.take(2).forEach { team ->
                                                         TeamOnImage(
-                                                            modifier = Modifier.size(24.dp).clip(CircleShape),
+                                                            modifier = Modifier
+                                                                .size(24.dp)
+                                                                .clip(CircleShape),
                                                             source = team.imageSource,
                                                             name = team.name,
                                                             color = team.color,
@@ -680,8 +662,6 @@ fun PortraitProjectInfoView(
         actions: Actions,
     ) {
 
-        profileViewModel.userId
-        projectVM.teams
         val users = projectVM.members.values.sortedBy { it.name + " " + it.surname }.toList()
 
         var searchActive by rememberSaveable { mutableStateOf(false) }
@@ -922,7 +902,8 @@ fun PortraitProjectInfoView(
 
 
                     //COLLABORATORS
-                    users.take(size).forEachIndexed { index, user ->
+                    users.sortedByDescending { user -> projectVM.teams.filter { it.users.contains(user.userId) }
+                        .any { it.admin.contains(user.userId) } }.take(size).forEachIndexed { index, user ->
 
                         val isAdmin = projectVM.teams.filter { it.users.contains(user.userId) }
                             .any { it.admin.contains(user.userId) }
@@ -963,15 +944,7 @@ fun PortraitProjectInfoView(
                                                 user.profileImage
                                                 if (me) {
                                                     TeamOnImage(
-                                                        modifier = if (isAdmin) Modifier
-                                                            .size(50.dp)
-                                                            .clip(CircleShape)
-                                                            .border(
-                                                                2.dp,
-                                                                MaterialTheme.colorScheme.primary,
-                                                                CircleShape
-                                                            )
-                                                        else Modifier
+                                                        modifier = Modifier
                                                             .size(50.dp)
                                                             .clip(CircleShape),
                                                         source = profileViewModel.profileImageSource,
@@ -983,15 +956,7 @@ fun PortraitProjectInfoView(
                                                     )
                                                 } else {
                                                     TeamOnImage(
-                                                        modifier = if (isAdmin) Modifier
-                                                            .size(50.dp)
-                                                            .clip(CircleShape)
-                                                            .border(
-                                                                2.dp,
-                                                                MaterialTheme.colorScheme.primary,
-                                                                CircleShape
-                                                            )
-                                                        else Modifier
+                                                        modifier = Modifier
                                                             .size(50.dp)
                                                             .clip(CircleShape),
                                                         source = user.profileImageSource,
@@ -1020,6 +985,10 @@ fun PortraitProjectInfoView(
                                                     color = MaterialTheme.colorScheme.primary
 
                                                 )
+                                                Image(modifier = Modifier.size(14.dp),
+                                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                                    painter = painterResource(id = R.drawable.ic_admin),
+                                                    contentDescription = "Admin badge")
                                             }
                                         Row(modifier = Modifier)
                                         {
@@ -1038,7 +1007,7 @@ fun PortraitProjectInfoView(
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     )
                                     {
-
+                                        Text("Teams", style = MaterialTheme.typography.bodySmall)
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.Center,
@@ -1048,7 +1017,9 @@ fun PortraitProjectInfoView(
                                                 projectVM.teams.filter { it.users.contains(user.userId) }
                                             t.take(2).forEach {
                                                 TeamOnImage(
-                                                    modifier = Modifier.size(24.dp).clip(CircleShape),
+                                                    modifier = Modifier
+                                                        .size(24.dp)
+                                                        .clip(CircleShape),
                                                     source = it.imageSource,
                                                     name = it.name,
                                                     color = it.color,
@@ -1084,7 +1055,7 @@ fun PortraitProjectInfoView(
                             onSearchActiveChange = onSearchActiveChange
                         ) {
 
-                            val filteredCollaborators = users.filter { user ->
+                            val filteredCollaborators = users.sortedByDescending { user -> projectVM.teams.filter { it.users.contains( user.userId ) }.any { it.admin.contains(user.userId) } }.filter { user ->
                                 user.name.contains(query, ignoreCase = true) ||
                                         user.surname.contains(query, ignoreCase = true)
                             }
@@ -1148,15 +1119,7 @@ fun PortraitProjectInfoView(
                                                         ) {
                                                             if (me) {
                                                                 TeamOnImage(
-                                                                    modifier = if (isAdmin) Modifier
-                                                                        .size(50.dp)
-                                                                        .clip(CircleShape)
-                                                                        .border(
-                                                                            2.dp,
-                                                                            MaterialTheme.colorScheme.primary,
-                                                                            CircleShape
-                                                                        )
-                                                                    else Modifier
+                                                                    modifier = Modifier
                                                                         .size(50.dp)
                                                                         .clip(CircleShape),
                                                                     source = profileViewModel.profileImageSource,
@@ -1168,15 +1131,7 @@ fun PortraitProjectInfoView(
                                                                 )
                                                             } else {
                                                                 TeamOnImage(
-                                                                    modifier = if (isAdmin) Modifier
-                                                                        .size(50.dp)
-                                                                        .clip(CircleShape)
-                                                                        .border(
-                                                                            2.dp,
-                                                                            MaterialTheme.colorScheme.primary,
-                                                                            CircleShape
-                                                                        )
-                                                                    else Modifier
+                                                                    modifier = Modifier
                                                                         .size(50.dp)
                                                                         .clip(CircleShape),
                                                                     source = user.profileImageSource,
@@ -1202,6 +1157,11 @@ fun PortraitProjectInfoView(
                                                                 style = MaterialTheme.typography.labelMedium,
                                                                 color = MaterialTheme.colorScheme.primary
                                                             )
+                                                            Image(modifier = Modifier.size(14.dp),
+                                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                                                painter = painterResource(id = R.drawable.ic_admin),
+                                                                contentDescription = "Admin badge")
+
                                                         }
                                                     }
                                                     Row {
@@ -1217,6 +1177,7 @@ fun PortraitProjectInfoView(
                                                     verticalArrangement = Arrangement.Center,
                                                     horizontalAlignment = Alignment.CenterHorizontally
                                                 ) {
+                                                    Text("Teams", style = MaterialTheme.typography.bodySmall)
                                                     Row(
                                                         modifier = Modifier.fillMaxWidth(),
                                                         horizontalArrangement = Arrangement.Center,
@@ -1227,7 +1188,9 @@ fun PortraitProjectInfoView(
                                                         }
                                                         teamsWithUser.take(2).forEach { team ->
                                                             TeamOnImage(
-                                                                modifier = Modifier.size(24.dp).clip(CircleShape),
+                                                                modifier = Modifier
+                                                                    .size(24.dp)
+                                                                    .clip(CircleShape),
                                                                 source = team.imageSource,
                                                                 name = team.name,
                                                                 color = team.color,

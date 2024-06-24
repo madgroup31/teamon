@@ -60,21 +60,24 @@ fun RecursiveTasksBox(
     )
 
     Card(
-        modifier = Modifier.clickable { expanded = !expanded },
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        )
+        modifier = Modifier
+            .clip(
+                RoundedCornerShape(20.dp)
+            )
+            .clickable { expanded = !expanded },
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     )
     {
         AnimatedVisibility(modifier = Modifier.fillMaxWidth(), visible = expanded) {
             Row(
-                modifier = Modifier.align(Alignment.End),
+                modifier = Modifier,
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = { expanded = false }) {
                     Text(
-                        "Show less",
+                        modifier = Modifier,
+                        text ="Show less",
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -131,5 +134,6 @@ fun RecursiveTasksBox(
                 }
             }
         }
+
     }
 }

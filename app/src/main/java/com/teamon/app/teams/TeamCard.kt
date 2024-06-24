@@ -156,27 +156,25 @@ fun TeamCard(
                                 .forEach {
                                     val user by usersViewModel.getUser(it)
                                         .collectAsState(initial = User())
-                                    TeamOnImage(
-                                        modifier = if (team.admin.contains(user.userId)) Modifier
-                                            .size(
-                                                30.dp
-                                            )
-                                            .clip(CircleShape)
-                                            .border(
-                                                2.dp,
-                                                MaterialTheme.colorScheme.primary,
-                                                CircleShape
-                                            )
-                                        else Modifier
-                                            .size(24.dp)
-                                            .clip(CircleShape),
-                                        source = user.profileImageSource,
-                                        uri = user.profileImage?.toUri(),
-                                        name = user.name,
-                                        surname = user.surname,
-                                        color = user.color,
-                                        description = user.name + " " + user.surname + " profile image"
-                                    )
+                                    Box(contentAlignment = Alignment.Center) {
+                                        TeamOnImage(
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .clip(CircleShape),
+                                            source = user.profileImageSource,
+                                            uri = user.profileImage?.toUri(),
+                                            name = user.name,
+                                            surname = user.surname,
+                                            color = user.color,
+                                            description = user.name + " " + user.surname + " profile image"
+                                        )
+                                        if (team.admin.contains(it))
+                                            Image(modifier = Modifier.size(14.dp).align(Alignment.BottomEnd),
+                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                                painter = painterResource(id = R.drawable.ic_admin),
+                                                contentDescription = "Admin badge")
+
+                                    }
                                     Spacer(modifier = Modifier.width(2.dp))
                                 }
                             if (team.users.size > 3)

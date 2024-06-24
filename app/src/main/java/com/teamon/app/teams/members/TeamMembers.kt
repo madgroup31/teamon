@@ -1,7 +1,6 @@
 package com.teamon.app.myteams
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -262,7 +261,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                             //NUMBER MEMBERS
                             Text(
                                 "${members.size} members",
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 textAlign = TextAlign.Start
                             )
@@ -323,14 +322,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                             ) {
                                                 if (me) {
                                                     TeamOnImage(
-                                                        modifier = if (isAdmin) Modifier
-                                                            .size(100.dp)
-                                                            .border(
-                                                                2.dp,
-                                                                MaterialTheme.colorScheme.primary,
-                                                                CircleShape
-                                                            )
-                                                        else Modifier.size(100.dp),
+                                                        modifier =  Modifier.size(100.dp),
                                                         source = profileViewModel.profileImageSource,
                                                         uri = profileViewModel.profileImageUri,
                                                         name = profileViewModel.nameValue,
@@ -341,14 +333,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
 
                                                 } else {
                                                     TeamOnImage(
-                                                        modifier = if (isAdmin) Modifier
-                                                            .size(100.dp)
-                                                            .border(
-                                                                2.dp,
-                                                                MaterialTheme.colorScheme.primary,
-                                                                CircleShape
-                                                            )
-                                                        else Modifier.size(100.dp),
+                                                        modifier = Modifier.size(100.dp),
                                                         source = member.profileImageSource,
                                                         uri = member.profileImage?.toUri(),
                                                         name = member.name,
@@ -372,11 +357,18 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                         Column(modifier = Modifier)
                                         {
                                             if (isAdmin)
+                                                Row {
                                                 Text(
                                                     "Admin",
                                                     style = MaterialTheme.typography.labelSmall,
                                                     color = MaterialTheme.colorScheme.primary
                                                 )
+                                                    Image(modifier = Modifier.size(14.dp),
+                                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                                        painter = painterResource(id = R.drawable.ic_admin),
+                                                        contentDescription = "Admin badge")
+
+                                                }
 
                                             var text = "${member.name} ${member.surname}"
                                             if (me)
@@ -583,7 +575,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                 onSearchActiveChange = onSearchActiveChange
             ) {
 
-                val filteredMembers = members.filter { member ->
+                val filteredMembers = members.sortedByDescending { user -> teamVM.admin.contains(user.userId) }.filter { member ->
                     member.name.contains(query, ignoreCase = true)
                             || member.surname.contains(query, ignoreCase = true)
                 }
@@ -653,14 +645,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                                     member.profileImage
                                                     if (me) {
                                                         TeamOnImage(
-                                                            modifier = if (isAdmin) Modifier
-                                                                .size(100.dp)
-                                                                .border(
-                                                                    2.dp,
-                                                                    MaterialTheme.colorScheme.primary,
-                                                                    CircleShape
-                                                                )
-                                                            else Modifier.size(100.dp),
+                                                            modifier = Modifier.size(100.dp),
                                                             source = profileViewModel.profileImageSource,
                                                             uri = profileViewModel.profileImageUri,
                                                             name = profileViewModel.nameValue,
@@ -671,14 +656,7 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
 
                                                     } else {
                                                         TeamOnImage(
-                                                            modifier = if (isAdmin) Modifier
-                                                                .size(100.dp)
-                                                                .border(
-                                                                    2.dp,
-                                                                    MaterialTheme.colorScheme.primary,
-                                                                    CircleShape
-                                                                )
-                                                            else Modifier.size(100.dp),
+                                                            modifier = Modifier.size(100.dp),
                                                             source = member.profileImageSource,
                                                             uri = member.profileImage?.toUri(),
                                                             name = member.name,
@@ -702,11 +680,18 @@ fun TeamMembers(actions: Actions, teamVM: TeamViewModel) {
                                             Column(modifier = Modifier)
                                             {
                                                 if (isAdmin)
-                                                    Text(
-                                                        "Admin",
-                                                        style = MaterialTheme.typography.labelSmall,
-                                                        color = MaterialTheme.colorScheme.primary
-                                                    )
+                                                    Row {
+                                                        Text(
+                                                            "Admin",
+                                                            style = MaterialTheme.typography.labelSmall,
+                                                            color = MaterialTheme.colorScheme.primary
+                                                        )
+
+                                                        Image(modifier = Modifier.size(14.dp),
+                                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                                                            painter = painterResource(id = R.drawable.ic_admin),
+                                                            contentDescription = "Admin badge")
+                                                    }
 
                                                 var text = "${member.name} ${member.surname}"
                                                 if (me)
