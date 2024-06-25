@@ -54,7 +54,7 @@ fun RecursiveTasksBox(
     val boxHeight by animateDpAsState(
         targetValue = if (expanded) (tasks.size * 155.dp) else (155.dp + (tasks.size.takeIf { it<3 }?:3) * 15.dp),
         animationSpec = if (animate) spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
+            dampingRatio = Spring.DampingRatioLowBouncy,
             stiffness = Spring.StiffnessLow
         ) else snap(), label = ""
     )
@@ -110,6 +110,13 @@ fun RecursiveTasksBox(
                         stiffness = Spring.StiffnessLow
                     ) else snap(), label = ""
                 )
+                val elevation: Dp by animateDpAsState(
+                    targetValue = if (!expanded) (index * 3.dp + 2.dp) else 2.dp,
+                    animationSpec = if (animate) spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessLow
+                    ) else snap(), label = ""
+                )
                 Box(
                     modifier = Modifier
                         .zIndex((tasks.size - index).toFloat())
@@ -123,12 +130,14 @@ fun RecursiveTasksBox(
                         TaskCard(
                             taskId = it.taskId,
                             actions = actions,
+                            elevation = elevation,
                             snackbarHostState = snackbarHostState
                         )
                     else
                         TaskCard(
                             taskId = it.taskId,
                             actions = actions,
+                            elevation = elevation,
                             setView = { expanded = it },
                             snackbarHostState = snackbarHostState
                         )

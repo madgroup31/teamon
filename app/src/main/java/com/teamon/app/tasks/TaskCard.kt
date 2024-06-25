@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -114,6 +115,7 @@ enum class Repeat { Daily, Weekly, Monthly, Yearly }
 fun TaskCard(
     taskId: String,
     actions: Actions,
+    elevation: Dp = 2.dp,
     setView: ((Boolean) -> Unit)? = null,
     snackbarHostState: SnackbarHostState,
 ) {
@@ -163,9 +165,7 @@ fun TaskCard(
             val overdue = task.endDate < Timestamp.now() && task.status != TaskStatus.Completed
 
             ElevatedCard(
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 2.dp
-                ),
+                elevation = CardDefaults.cardElevation(elevation),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
                     if (setView == null) {

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -76,14 +78,16 @@ fun RecursiveChatsBox(
     val boxHeight by animateDpAsState(
         targetValue = if (expanded) (lastMessages.size * 80.dp) else (70.dp + (lastMessages.size.takeIf { it<3 }?:3) * 25.dp),
         animationSpec = if (animate) spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
+            dampingRatio = Spring.DampingRatioLowBouncy,
             stiffness = Spring.StiffnessLow
         ) else snap(), label = ""
     )
 
     ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(0.dp),
         modifier = Modifier
             .padding(10.dp)
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
             .clip(RoundedCornerShape(20.dp))
             .clickable { expanded = !expanded }
     )
@@ -246,6 +250,13 @@ fun RecursiveChatsBox(
                         stiffness = Spring.StiffnessLow
                     ) else snap(), label = ""
                 )
+                val elevation: Dp by animateDpAsState(
+                    targetValue = if (!expanded) (index * 3.dp + 1.dp) else 1.dp,
+                    animationSpec = if (animate) spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessLow
+                    ) else snap(), label = ""
+                )
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -261,7 +272,8 @@ fun RecursiveChatsBox(
                         PersonalChatCard(
                             chatId = it.chatId,
                             actions = actions,
-                            team = team
+                            team = team,
+                            elevation = elevation,
                         )
                     else
                         PersonalChatCard(
@@ -269,6 +281,7 @@ fun RecursiveChatsBox(
                             actions = actions,
                             team = team,
                             setView = { expanded = it },
+                            elevation = elevation
                         )
                 }
             }

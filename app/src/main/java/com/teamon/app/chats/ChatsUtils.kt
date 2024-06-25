@@ -27,7 +27,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Badge
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
@@ -92,6 +95,7 @@ fun PersonalChatCard(
     chatId: String,
     team: Team,
     setView: ((Boolean) -> Unit)? = null,
+    elevation: Dp
 ) {
     val lastMessage by chatsViewModel.getLastChatMessage(chatId).collectAsState(initial = Message())
     val unreadMessages by chatsViewModel.getUnreadMessagesInChat(chatId).collectAsState(initial = 0)
@@ -99,7 +103,8 @@ fun PersonalChatCard(
 
     val zombie = !team.users.contains(user.userId)
 
-        OutlinedCard(
+        ElevatedCard(
+            elevation = CardDefaults.elevatedCardElevation(elevation),
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .wrapContentHeight()
@@ -115,7 +120,8 @@ fun PersonalChatCard(
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxSize().padding(10.dp),
+                    .fillMaxSize()
+                    .padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             )
@@ -130,7 +136,12 @@ fun PersonalChatCard(
                             .size(50.dp)
                             .alpha(if (zombie) 0.5f else 1f)
                             .clip(CircleShape)
-                            .clickable { if(setView != null) setView(true) else actions.openProfile(selectedNavItem, user.userId) },
+                            .clickable {
+                                if (setView != null) setView(true) else actions.openProfile(
+                                    selectedNavItem,
+                                    user.userId
+                                )
+                            },
                         source = user.profileImageSource,
                         uri = user.profileImage?.toUri(),
                         name = user.name,
@@ -141,7 +152,8 @@ fun PersonalChatCard(
                     if (team.admin.contains(user.userId))
                         Image(
                             modifier = Modifier
-                                .size(14.dp).align(Alignment.BottomEnd),
+                                .size(14.dp)
+                                .align(Alignment.BottomEnd),
                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                             painter = painterResource(id = R.drawable.ic_admin),
                             contentDescription = "Admin badge"
@@ -167,7 +179,12 @@ fun PersonalChatCard(
                         Text(
                             modifier = Modifier
                                 .align(Alignment.Bottom)
-                                .clickable { if(setView != null) setView(true) else actions.openProfile(selectedNavItem, user.userId) },
+                                .clickable {
+                                    if (setView != null) setView(true) else actions.openProfile(
+                                        selectedNavItem,
+                                        user.userId
+                                    )
+                                },
                             text = user.nickname,
                             style = MaterialTheme.typography.titleMedium.copy(textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None),
                             fontStyle = if (zombie) FontStyle.Italic else FontStyle.Normal,
@@ -191,13 +208,13 @@ fun PersonalChatCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable(onClick = {
-                                if(setView != null)
+                                if (setView != null)
                                     setView(true)
                                 else
-                                actions.openPersonalChat(
-                                    user.userId,
-                                    team.teamId
-                                )
+                                    actions.openPersonalChat(
+                                        user.userId,
+                                        team.teamId
+                                    )
                             }),
                         horizontalArrangement = Arrangement.Center,
                     )
