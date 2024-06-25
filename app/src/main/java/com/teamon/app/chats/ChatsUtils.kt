@@ -493,6 +493,7 @@ fun TeamChatCard(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
                     BadgedBox(badge = {
                         if (unreadMessages > 0) {
                             Badge(

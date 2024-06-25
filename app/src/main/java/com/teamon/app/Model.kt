@@ -1151,7 +1151,7 @@ class Model(val context: Context) {
             .whereEqualTo("teamId", teamId)
             .addSnapshotListener { result, _ ->
                 if (result != null) {
-                    val chats = result.toObjects(Chat::class.java).associateBy { it.chatId }
+                    val chats = result.toObjects(Chat::class.java).filter{ !it.personal || it.userIds.contains(profileViewModel.userId) }.associateBy { it.chatId }
                     trySend(chats)
                 } else {
                     Log.e("Firebase", "Error fetching chats")

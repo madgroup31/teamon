@@ -50,6 +50,7 @@ class MessagingService : FirebaseMessagingService() {
                                 val data = remoteMessage.data
                                 if (data["userId"] != null) {
                                     if(tag == profileViewModel.userId) {
+                                        Log.d("messaging", "Personal Message data payload: $data")
                                         val intent = Intent(this, MainActivity::class.java).apply {
                                             flags =
                                                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -73,6 +74,7 @@ class MessagingService : FirebaseMessagingService() {
                                         )
                                     }
                                 } else {
+                                    Log.d("messaging", "Team Message data payload: $data")
                                     if (tag != profileViewModel.userId) {
                                         val intent = Intent(this, MainActivity::class.java).apply {
                                             flags =
