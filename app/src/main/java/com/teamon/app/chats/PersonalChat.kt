@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.FloatingActionButton
@@ -42,14 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.teamon.app.Actions
-import com.teamon.app.R
 import com.teamon.app.prefs
 import com.teamon.app.profileViewModel
 import com.teamon.app.utils.classes.Team
@@ -220,7 +219,7 @@ fun PortraitView(
                         modifier = Modifier
                             .height(60.dp)
                             .fillMaxWidth()
-                            .padding(start = 45.dp, end = 10.dp),
+                            .padding(start = 35.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -250,7 +249,7 @@ fun PortraitView(
                             }
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.chat_paste_go_24dp),
+                                Icons.AutoMirrored.Rounded.Send,
                                 contentDescription = null
                             )
                         }
@@ -265,21 +264,10 @@ fun PortraitView(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "This user is not part of the team",
-                            style = MaterialTheme.typography.bodyLarge,
+                            text = "This user is not part of the team anymore.",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontStyle = FontStyle.Italic),
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        FloatingActionButton(
-                            onClick = {
-                                toggleShowingDeleteChat()
-                            }
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.chat_paste_go_24dp),
-                                contentDescription = null
-                            )
-                        }
                     }
                 }
             }
@@ -425,25 +413,39 @@ fun LandscapeView(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TeamOnImage(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .alpha(if (zombie) 0.5f else 1f)
-                            .clip(CircleShape),
-                        source = addressee.profileImageSource,
-                        name = addressee.name,
-                        surname = addressee.surname,
-                        uri = addressee.profileImage?.toUri(),
-                        color = addressee.color,
-                        description =
-                        addressee.name + " " + addressee.surname + " profile picture"
-                    )
+                    Column {
+                        TeamOnImage(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .alpha(if (zombie) 0.5f else 1f)
+                                .clip(CircleShape),
+                            source = addressee.profileImageSource,
+                            name = addressee.name,
+                            surname = addressee.surname,
+                            uri = addressee.profileImage?.toUri(),
+                            color = addressee.color,
+                            description =
+                            addressee.name + " " + addressee.surname + " profile picture"
+                        )
+                    }
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = addressee.name + " " + addressee.surname,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+
+                    Column(modifier = Modifier) {
+                        Text(
+                            text = addressee.name + " " + addressee.surname,
+                            style = MaterialTheme.typography.titleLarge.copy(textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None),
+                            fontStyle = if (zombie) FontStyle.Italic else FontStyle.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = addressee.nickname,
+                            style = MaterialTheme.typography.bodySmall.copy(textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None),
+                            fontStyle = if (zombie) FontStyle.Italic else FontStyle.Normal,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                    }
+
                 }
             },
             leadingTopBarActions = {
@@ -494,7 +496,7 @@ fun LandscapeView(
                             }
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.chat_paste_go_24dp),
+                                Icons.AutoMirrored.Rounded.Send,
                                 contentDescription = null
                             )
                         }
@@ -509,8 +511,8 @@ fun LandscapeView(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "This user is not part of the team",
-                            style = MaterialTheme.typography.bodyLarge,
+                            text = "This user is not part of the team anymore.",
+                            style = MaterialTheme.typography.bodyLarge.copy(fontStyle = FontStyle.Italic),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }

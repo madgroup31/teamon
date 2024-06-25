@@ -192,7 +192,7 @@ fun SentTeamMessageCard(
                             horizontalArrangement = Arrangement.End,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val readBy = partecipants - message.unread.size - 1
+                            val readBy = (partecipants - message.unread.size - 1).takeIf { it >= 0 }?:0
                             Text(
                                 text = readBy.toString(),
                                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),

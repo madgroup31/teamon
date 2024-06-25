@@ -24,9 +24,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
@@ -47,13 +47,17 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import com.teamon.app.Actions
@@ -62,6 +66,7 @@ import com.teamon.app.chatsViewModel
 import com.teamon.app.profileViewModel
 import com.teamon.app.teamsViewModel
 import com.teamon.app.usersViewModel
+import com.teamon.app.utils.classes.Chat
 import com.teamon.app.utils.classes.Message
 import com.teamon.app.utils.classes.Team
 import com.teamon.app.utils.classes.User
@@ -111,7 +116,7 @@ fun PersonalChatCard(
                 .clip(RoundedCornerShape(20.dp))
                 .border(
                     1.dp,
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
                     RoundedCornerShape(20.dp)
                 ),
             onClick = {
@@ -275,6 +280,19 @@ fun PersonalChatCard(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(contentAlignment = Alignment.Center) {
+                        BadgedBox(badge = {
+                            if (unreadMessages > 0) {
+                                Badge(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .clip(CircleShape)
+                                ) {
+                                    Text(
+                                        text = unreadMessages.toString(),
+                                    )
+                                }
+                            }
+                        }) {
                         IconButton(
                             onClick = { if(setView != null) setView(true) else actions.openPersonalChat(user.userId, team.teamId) },
                             colors = IconButtonDefaults.iconButtonColors(
@@ -282,14 +300,200 @@ fun PersonalChatCard(
                                 contentColor = MaterialTheme.colorScheme.primary
                             ),
                         ) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.Send,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .align(Alignment.Center),
-                                contentDescription = "Go to Chat",
-                            )
+                                Icon(
+                                    painter = painterResource(R.drawable.chat_paste_go_24dp),
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .align(Alignment.Center),
+                                    contentDescription = "Go to Chat",
+                                )
+                            }
+
                         }
+
+                    }
+                }
+            }
+        }
+
+}
+
+@SuppressLint("StateFlowValueCalledInComposition", "SuspiciousIndentation")
+@Composable
+fun TeamChatCard(
+    actions: Actions,
+    team: Team
+) {
+    val chat by chatsViewModel.getTeamChat(team.teamId).collectAsState(initial = Chat())
+    val lastMessage by chatsViewModel.getLastChatMessage(chat.chatId).collectAsState(initial = Message())
+    val unreadMessages by chatsViewModel.getUnreadMessagesInChat(chat.chatId).collectAsState(initial = 0)
+
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(1.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 0.dp, bottom = 30.dp, end = 10.dp, start = 10.dp)
+            .wrapContentHeight()
+            .clip(RoundedCornerShape(20.dp))
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                RoundedCornerShape(20.dp)
+            ),
+        onClick = {
+            actions.openTeamChat(team.teamId)
+        }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        )
+        {
+                Column(verticalArrangement = Arrangement.Center) {
+                    Box {
+                        TeamOnImage(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .clickable {
+                                    actions.openTeam(team.teamId)
+                                },
+                            source = team.imageSource,
+                            uri = team.image.toUri(),
+                            name = team.name,
+                            surname = "",
+                            color = team.color,
+                            description = "Team image",
+                        )
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.weight(0.3f))
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(6f),
+                    verticalArrangement = Arrangement.Center
+                )
+                {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                    )
+                    {
+                        Text(
+                            modifier = Modifier
+                                .align(Alignment.Bottom)
+                                .clickable {
+                                    actions.openTeam(team.teamId)
+                                },
+                            text = "Team Chat",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleMedium.copy(textDecoration = TextDecoration.None),
+                            fontStyle = FontStyle.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+
+
+
+                        Spacer(modifier = Modifier.width(5.dp))
+                        if (lastMessage.content.isNotBlank())
+                            Text(
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                                text = lastMessage.timestamp.asCompactPastRelativeDateTime(),
+                                style = MaterialTheme.typography.labelSmall.copy(fontStyle = FontStyle.Italic),
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.End
+                            )
+
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(onClick = {
+                                actions.openTeamChat(team.teamId)
+                            }),
+                        horizontalArrangement = Arrangement.Center,
+                    )
+                    {
+                        Column(
+                            modifier = Modifier
+                                .weight(0.7f)
+
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (lastMessage.content.isBlank())
+                                    Text(
+                                        text = "No messages yet",
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 2,
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                else {
+                                    val sender by usersViewModel.getUser(lastMessage.senderId)
+                                        .collectAsState(initial = User())
+                                    val zombie = !team.users.contains(sender.userId)
+                                    val isCurrentUser = sender.userId == profileViewModel.userId
+                                    val senderName = if (isCurrentUser) "Me" else sender.nickname
+                                    val messageContent = lastMessage.content
+
+                                    Text(
+                                        text = buildAnnotatedString {
+                                            withStyle(
+                                                style = SpanStyle(
+                                                    fontWeight = FontWeight.Medium,
+                                                    textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None
+                                                )
+                                            ) {
+                                                append("$senderName: ")
+                                            }
+                                            withStyle(style = SpanStyle(fontWeight = FontWeight.Normal)) {
+                                                append(messageContent)
+                                            }
+                                        },
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 4,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+
+                                    if (sender.userId == profileViewModel.userId) {
+                                        Spacer(modifier = Modifier.width(5.dp))
+                                        val readBy = team.users.size - lastMessage.unread.size - 1
+                                        Icon(
+                                            modifier = Modifier
+                                                .size(18.dp)
+                                                .alpha(0.75f),
+                                            painter = painterResource(R.drawable.outline_remove_red_eye_24),
+                                            contentDescription = null
+                                        )
+                                        Text(
+                                            text = readBy.toString(),
+                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    BadgedBox(badge = {
                         if (unreadMessages > 0) {
                             Badge(
                                 modifier = Modifier
@@ -301,9 +505,29 @@ fun PersonalChatCard(
                                 )
                             }
                         }
+                    }) {
+                        IconButton(
+                            onClick = { actions.openTeamChat(team.teamId) },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.primary
+                            ),
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.chat_paste_go_24dp),
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .align(Alignment.Center),
+                                contentDescription = "Go to Chat",
+                            )
+                        }
+
                     }
+
+
                 }
             }
+
         }
 
 }

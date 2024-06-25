@@ -18,20 +18,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,14 +48,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
-import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
 import com.teamon.app.chatsViewModel
 import com.teamon.app.prefs
 import com.teamon.app.teamsViewModel
 import com.teamon.app.utils.classes.Team
-import com.teamon.app.utils.graphics.TeamOnImage
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
@@ -69,9 +63,7 @@ fun RecursiveChatsBox(
     actions: Actions,
 ) {
     val team by teamsViewModel.getTeam(teamId).collectAsState(initial = Team())
-    val unreadTeamChatMessages by chatsViewModel.getUnreadTeamChatMessages(teamId).collectAsState(initial = 0)
     val lastMessages by chatsViewModel.getLastMessages(teamId).collectAsState(initial = emptyMap())
-
 
     val animate = prefs.getBoolean("animate", true)
     var expanded by remember { mutableStateOf(false) }
@@ -87,7 +79,11 @@ fun RecursiveChatsBox(
         elevation = CardDefaults.elevatedCardElevation(0.dp),
         modifier = Modifier
             .padding(10.dp)
-            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                RoundedCornerShape(20.dp)
+            )
             .clip(RoundedCornerShape(20.dp))
             .clickable { expanded = !expanded }
     )
@@ -99,122 +95,66 @@ fun RecursiveChatsBox(
             horizontalArrangement = Arrangement.Center
         )
         {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Row {
-                    TeamOnImage(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(CircleShape),
-                        source = team.imageSource,
-                        name = team.name,
-                        surname = "",
-                        uri = team.image.toUri(),
-                        color = team.color,
-                        description = "Team image"
-                    )
-                }
-                Row {
-                    TextButton(
-                        onClick = { actions.openTeam(teamId) },
-                        modifier = Modifier,
-                    )
-                    {
-                        Text(
-                            text = team.name,
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-            }
-        }
-        Row(
-            modifier = Modifier
-                .padding(top = 4.dp, bottom = 2.dp)
-                .align(Alignment.CenterHorizontally)
-                .fillMaxWidth()
-        ) {
-            ElevatedButton(
-                onClick = { actions.openTeamChat(teamId) },
-                modifier = Modifier
-                    .padding(horizontal = 32.dp)
-                    .fillMaxWidth(),
-                elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 10.dp),
-                colors = ButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                ),
-                content = {
-                    BadgedBox(
-                        modifier = Modifier.align(Alignment.CenterVertically),
-                        badge = {
-                            if (unreadTeamChatMessages > 0) {
-                                Badge(modifier = Modifier.offset(x = 10.dp)) {
-                                    Text(
-                                        text = unreadTeamChatMessages.toString(),
-                                    )
-                                }
-                            }
-                        }
-                    ) {
-                        Text(
-                            text = "Group Chat",
-                        )
-                    }
-                }
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
-        )
-        {
-            Column(
-                modifier = Modifier
-                //.weight(0.7f),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+            Box {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-
-                    TextButton(
-                        onClick = { startNewChat(teamId) },
-                        modifier = Modifier,
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.round_add_circle_24),
-                            contentDescription = "Start new chat",
-                            tint = MaterialTheme.colorScheme.primary,
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(
+                            onClick = { actions.openTeam(teamId) },
+                            modifier = Modifier,
                         )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            text = "Start a new chat",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.Center
-                        )
+                        {
+                            Text(
+                                text = team.name,
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                IconButton(onClick = { startNewChat(teamId) }, colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.primary)) {
+                    Icon(
+                        painter = painterResource(R.drawable.round_add_circle_outline_24),
+                        contentDescription = "Start new chat",)
+                }
             }
+            }
+
+        }
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            TeamChatCard(actions = actions, team = team)
         }
 
 
         AnimatedVisibility(modifier = Modifier.fillMaxWidth(), visible = expanded) {
             Row(
-                modifier = Modifier,
+                modifier = Modifier.padding(horizontal = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                TextButton(onClick = { expanded = false }) {
+                    Icon(Icons.Rounded.Person, contentDescription = "Personal Chats")
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        modifier = Modifier,
+                        text ="Personal Chats",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
                 TextButton(onClick = { expanded = false }) {
                     Text(
                         modifier = Modifier,

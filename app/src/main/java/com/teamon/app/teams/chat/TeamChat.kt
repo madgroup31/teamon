@@ -145,7 +145,6 @@ fun PortraitTeamChatView(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        //.fillMaxHeight(0.8f)
                         .padding(5.dp)
                         .padding(bottom = height)
                 ) {

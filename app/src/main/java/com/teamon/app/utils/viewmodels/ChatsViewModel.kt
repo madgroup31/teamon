@@ -81,22 +81,6 @@ class ChatsViewModel(val model: Model) : ViewModel() {
 
     fun isMessageRead(messageId: String, userId: String) = model.isMessageRead(messageId, userId)
 
-    fun getUnreadMessages(teamId: String): Flow<Map<String, Int>> = channelFlow<Map<String, Int>> {
-        val unreadMessages = mutableMapOf<String, Int>()
-        model.getUserChats(teamId).collect { chats ->
-            unreadMessages.clear()
-            chats.keys.forEach { chatId ->
-                launch {
-                    model.getUnreadMessages(chatId).collect {
-                        unreadMessages[chatId] = it
-                        send(unreadMessages)
-                    }
-                }
-            }
-        }
-        awaitClose { /* Close resources if needed */ }
-    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
-
     fun getUnreadTeamChatMessages(teamId: String): Flow<Int> = channelFlow {
         model.getTeamChat(teamId).collect {
                 launch {
@@ -128,5 +112,7 @@ class ChatsViewModel(val model: Model) : ViewModel() {
     fun deleteMessage(messageId: String) {
         this.model.deleteMessage(messageId)
     }
+
+    fun getTeamChat(teamId: String) = model.getTeamChat(teamId)
 
 }

@@ -23,6 +23,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
@@ -317,7 +318,7 @@ fun LandscapeViewTeam(
                             modifier = Modifier
                                 .wrapContentHeight()
                                 .fillMaxWidth()
-                                .padding(start = 35.dp)
+                                .padding(start = 45.dp, end = 10.dp)
                                 .onGloballyPositioned { textBoxHeight = it.size.height },
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
@@ -348,7 +349,7 @@ fun LandscapeViewTeam(
                                 }
                             ) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.chat_paste_go_24dp),
+                                    Icons.AutoMirrored.Rounded.Send,
                                     contentDescription = null
                                 )
                             }
@@ -555,7 +556,7 @@ fun PortraitViewTeam(
                                 }
                             ) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.chat_paste_go_24dp),
+                                    Icons.AutoMirrored.Rounded.Send,
                                     contentDescription = null
                                 )
                             }
