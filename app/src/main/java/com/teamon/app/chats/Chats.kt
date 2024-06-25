@@ -114,7 +114,7 @@ fun LandscapeView(
                 )
             }
         } else {
-            AnimatedGrid(columns = StaggeredGridCells.Adaptive(minSize = 350.dp), items = data) { teamId, index ->
+            AnimatedGrid(columns = StaggeredGridCells.FixedSize(450.dp), items = data) { teamId, index ->
                         AnimatedItem(index = index) {
 
                             Chats(
@@ -174,7 +174,7 @@ fun PortraitView(
                 )
             }
         } else {
-            AnimatedGrid(columns = StaggeredGridCells.Adaptive(minSize = 350.dp), items = data) { teamId, index ->
+            AnimatedGrid(columns = StaggeredGridCells.FixedSize(450.dp), items = data) { teamId, index ->
                 AnimatedItem(index = index) {
 
                     Chats(

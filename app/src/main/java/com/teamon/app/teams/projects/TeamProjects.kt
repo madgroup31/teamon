@@ -45,7 +45,7 @@ fun TeamProjects(actions: Actions, teamVM: TeamViewModel)
     else {
         AnimatedGrid(
             modifier = Modifier.fillMaxSize(),
-            columns = StaggeredGridCells.Adaptive(250.dp),
+            columns = StaggeredGridCells.FixedSize(400.dp),
             items = projects
         ) { it, _ ->
             ProjectCard(

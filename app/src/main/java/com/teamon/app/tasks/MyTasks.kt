@@ -368,7 +368,7 @@ fun LandscapeView(
                         else
                             AnimatedGrid(
                                 modifier = Modifier.fillMaxSize(),
-                                columns = StaggeredGridCells.Adaptive(250.dp),
+                                columns = StaggeredGridCells.FixedSize(400.dp),
                                 items = tasks.groupBy {
                                     it.recurringSet ?: it.taskId
                                 }.values.toList()
@@ -418,7 +418,7 @@ fun LandscapeView(
                     else
                         AnimatedGrid(
                             modifier = Modifier.fillMaxSize(),
-                            columns = StaggeredGridCells.Adaptive(250.dp),
+                            columns = StaggeredGridCells.FixedSize(400.dp),
                             items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                         ) { task, _ ->
                             val t = (task as List<Task>).sortedBy { it.endDate }
@@ -635,7 +635,7 @@ fun PortraitView(
                         else
                             AnimatedGrid(
                                 modifier = Modifier.fillMaxSize(),
-                                columns = StaggeredGridCells.Adaptive(250.dp),
+                                columns = StaggeredGridCells.FixedSize(400.dp),
                                 items = tasks.groupBy {
                                     it.recurringSet ?: it.taskId
                                 }.values.toList()
@@ -685,7 +685,7 @@ fun PortraitView(
                     else
                         AnimatedGrid(
                             modifier = Modifier.fillMaxSize(),
-                            columns = StaggeredGridCells.Adaptive(250.dp),
+                            columns = StaggeredGridCells.FixedSize(400.dp),
                             items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                         ) { task, _ ->
                             val t = (task as List<Task>).sortedBy { it.endDate }

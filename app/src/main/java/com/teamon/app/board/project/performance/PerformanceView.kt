@@ -82,8 +82,8 @@ fun PerformanceView(projectVM: ProjectViewModel) {
             AnimatedGrid(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp),
-                columns = StaggeredGridCells.Adaptive(400.dp),
+                    .padding(horizontal = 10.dp),
+                columns = StaggeredGridCells.FixedSize(500.dp),
                 items = listOf(completedTasks, receivedFeedbacks)
             ) { it, index ->
                 when(index) {

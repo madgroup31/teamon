@@ -439,7 +439,7 @@ fun LandscapeView(
                         else {
                             AnimatedGrid(
                                 modifier = Modifier.fillMaxSize(),
-                                columns = StaggeredGridCells.Adaptive(150.dp),
+                                columns = StaggeredGridCells.FixedSize(185.dp),
                                 items = teams
                             ) { it, _ ->
                                 TeamCard(team = it as Team, actions = actions)
@@ -471,7 +471,7 @@ fun LandscapeView(
                     else {
                         AnimatedGrid(
                             modifier = Modifier.fillMaxSize(),
-                            columns = StaggeredGridCells.Adaptive(150.dp),
+                            columns = StaggeredGridCells.FixedSize(185.dp),
                             items = teams
                         ) { team, _ ->
                             TeamCard(team = team as Team, actions = actions)
@@ -647,7 +647,7 @@ fun PortraitView(
                         else {
                             AnimatedGrid(
                                 modifier = Modifier.fillMaxSize(),
-                                columns = StaggeredGridCells.Adaptive(150.dp),
+                                columns = StaggeredGridCells.FixedSize(185.dp),
                                 items = teams
                             ) { it, _ ->
                                 TeamCard(team = it as Team, actions = actions)
@@ -679,7 +679,7 @@ fun PortraitView(
                     else {
                         AnimatedGrid(
                             modifier = Modifier.fillMaxSize(),
-                            columns = StaggeredGridCells.Adaptive(150.dp),
+                            columns = StaggeredGridCells.FixedSize(185.dp),
                             items = teams
                         ) { team, _ ->
                             TeamCard(team = team as Team, actions = actions)

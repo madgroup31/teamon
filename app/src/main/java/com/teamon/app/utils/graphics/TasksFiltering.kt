@@ -165,7 +165,7 @@ fun TasksFilteringOptionsDropdownMenu(
             },
                 leadingIcon = {},
                 onClick = {
-                    onDeadlineFilterChange(TasksDeadlineFilteringOptions.InTime)
+                    onDeadlineFilterChange(TasksDeadlineFilteringOptions.All)
                     onStatusFilterChange(TasksStatusFilteringOptions.All)
                     onPriorityFilterChange(TasksPriorityFilteringOptions.All)
                     onTagQueryChange("")

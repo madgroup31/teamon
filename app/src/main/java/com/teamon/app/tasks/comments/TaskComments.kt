@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -44,19 +42,20 @@ import com.teamon.app.utils.viewmodels.TaskViewModel
 
 @Composable
 fun DayHeader(day: String) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainerLowest)
             .padding(start = 12.dp, end = 12.dp, top = 7.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        contentAlignment = Alignment.CenterEnd
     ) {
-        Text(text = day, style = MaterialTheme.typography.bodyMedium)
-        Spacer(modifier = Modifier.size(7.dp))
         HorizontalDivider(
             thickness = 1.dp,
             modifier = Modifier.fillMaxWidth()
         )
+        Text(text = day,
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest),
+            style = MaterialTheme.typography.bodyMedium)
     }
 }
 

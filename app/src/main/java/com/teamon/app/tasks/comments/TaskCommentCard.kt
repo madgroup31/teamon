@@ -94,25 +94,14 @@ fun CommentCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 10.dp, end = 10.dp), horizontalArrangement = Arrangement.SpaceAround
+            .padding(start = 10.dp, end = 10.dp), horizontalArrangement = Arrangement.End
     ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(2.dp)
-                .align(Alignment.CenterVertically)
-        ) {
-            Text(
-                text = formattedDate,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
         Column(
             modifier = Modifier
                 .weight(7f)
                 .padding(2.dp)
-                .align(Alignment.CenterVertically)
+                .align(Alignment.CenterVertically),
+            horizontalAlignment = Alignment.End
         ) {
             OutlinedCard(
                 elevation = CardDefaults.elevatedCardElevation(
@@ -123,6 +112,7 @@ fun CommentCard(
                 colors = CardDefaults.outlinedCardColors(containerColor = containerColor),
                 modifier = Modifier
                     .padding(5.dp)
+
             ) {
                 Column(
                     modifier = Modifier
@@ -130,7 +120,7 @@ fun CommentCard(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier,
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -165,11 +155,12 @@ fun CommentCard(
         }
         Column(
             modifier = Modifier
+                .weight(1f)
                 .padding(2.dp)
-                .align(Alignment.CenterVertically)
+                .align(Alignment.CenterVertically),
+            horizontalAlignment = Alignment.Start
         ) {
             IconButton(modifier = Modifier.size(30.dp), onClick = { }) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
                     val author by usersViewModel.getUser(comment.author).collectAsState(initial = User())
                     TeamOnImage(
                         modifier = Modifier.size(32.dp),
@@ -180,8 +171,13 @@ fun CommentCard(
                         color = author.color,
                         description = author.name + " " + author.surname + " profile image")
 
-                }
+
             }
+            Text(
+                text = formattedDate,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
         }
     }
 

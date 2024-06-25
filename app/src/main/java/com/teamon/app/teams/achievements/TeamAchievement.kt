@@ -1,12 +1,12 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.teamon.app.myteams
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.teamon.app.account.Diagram
 import com.teamon.app.teams.feedbacks.NewTeamFeedbackDialog
 import com.teamon.app.utils.classes.Performance
+import com.teamon.app.utils.graphics.AnimatedGrid
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.viewmodels.TeamViewModel
 import java.time.ZoneId
@@ -93,46 +94,22 @@ fun TeamAchievement(teamVM: TeamViewModel)
     }
     else
     {
-        LazyColumn(
+        AnimatedGrid(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-
-            //COMPLETED PROJECTS
-            if(projects.isNotEmpty())
-            {
-                item {
-                    AnimatedItem(index = 1) {
-                        Diagram(mappa = completedProjects, "Completed Projects")
-                        Spacer(
-                            modifier = Modifier.height(20.dp)
-                        )
-                    }
+                .padding(horizontal = 10.dp),
+            columns = StaggeredGridCells.FixedSize(500.dp),
+            items = listOf(completedProjects, receivedFeedbacks)
+        ) { it, index ->
+            when(index) {
+                0 -> {
+                    Diagram(mappa = it as Map<Int, Performance>, "Completed Tasks")
                 }
-            }
-
-            item{
-                Spacer(modifier= Modifier.height(32.dp))
-            }
-
-            //RECEIVED FEEDBACKS
-            if(feedbacks.isNotEmpty())
-            {
-                item {
-                    AnimatedItem(index = 1) {
-                        Diagram(mappa = receivedFeedbacks, "Received Feedbacks")
-                        Spacer(
-                            modifier = Modifier.height(20.dp)
-                        )
-
-                    }
+                1 -> {
+                    Diagram(mappa = it as Map<Int, Performance>, "Received Feedbacks")
                 }
+                else -> {}
             }
-
-
         }
     }
 

@@ -3,7 +3,6 @@ package com.teamon.app.board
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Configuration
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -128,7 +127,7 @@ fun LandscapeView(
             else {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(250.dp),
+                    columns = StaggeredGridCells.FixedSize(400.dp),
                     items = data
                 ) { project, _ ->
                     ProjectCard(
@@ -204,7 +203,7 @@ fun PortraitView(
         else {
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = StaggeredGridCells.Adaptive(250.dp),
+                columns = StaggeredGridCells.FixedSize(400.dp),
                 items = data.sortedByDescending {
                     profileViewModel.favoritesProjects.contains(
                         it.projectId

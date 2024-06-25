@@ -3,7 +3,6 @@
 package com.teamon.app.board.project.teams
 
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -135,11 +134,7 @@ fun PortraitTeamsView(
     onAddTeamClick: () -> Unit
 ) {
 
-    //val data = projectVM.teams.toList()
-
     val data by projectVM.getProjectTeams().collectAsState(initial = emptyMap())
-
-    Log.d("team", "teams: $data")
 
     if (searchActive) {
         val teams = data.values.toList().prepare(
@@ -166,23 +161,18 @@ fun PortraitTeamsView(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    AnimatedGrid(
-                        modifier = Modifier.fillMaxSize(),
-                        columns = StaggeredGridCells.Adaptive(150.dp),
-                        items = listOf("No Available Teams.")
-                    ) { it, _ ->
                         Text(
-                            text = it as String,
+                            text = "No Available Teams.",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
                             fontStyle = FontStyle.Italic
                         )
-                    }
+
                 }
             else {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(150.dp),
+                    columns = StaggeredGridCells.FixedSize(150.dp),
                     items = teams
                 ) { it, _ ->
                     TeamCard(team = it as Team, actions = actions)
@@ -204,18 +194,13 @@ fun PortraitTeamsView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                AnimatedGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(150.dp),
-                    items = listOf("No Available Teams.")
-                ) { it, _ ->
                     Text(
-                        text = it as String,
+                        text = "No Available Teams.",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge,
                         fontStyle = FontStyle.Italic
                     )
-                }
+
             }
         else {
             val displayItems = if (projectVM.isEditingTeams) {
@@ -225,7 +210,7 @@ fun PortraitTeamsView(
             }
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = StaggeredGridCells.Adaptive(150.dp),
+                columns = StaggeredGridCells.FixedSize(185.dp),
                 items = displayItems
             ) { it, _ ->
                 if (it is String) {
@@ -321,23 +306,18 @@ fun LandscapeTeamsView(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    AnimatedGrid(
-                        modifier = Modifier.fillMaxSize(),
-                        columns = StaggeredGridCells.Adaptive(150.dp),
-                        items = listOf("No Available Teams.")
-                    ) { it, _ ->
                         Text(
-                            text = it as String,
+                            text = "No Available Teams.",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
                             fontStyle = FontStyle.Italic
                         )
-                    }
+
                 }
             else {
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(150.dp),
+                    columns = StaggeredGridCells.FixedSize(185.dp),
                     items = teams
                 ) { it, _ ->
                     TeamCard(team = it as Team, actions = actions)
@@ -359,18 +339,13 @@ fun LandscapeTeamsView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                AnimatedGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(150.dp),
-                    items = listOf("No Available Teams.")
-                ) { it, _ ->
                     Text(
-                        text = it as String,
+                        text = "No Available Teams.",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge,
                         fontStyle = FontStyle.Italic
                     )
-                }
+
             }
         else {
             val displayItems = if (projectVM.isEditingTeams) {
@@ -380,7 +355,7 @@ fun LandscapeTeamsView(
             }
             AnimatedGrid(
                 modifier = Modifier.fillMaxSize(),
-                columns = StaggeredGridCells.Adaptive(150.dp),
+                columns = StaggeredGridCells.FixedSize(185.dp),
                 items = displayItems
             ) { it, _ ->
                 if (it is String) {

@@ -38,10 +38,11 @@ fun TaskHistoryCard(entry: History){
             .fillMaxWidth()
             .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
     ){
         Column(
-            modifier = Modifier.weight(1.5f),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.weight(1.5f).padding(10.dp),
+            horizontalAlignment = Alignment.End
         ) {
             Icon(modifier = Modifier, painter = painterResource(id = entry.icon.getIcon()), contentDescription = "updateType")
             Text(entry.timestamp.asTime(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
@@ -70,8 +71,8 @@ fun TaskHistoryCard(entry: History){
             }
         }
         Column(
-            modifier = Modifier.weight(1.5f),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.weight(1.5f).padding(10.dp),
+            horizontalAlignment = Alignment.Start
         ) {
             val user by usersViewModel.getUser(entry.user).collectAsState(initial = User())
 

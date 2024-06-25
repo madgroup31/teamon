@@ -411,7 +411,7 @@ fun TaskAttachments(
 
         AnimatedGrid(
             modifier = Modifier.fillMaxSize(),
-            columns = StaggeredGridCells.Adaptive(250.dp),
+            columns = StaggeredGridCells.FixedSize(250.dp),
             items = attachments
         ) { it, index ->
             TaskAttachment(taskId, it as Attachment, actions, snackbarHostState)

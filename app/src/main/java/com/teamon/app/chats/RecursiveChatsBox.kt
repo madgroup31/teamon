@@ -208,7 +208,7 @@ fun RecursiveChatsBox(
                         .clip(RoundedCornerShape(20.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (expanded)
+                    if (expanded || lastMessages.values.size == 1)
                         PersonalChatCard(
                             chatId = it.chatId,
                             actions = actions,

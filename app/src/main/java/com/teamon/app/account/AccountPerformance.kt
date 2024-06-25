@@ -190,7 +190,7 @@ fun Diagram(mappa: Map<Int, Performance> = emptyMap(), title: String) {
     var expandedYear by remember { mutableStateOf(false) }
     var expandedMonth by remember { mutableStateOf(false) }
 
-    Column {
+    Column(modifier = Modifier.padding(10.dp)) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(

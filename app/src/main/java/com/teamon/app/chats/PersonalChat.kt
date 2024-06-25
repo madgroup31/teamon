@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,7 +44,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -147,7 +151,7 @@ fun PortraitView(
 
     val team by chatVm.team.collectAsState(initial = Team())
     val addressee by chatVm.addressee.collectAsState(initial = User())
-
+    var textBoxHeight by remember { mutableIntStateOf(0) }
     val listState = rememberLazyListState()
 
     val zombie = !team.users.contains(addressee.userId)
@@ -215,43 +219,47 @@ fun PortraitView(
             },
             floatingActionButton = {
                 if (!zombie) {
-                    Row(
-                        modifier = Modifier
-                            .height(60.dp)
-                            .fillMaxWidth()
-                            .padding(start = 35.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = newMessage,
-                            onValueChange = { onMessageChange(it) },
-                            shape = RoundedCornerShape(20.dp),
-                            maxLines = 1,
-                            placeholder = {
-                                Text(
-                                    text = "Write a message...",
-                                    fontStyle = FontStyle.Italic
-                                )
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        FloatingActionButton(
-                            onClick = {
-                                if (newMessage.isNotBlank()) {
-                                    chatVm.sendMessage(
-                                        newMessage,
-                                    )
-                                    //keyboardController?.hide()
-                                    onMessageChange("")
-                                }
-                            }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth(0.9f)
+                                .padding(start = 35.dp)
+                                .align(Alignment.CenterHorizontally)
+                                .onGloballyPositioned { textBoxHeight = it.size.height },
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.Send,
-                                contentDescription = null
+                            OutlinedTextField(
+                                value = newMessage,
+                                onValueChange = { onMessageChange(it) },
+                                shape = RoundedCornerShape(20.dp),
+                                maxLines = 5,
+                                placeholder = {
+                                    Text(
+                                        text = "Write a message...",
+                                        fontStyle = FontStyle.Italic
+                                    )
+                                },
+                                modifier = Modifier.weight(1f)
                             )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            FloatingActionButton(
+                                onClick = {
+                                    if (newMessage.isNotBlank()) {
+                                        chatVm.sendMessage(
+                                            newMessage,
+                                        )
+                                        //keyboardController?.hide()
+                                        onMessageChange("")
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Rounded.Send,
+                                    contentDescription = null
+                                )
+                            }
                         }
                     }
                 } else {
@@ -316,12 +324,15 @@ fun PortraitView(
                             else
                                 listState.scrollToItem(chatVm.messages.size - 1, 2)
                         }
+                        val height = with(LocalDensity.current) {
+                            textBoxHeight.toDp().value.toInt().dp + 15.dp
+                        }
                         LazyColumn(
                             state = listState,
                             modifier = Modifier
                                 //.fillMaxHeight(0.8f)
                                 .padding(5.dp)
-                                .padding(bottom = 80.dp)
+                                .padding(bottom = height)
                         ) {
                             val messages = chatVm.messages.sortedBy { it.timestamp }
                                 .groupBy { it.timestamp.asPastRelativeDate() }
@@ -393,7 +404,7 @@ fun LandscapeView(
 ) {
     val team by chatVm.team.collectAsState(initial = Team())
     val addressee by chatVm.addressee.collectAsState(initial = User())
-
+    var textBoxHeight by remember { mutableIntStateOf(0) }
     val listState = rememberLazyListState()
 
     val zombie = !team.users.contains(addressee.userId)
@@ -462,43 +473,47 @@ fun LandscapeView(
             },
             floatingActionButton = {
                 if (!zombie) {
-                    Row(
-                        modifier = Modifier
-                            .height(60.dp)
-                            .fillMaxWidth()
-                            .padding(start = 45.dp, end = 10.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = newMessage,
-                            onValueChange = { onMessageChange(it) },
-                            shape = RoundedCornerShape(20.dp),
-                            maxLines = 1,
-                            placeholder = {
-                                Text(
-                                    text = "Write a message...",
-                                    fontStyle = FontStyle.Italic
-                                )
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        FloatingActionButton(
-                            onClick = {
-                                if (newMessage.isNotBlank()) {
-                                    chatVm.sendMessage(
-                                        newMessage,
-                                    )
-                                    //keyboardController?.hide()
-                                    onMessageChange("")
-                                }
-                            }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth(0.9f)
+                                .padding(start = 35.dp)
+                                .align(Alignment.CenterHorizontally)
+                                .onGloballyPositioned { textBoxHeight = it.size.height },
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.Send,
-                                contentDescription = null
+                            OutlinedTextField(
+                                value = newMessage,
+                                onValueChange = { onMessageChange(it) },
+                                shape = RoundedCornerShape(20.dp),
+                                maxLines = 2,
+                                placeholder = {
+                                    Text(
+                                        text = "Write a message...",
+                                        fontStyle = FontStyle.Italic
+                                    )
+                                },
+                                modifier = Modifier.weight(1f)
                             )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            FloatingActionButton(
+                                onClick = {
+                                    if (newMessage.isNotBlank()) {
+                                        chatVm.sendMessage(
+                                            newMessage,
+                                        )
+                                        //keyboardController?.hide()
+                                        onMessageChange("")
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Rounded.Send,
+                                    contentDescription = null
+                                )
+                            }
                         }
                     }
                 } else {
@@ -560,12 +575,14 @@ fun LandscapeView(
                             else
                                 listState.scrollToItem(chatVm.messages.size-1, 2)
                         }
+                        val height = with(LocalDensity.current) {
+                            textBoxHeight.toDp().value.toInt().dp + 15.dp
+                        }
                         LazyColumn(
                             state = listState,
                             modifier = Modifier
-                                //.fillMaxHeight(0.8f)
                                 .padding(5.dp)
-                                .padding(bottom = 80.dp)
+                                .padding(bottom = height)
                         ) {
                             val messages = chatVm.messages.sortedBy { it.timestamp }
                                 .groupBy { it.timestamp.asPastRelativeDate() }

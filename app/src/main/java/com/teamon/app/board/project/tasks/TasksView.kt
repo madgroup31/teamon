@@ -191,7 +191,7 @@ fun LandscapeTasksView(
 
                     AnimatedGrid(
                         modifier = Modifier.fillMaxSize(),
-                        columns = StaggeredGridCells.Adaptive(250.dp),
+                        columns = StaggeredGridCells.FixedSize(400.dp),
                         items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                     ) { it, _ ->
                         val t = (it as List<Task>).sortedBy { it.endDate }
@@ -238,7 +238,7 @@ fun LandscapeTasksView(
             else
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(250.dp),
+                    columns = StaggeredGridCells.FixedSize(400.dp),
                     items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                 ) { it, _ ->
                     val t = (it as List<Task>).sortedBy { it.endDate }
@@ -337,7 +337,7 @@ fun PortraitTasksView(
 
                     AnimatedGrid(
                         modifier = Modifier.fillMaxSize(),
-                        columns = StaggeredGridCells.Adaptive(250.dp),
+                        columns = StaggeredGridCells.FixedSize(400.dp),
                         items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                     ) { it, _ ->
                         val t = (it as List<Task>).sortedBy { it.endDate }
@@ -384,7 +384,7 @@ fun PortraitTasksView(
             else
                 AnimatedGrid(
                     modifier = Modifier.fillMaxSize(),
-                    columns = StaggeredGridCells.Adaptive(250.dp),
+                    columns = StaggeredGridCells.FixedSize(400.dp),
                     items = tasks.groupBy { it.recurringSet ?: it.taskId }.values.toList()
                 ) { it, _ ->
                     val t = (it as List<Task>).sortedBy { it.endDate }

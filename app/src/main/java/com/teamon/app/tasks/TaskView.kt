@@ -4,6 +4,7 @@ package com.teamon.app.tasks
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -236,51 +237,54 @@ fun LandscapeTaskView(
                 1 -> {}
                 2 -> {
 
-                    Row(
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .padding(start = 45.dp, end = 10.dp)
-                            .onGloballyPositioned { textBoxHeight = it.size.height },
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = commentText,
-                            onValueChange = { onCommentTextChange(it) },
-                            shape = RoundedCornerShape(20.dp),
-                            maxLines = 2,
-                            placeholder = {
-                                Text(
-                                    text = "Type a comment...",
-                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                                )
-                            },
-                            modifier = Modifier.weight(1f).wrapContentHeight()
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        FloatingActionButton(
-                            onClick = {
-                                if (commentText.isNotBlank()) {
-
-
-                                    taskViewModel.addComment(
-                                        profileViewModel.userId,
-                                        commentText
-                                    )
-
-                                    keyboardController?.hide()
-                                    onModifiedChange(true)
-                                    onCommentTextChange("")
-                                }
-                            }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth(0.9f)
+                                .padding(start = 35.dp)
+                                .align(Alignment.CenterHorizontally)
+                                .onGloballyPositioned { textBoxHeight = it.size.height },
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.chat_paste_go_24dp),
-                                contentDescription = null
+                            OutlinedTextField(
+                                value = commentText,
+                                onValueChange = { onCommentTextChange(it) },
+                                shape = RoundedCornerShape(20.dp),
+                                maxLines = 2,
+                                placeholder = {
+                                    Text(
+                                        text = "Type a comment...",
+                                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                    )
+                                },
+                                modifier = Modifier.weight(1f).wrapContentHeight()
                             )
-                        }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            FloatingActionButton(
+                                onClick = {
+                                    if (commentText.isNotBlank()) {
 
+
+                                        taskViewModel.addComment(
+                                            profileViewModel.userId,
+                                            commentText
+                                        )
+
+                                        keyboardController?.hide()
+                                        onModifiedChange(true)
+                                        onCommentTextChange("")
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.chat_paste_go_24dp),
+                                    contentDescription = null
+                                )
+                            }
+
+                        }
                     }
                 }
 
@@ -467,50 +471,53 @@ fun PortraitTaskView(
                 1 -> {}
                 2 -> {
 
-                    Row(
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .padding(start = 35.dp)
-                            .onGloballyPositioned { textBoxHeight = it.size.height },
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = commentText,
-                            onValueChange = { onCommentTextChange(it) },
-                            shape = RoundedCornerShape(20.dp),
-                            maxLines = 5,
-                            placeholder = {
-                                Text(
-                                    text = "Type a comment...",
-                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                                )
-                            },
-                            modifier = Modifier.weight(1f).wrapContentHeight()
-                        )
-
-                        Spacer(modifier = Modifier.width(10.dp))
-                        FloatingActionButton(
-                            onClick = {
-                                if (commentText.isNotBlank()) {
-
-                                    taskViewModel.addComment(
-                                        profileViewModel.userId,
-                                        commentText
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth(0.9f)
+                                .padding(start = 35.dp)
+                                .align(Alignment.CenterHorizontally)
+                                .onGloballyPositioned { textBoxHeight = it.size.height },
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = commentText,
+                                onValueChange = { onCommentTextChange(it) },
+                                shape = RoundedCornerShape(20.dp),
+                                maxLines = 5,
+                                placeholder = {
+                                    Text(
+                                        text = "Type a comment...",
+                                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                                     )
-                                    keyboardController?.hide()
-                                    onModifiedChange(true)
-                                    onCommentTextChange("")
-
-                                }
-                            }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.chat_paste_go_24dp),
-                                contentDescription = null
+                                },
+                                modifier = Modifier.weight(1f).wrapContentHeight()
                             )
-                        }
 
+                            Spacer(modifier = Modifier.width(10.dp))
+                            FloatingActionButton(
+                                onClick = {
+                                    if (commentText.isNotBlank()) {
+
+                                        taskViewModel.addComment(
+                                            profileViewModel.userId,
+                                            commentText
+                                        )
+                                        keyboardController?.hide()
+                                        onModifiedChange(true)
+                                        onCommentTextChange("")
+
+                                    }
+                                }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.chat_paste_go_24dp),
+                                    contentDescription = null
+                                )
+                            }
+
+                        }
                     }
 
                 }

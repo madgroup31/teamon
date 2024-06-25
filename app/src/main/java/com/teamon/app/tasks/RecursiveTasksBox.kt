@@ -142,7 +142,7 @@ fun RecursiveTasksBox(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(20.dp))
                 ) {
-                    if (expanded)
+                    if (expanded || tasks.size == 1)
                         TaskCard(
                             taskId = it.taskId,
                             actions = actions,

@@ -314,46 +314,49 @@ fun LandscapeViewTeam(
                     1 -> {}
 
                     2 -> {
-                        Row(
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .fillMaxWidth()
-                                .padding(start = 45.dp, end = 10.dp)
-                                .onGloballyPositioned { textBoxHeight = it.size.height },
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            OutlinedTextField(
-                                value = messageText,
-                                onValueChange = { onMessageTextChange(it) },
-                                shape = RoundedCornerShape(20.dp),
-                                maxLines = 2,
-                                placeholder = {
-                                    Text(
-                                        text = "Write a message...",
-                                        fontStyle = FontStyle.Italic
-                                    )
-                                },
-                                modifier = Modifier.weight(1f).wrapContentHeight()
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            FloatingActionButton(
-                                onClick = {
-                                    if (messageText.isNotBlank()) {
-                                        teamVM.sendMessage(
-                                            messageText,
-                                        )
-                                        //keyboardController?.hide()
-                                        onMessageTextChange("")
-                                    }
-                                }
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .fillMaxWidth(0.9f)
+                                    .padding(start = 35.dp)
+                                    .align(Alignment.CenterHorizontally)
+                                    .onGloballyPositioned { textBoxHeight = it.size.height },
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    Icons.AutoMirrored.Rounded.Send,
-                                    contentDescription = null
+                                OutlinedTextField(
+                                    value = messageText,
+                                    onValueChange = { onMessageTextChange(it) },
+                                    shape = RoundedCornerShape(20.dp),
+                                    maxLines = 2,
+                                    placeholder = {
+                                        Text(
+                                            text = "Write a message...",
+                                            fontStyle = FontStyle.Italic
+                                        )
+                                    },
+                                    modifier = Modifier.weight(1f).wrapContentHeight()
                                 )
-                            }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                FloatingActionButton(
+                                    onClick = {
+                                        if (messageText.isNotBlank()) {
+                                            teamVM.sendMessage(
+                                                messageText,
+                                            )
+                                            //keyboardController?.hide()
+                                            onMessageTextChange("")
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.AutoMirrored.Rounded.Send,
+                                        contentDescription = null
+                                    )
+                                }
 
+                            }
                         }
                     }
 
@@ -521,46 +524,49 @@ fun PortraitViewTeam(
                     1 -> {}
 
                     2 -> {
-                        Row(
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .fillMaxWidth()
-                                .onGloballyPositioned { textBoxHeight = it.size.height }
-                                .padding(start = 35.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            OutlinedTextField(
-                                value = messageText,
-                                onValueChange = { onMessageTextChange(it) },
-                                shape = RoundedCornerShape(20.dp),
-                                maxLines = 5,
-                                placeholder = {
-                                    Text(
-                                        text = "Write a message...",
-                                        fontStyle = FontStyle.Italic
-                                    )
-                                },
-                                modifier = Modifier.weight(1f).wrapContentHeight()
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            FloatingActionButton(
-                                onClick = {
-                                    if (messageText.isNotBlank()) {
-                                        teamVM.sendMessage(
-                                            messageText,
-                                        )
-                                        //keyboardController?.hide()
-                                        onMessageTextChange("")
-                                    }
-                                }
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Row(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .fillMaxWidth(0.9f)
+                                    .padding(start = 35.dp)
+                                    .align(Alignment.CenterHorizontally)
+                                    .onGloballyPositioned { textBoxHeight = it.size.height },
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    Icons.AutoMirrored.Rounded.Send,
-                                    contentDescription = null
+                                OutlinedTextField(
+                                    value = messageText,
+                                    onValueChange = { onMessageTextChange(it) },
+                                    shape = RoundedCornerShape(20.dp),
+                                    maxLines = 5,
+                                    placeholder = {
+                                        Text(
+                                            text = "Write a message...",
+                                            fontStyle = FontStyle.Italic
+                                        )
+                                    },
+                                    modifier = Modifier.weight(1f).wrapContentHeight()
                                 )
-                            }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                FloatingActionButton(
+                                    onClick = {
+                                        if (messageText.isNotBlank()) {
+                                            teamVM.sendMessage(
+                                                messageText,
+                                            )
+                                            //keyboardController?.hide()
+                                            onMessageTextChange("")
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.AutoMirrored.Rounded.Send,
+                                        contentDescription = null
+                                    )
+                                }
 
+                            }
                         }
                     }
 
