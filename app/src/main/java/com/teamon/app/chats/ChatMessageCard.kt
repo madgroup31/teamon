@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -225,6 +226,7 @@ fun SentTeamMessageCard(
 fun ReceivedTeamMessageCard(
     query: String,
     isQuerying: () -> Boolean,
+    zombie: Boolean,
     message: Message,
     actions: Actions,
 ) {
@@ -305,7 +307,8 @@ fun ReceivedTeamMessageCard(
 
                         TeamOnImage(
                             modifier = Modifier
-                                .clickable { actions.openProfile(selectedNavItem, author.userId) },
+                                .clickable { actions.openProfile(selectedNavItem, author.userId) }
+                                .alpha(if (zombie) 0.5f else 1f),
                             source = author.profileImageSource,
                             uri = author.profileImage?.toUri(),
                             name = author.name,
@@ -339,7 +342,7 @@ fun ReceivedTeamMessageCard(
                             },
                             text = author.nickname,
                             color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold, textDecoration = if (zombie) TextDecoration.LineThrough else TextDecoration.None )
                         )
                         Text(
                             text = annotatedString,

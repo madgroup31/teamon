@@ -55,6 +55,7 @@ import com.teamon.app.tasks.info.MyDatePickerDialog
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.SearchBar
 import com.teamon.app.utils.graphics.TeamOnImage
+import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.viewmodels.ProjectViewModel
 import kotlin.math.ceil
 import kotlin.math.log
@@ -158,61 +159,26 @@ fun PortraitProjectInfoView(
                         )
                         {
                             OutlinedTextField(
-                                value = projectVM.projectEndDate,
-                                onValueChange = { projectVM.updateProjectEndDate(it) },
+                                value = projectVM.tasks.maxByOrNull { it.endDate }?.endDate?.asDate() ?: "No tasks",
+                                onValueChange = {  },
+                                supportingText = { Text("Estimated End Date computed by furthest task End Date") },
                                 enabled = true,
-                                readOnly = !projectVM.isEditing,
+                                readOnly = true,
                                 label = { Text("End Date") },
                                 modifier = Modifier.fillMaxWidth(),
-                                isError = projectVM.projectEndDateError.isNotBlank(),
                                 trailingIcon = {
-                                    IconButton(enabled = projectVM.isEditing,
-                                        onClick = { projectVM.toggleEditEndDate() }) {
                                         Image(
                                             modifier = Modifier.size(24.dp),
                                             painter = painterResource(id = R.drawable.round_calendar_today_24),
                                             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
                                             contentDescription = "Date picker"
                                         )
-                                    }
                                 },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
-                            if (projectVM.projectEndDateError.isNotBlank()) {
-                                Text(
-                                    projectVM.projectEndDateError,
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-        }
-
-        if (projectVM.isEditingEndDate) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp)
-                ) {
-                    //val latestTaskDate = projectVM.tasks.maxByOrNull { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd-MM-yyyy")) }?.endDate
-                    MyDatePickerDialog(
-                        onDateSelected = {
-                            projectVM.updateProjectEndDate(
-                                it.replace(
-                                    "/",
-                                    "-"
-                                )
-                            )
-                        },
-                        onDismiss = { projectVM.toggleEditEndDate() },
-                        actualDate = projectVM.projectEndDate,
-                        //firstSelectable = latestTaskDate
-                    )
                 }
             }
         }
@@ -763,59 +729,26 @@ fun PortraitProjectInfoView(
                     )
                     {
                         OutlinedTextField(
-                            value = projectVM.projectEndDate,
-                            onValueChange = { projectVM.updateProjectEndDate(it) },
-                            enabled = !projectVM.isEditing,
-                            readOnly = !projectVM.isEditing,
+                            value = projectVM.tasks.maxByOrNull { it.endDate }?.endDate?.asDate() ?: "No tasks",
+                            supportingText = { Text("Estimated End Date computed by furthest task End Date") },
+                            onValueChange = {  },
+                            enabled = true,
+                            readOnly = true,
                             label = { Text("End Date") },
                             modifier = Modifier.fillMaxWidth(),
-                            isError = projectVM.projectEndDateError.isNotBlank(),
                             trailingIcon = {
-                                IconButton(enabled = projectVM.isEditing,
-                                    onClick = { projectVM.toggleEditEndDate() }) {
                                     Image(
                                         modifier = Modifier.size(24.dp),
                                         painter = painterResource(id = R.drawable.round_calendar_today_24),
                                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
                                         contentDescription = "Date picker"
                                     )
-                                }
                             },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         )
-                        if (projectVM.projectEndDateError.isNotBlank()) {
-                            Text(
-                                projectVM.projectEndDateError,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            if (projectVM.isEditingEndDate) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(5.dp)
-                    ) {
-                        MyDatePickerDialog(
-                            onDateSelected = {
-                                projectVM.updateProjectEndDate(
-                                    it.replace(
-                                        "/",
-                                        "-"
-                                    )
-                                )
-                            },
-                            onDismiss = { projectVM.toggleEditEndDate() },
-                            actualDate = projectVM.projectEndDate
-                        )
-                    }
-                }
             }
 
             // TODO: Project Tag as union of project task tags

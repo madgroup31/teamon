@@ -94,7 +94,8 @@ db.collection('messages').onSnapshot(snapshot => {
     snapshot.docChanges().forEach(change => {
         if (change.type === 'added' || change.type === 'modified') {
             let newValue = change.doc.data();
-            
+            let unread = change.doc.data().unread;
+
             db.collection("chats")
                 .doc(change.doc.data().chatId)
                 .get()
@@ -150,7 +151,7 @@ db.collection('messages').onSnapshot(snapshot => {
                                                                 body: body,
                                                                 channelId: "messages",
                                                                 icon: 'ic_action_name',
-                                                                tag: senderId
+                                                                tag: unread
                                                             }
                                                             },
                                                         topic: chatId.toString()
@@ -172,7 +173,7 @@ db.collection('messages').onSnapshot(snapshot => {
                                                                 body: body,
                                                                     channelId: "messages",
                                                                     icon: 'ic_action_name',
-                                                                    tag: senderId
+                                                                    tag: unread
                                                                 },
                                                                 },
                                                             topic: chatId.toString()
@@ -195,7 +196,7 @@ db.collection('messages').onSnapshot(snapshot => {
                                                                 body: body,
                                                                 channelId: "messages",
                                                                 icon: 'ic_action_name',
-                                                                tag: senderId
+                                                                tag: unread
                                                             }
                                                             },
                                                         topic: chatId.toString()
@@ -217,7 +218,7 @@ db.collection('messages').onSnapshot(snapshot => {
                                                                 body: body,
                                                                     channelId: "messages",
                                                                     icon: 'ic_action_name',
-                                                                    tag: senderId
+                                                                    tag: unread
                                                                 },
                                                                 },
                                                             topic: chatId.toString()

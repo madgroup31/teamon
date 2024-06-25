@@ -216,47 +216,6 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
 
     var projectEndDate by mutableStateOf("")
         private set
-    var projectEndDateError by mutableStateOf("")
-        private set
-
-    fun updateProjectEndDate(endDate: String) {
-        projectEndDate = endDate
-    }
-
-
-    private fun checkEndDate() {
-        val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-        dateFormat.isLenient = false
-        return try {
-            if (projectEndDate.isBlank())
-                throw DateTimeException("Project should have a deadline")
-
-            val dateOfProjectEndDate = dateFormat.parse(projectEndDate)
-
-            //val latestTaskDate = project.tasks.maxByOrNull { LocalDate.parse(it.endDate, DateTimeFormatter.ofPattern("dd-MM-yyyy")) }?.endDate
-            //val dateOfLatestTask = latestTaskDate?.let { dateFormat.parse(it) }
-
-            //if (dateOfLatestTask != null && dateOfProjectEndDate!!.before(dateOfLatestTask))
-            //    throw DateTimeException("Project deadline should be after or equal to the latest task deadline")
-
-            val calendar = Calendar.getInstance()
-            if (dateOfProjectEndDate!!.before(calendar.time))
-                throw DateTimeException("Project deadline should be set to the future")
-            projectEndDateError = ""
-        } catch (e: Exception) {
-            when (e) {
-                is DateTimeException -> {
-                    projectEndDateError = e.message.toString()
-                }
-
-                else -> {
-                    projectEndDateError = "Invalid project deadline"
-                }
-            }
-        }
-    }
-
-
 
     /* FOR CHAT, FEEDBACKS
     fun addComment(user: User, comment: String) {
@@ -281,11 +240,9 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     {
         checkName()
         checkDescription()
-        checkEndDate()
         if (
             projectNameError == "" &&
-            projectDescriptionError == "" &&
-            projectEndDateError == ""
+            projectDescriptionError == ""
         ) {
             isConfirmDialogShow= true
         }
@@ -294,7 +251,6 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     fun validate() {
         checkName()
         checkDescription()
-        checkEndDate()
     }
 
 }

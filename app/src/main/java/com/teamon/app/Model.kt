@@ -202,15 +202,22 @@ class Model(val context: Context) {
         return try {
             db.runTransaction { transaction ->
                 transaction.get(projectRef)
+                val projectEndDate = transaction.get(projectRef).getTimestamp("endDate")
                 val taskRef = db.collection("tasks").document()
                 transaction.set(taskRef, taskMap)
                 transaction.update(projectRef, "tasks", FieldValue.arrayUnion(taskRef.id))
                 val historyRef = db.collection("history").document()
                 transaction.set(historyRef, historyMap)
                 transaction.update(taskRef, "history", FieldValue.arrayUnion(historyRef.id))
+
+                // Check and update the endDate of the project if necessary
+                if (projectEndDate != null && task.endDate != null && task.endDate > projectEndDate) {
+                    transaction.update(projectRef, "endDate", task.endDate)
+                }
             }.await()
             true
         } catch (e: Exception) {
+            Log.d("firestore", e.message.toString())
             false
         }
     }
@@ -220,6 +227,7 @@ class Model(val context: Context) {
         return try {
             db.runTransaction { transaction ->
                 transaction.get(projectRef)
+                val projectEndDate = transaction.get(projectRef).getTimestamp("endDate")
                 tasks.forEach { task ->
                     val taskMap = mapOf(
                         "taskName" to task.taskName,
@@ -251,6 +259,10 @@ class Model(val context: Context) {
                     val historyRef = db.collection("history").document()
                     transaction.set(historyRef, historyMap)
                     transaction.update(taskRef, "history", FieldValue.arrayUnion(historyRef.id))
+                }
+                val maxTaskEndDate = tasks.maxOfOrNull { it.endDate }
+                if (projectEndDate != null && maxTaskEndDate != null && maxTaskEndDate > projectEndDate) {
+                    transaction.update(projectRef, "endDate", maxTaskEndDate)
                 }
             }.await()
             true

@@ -145,6 +145,7 @@ fun PortraitTeamChatView(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
+                        .fillMaxSize()
                         .padding(5.dp)
                         .padding(bottom = height)
                 ) {
@@ -169,6 +170,7 @@ fun PortraitTeamChatView(
                                     else -> ReceivedTeamMessageCard(
                                         actions = actions,
                                         message = message,
+                                        zombie = !teamVm.users.contains(message.senderId),
                                         query = query,
                                         isQuerying = isQuerying,
                                     )
@@ -263,6 +265,7 @@ fun LandscapeTeamChatView(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
+                        .fillMaxSize()
                         .padding(5.dp)
                         .padding(bottom = height)
                 ) {
@@ -283,10 +286,10 @@ fun LandscapeTeamChatView(
                                         isQuerying = isQuerying,
                                         partecipants = teamVm.users.size
                                     )
-
                                     else -> ReceivedTeamMessageCard(
                                         actions = actions,
                                         message = message,
+                                        zombie = !teamVm.users.contains(message.senderId),
                                         query = query,
                                         isQuerying = isQuerying,
                                     )

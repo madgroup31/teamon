@@ -330,6 +330,7 @@ fun PortraitView(
                         LazyColumn(
                             state = listState,
                             modifier = Modifier
+                                .fillMaxSize()
                                 //.fillMaxHeight(0.8f)
                                 .padding(5.dp)
                                 .padding(bottom = height)
@@ -581,6 +582,7 @@ fun LandscapeView(
                         LazyColumn(
                             state = listState,
                             modifier = Modifier
+                                .fillMaxSize()
                                 .padding(5.dp)
                                 .padding(bottom = height)
                         ) {

@@ -25,63 +25,76 @@ class MessagingService : FirebaseMessagingService() {
         remoteMessage.notification?.let { notification ->
 
                 val channel = notification.channelId
-                val tag = notification.tag
-            notification.imageUrl
-                if(tag != profileViewModel.userId)
+
                     when(channel) {
                         HISTORY -> {
-                            val data = remoteMessage.data
-                            val intent = Intent(this, MainActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                putExtra("graph", NavigationItem.MyTasks.title)
-                                putExtra("taskId",data["taskId"])
+                            val tag = notification.tag
+                            if(tag != profileViewModel.userId) {
+                                val data = remoteMessage.data
+                                val intent = Intent(this, MainActivity::class.java).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    putExtra("graph", NavigationItem.MyTasks.title)
+                                    putExtra("taskId",data["taskId"])
+                                }
+                                val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                                sendNotification(
+                                    channel = channel,
+                                    title = notification.title,
+                                    message = notification.body,
+                                    intent = pendingIntent
+                                )
                             }
-                            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-                            sendNotification(
-                                channel = channel,
-                                title = notification.title,
-                                message = notification.body,
-                                intent = pendingIntent
-                            )
                         }
                         MESSAGES -> {
-                            val data = remoteMessage.data
-                            if(data["userId"] != null) {
-                                val intent = Intent(this, MainActivity::class.java).apply {
-                                    flags =
-                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    putExtra("graph", NavigationItem.Chats.title)
-                                    putExtra("teamId", data["teamId"])
-                                    putExtra("userId", data["userId"])
+                            val tag = notification.tag as List<String>
+                            if (tag.contains(profileViewModel.userId)) {
+                                val data = remoteMessage.data
+                                if (data["userId"] != null) {
+                                    val intent = Intent(this, MainActivity::class.java).apply {
+                                        flags =
+                                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        putExtra("graph", NavigationItem.Chats.title)
+                                        putExtra("teamId", data["teamId"])
+                                        putExtra("userId", data["userId"])
+                                    }
+
+                                    val pendingIntent = PendingIntent.getActivity(
+                                        this,
+                                        0,
+                                        intent,
+                                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                                    )
+
+                                    sendNotification(
+                                        channel = channel,
+                                        title = notification.title,
+                                        message = notification.body,
+                                        intent = pendingIntent
+                                    )
+                                } else {
+                                    val intent = Intent(this, MainActivity::class.java).apply {
+                                        flags =
+                                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        putExtra("graph", NavigationItem.MyTeams.title)
+                                        putExtra("teamId", data["teamId"])
+                                    }
+
+                                    val pendingIntent = PendingIntent.getActivity(
+                                        this,
+                                        0,
+                                        intent,
+                                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                                    )
+
+                                    sendNotification(
+                                        channel = channel,
+                                        title = notification.title,
+                                        message = notification.body,
+                                        intent = pendingIntent
+                                    )
                                 }
 
-                                val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-                                sendNotification(
-                                    channel = channel,
-                                    title = notification.title,
-                                    message = notification.body,
-                                    intent = pendingIntent
-                                )
                             }
-                            else {
-                                val intent = Intent(this, MainActivity::class.java).apply {
-                                    flags =
-                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    putExtra("graph", NavigationItem.MyTeams.title)
-                                    putExtra("teamId", data["teamId"])
-                                }
-
-                                val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-                                sendNotification(
-                                    channel = channel,
-                                    title = notification.title,
-                                    message = notification.body,
-                                    intent = pendingIntent
-                                )
-                            }
-
                         }
                         else -> {}
                     }

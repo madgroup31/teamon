@@ -309,7 +309,8 @@ fun ProjectCard(
                                         style = MaterialTheme.typography.bodySmall
                                     )
                                     Text(
-                                        text = project.endDate.asDate(),
+                                        text = tasks.values.maxByOrNull { it.endDate }?.endDate?.asDate()
+                                            ?: "No tasks",
                                         overflow = TextOverflow.Ellipsis,
                                         maxLines = 1,
                                         style = MaterialTheme.typography.titleSmall,

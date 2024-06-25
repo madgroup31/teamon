@@ -175,7 +175,7 @@ fun RecursiveChatsBox(
                 .clip(RoundedCornerShape(20.dp))
 
         ) {
-            lastMessages.values.take(if (!expanded) 3 else lastMessages.size).forEachIndexed { index, it ->
+            lastMessages.values.sortedByDescending { it.timestamp }.take(if (!expanded) 3 else lastMessages.size).forEachIndexed { index, it ->
                 val offsetY: Dp by animateDpAsState(
                     targetValue = if (expanded) (index * 80).dp else (index * 25).dp,
                     animationSpec = if (animate) spring(
