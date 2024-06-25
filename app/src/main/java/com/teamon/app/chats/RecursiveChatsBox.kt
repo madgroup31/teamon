@@ -1,5 +1,6 @@
 package com.teamon.app.chats
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -54,7 +55,9 @@ import com.teamon.app.chatsViewModel
 import com.teamon.app.prefs
 import com.teamon.app.teamsViewModel
 import com.teamon.app.utils.classes.Team
+import kotlinx.coroutines.flow.distinctUntilChanged
 
+@SuppressLint("FlowOperatorInvokedInComposition")
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun RecursiveChatsBox(
@@ -63,7 +66,7 @@ fun RecursiveChatsBox(
     actions: Actions,
 ) {
     val team by teamsViewModel.getTeam(teamId).collectAsState(initial = Team())
-    val lastMessages by chatsViewModel.getLastMessages(teamId).collectAsState(initial = emptyMap())
+    val lastMessages by chatsViewModel.getLastMessages(teamId).distinctUntilChanged().collectAsState(initial = emptyMap())
 
     val animate = prefs.getBoolean("animate", true)
     var expanded by remember { mutableStateOf(false) }

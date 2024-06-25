@@ -186,8 +186,7 @@ class ProjectsViewModel(val model: Model): ViewModel() {
     }
 
     fun getTeamProjects(teamId: String): Flow<List<Project>> = model.getProjectsByTeamId(teamId)
-
-
+    suspend fun updateProject(projectId: String, project: Project): Boolean = model.updateProject(projectId, project)
 
 
 }

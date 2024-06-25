@@ -151,7 +151,7 @@ db.collection('messages').onSnapshot(snapshot => {
                                                                 body: body,
                                                                 channelId: "messages",
                                                                 icon: 'ic_action_name',
-                                                                tag: unread
+                                                                tag: unread[0]
                                                             }
                                                             },
                                                         topic: chatId.toString()
@@ -173,7 +173,7 @@ db.collection('messages').onSnapshot(snapshot => {
                                                                 body: body,
                                                                     channelId: "messages",
                                                                     icon: 'ic_action_name',
-                                                                    tag: unread
+                                                                    tag: unread[0]
                                                                 },
                                                                 },
                                                             topic: chatId.toString()
@@ -196,7 +196,7 @@ db.collection('messages').onSnapshot(snapshot => {
                                                                 body: body,
                                                                 channelId: "messages",
                                                                 icon: 'ic_action_name',
-                                                                tag: unread
+                                                                tag: senderId
                                                             }
                                                             },
                                                         topic: chatId.toString()
@@ -218,7 +218,7 @@ db.collection('messages').onSnapshot(snapshot => {
                                                                 body: body,
                                                                     channelId: "messages",
                                                                     icon: 'ic_action_name',
-                                                                    tag: unread
+                                                                    tag: senderId
                                                                 },
                                                                 },
                                                             topic: chatId.toString()

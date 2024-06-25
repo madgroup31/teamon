@@ -1,5 +1,6 @@
 package com.teamon.app.utils.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -21,14 +22,11 @@ import com.teamon.app.utils.classes.User
 import com.teamon.app.utils.graphics.ProjectColors
 import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.graphics.currentTimeSeconds
+import com.teamon.app.utils.graphics.toTimestamp
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.time.DateTimeException
-import java.util.Calendar
-import java.util.Locale
 
 class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     var project: StateFlow<Project> = model.getProject(projectId).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Project())
@@ -112,12 +110,6 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
 
     suspend fun addTeam(teamId: String) = model.addTeamToProject(projectId, teamId)
 
-    var isEditingEndDate by mutableStateOf(false)
-        private set
-
-    fun toggleEditEndDate() {
-        isEditingEndDate = !isEditingEndDate
-    }
 
 
     var isWritingFeedback by mutableStateOf(false)
@@ -210,22 +202,13 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
 
     private fun checkDescription() {
         projectDescriptionError = if (projectDescription.isBlank()) {
-            "Project name cannot be blank"
+            "Project description cannot be blank"
         } else ""
     }
 
     var projectEndDate by mutableStateOf("")
         private set
 
-    /* FOR CHAT, FEEDBACKS
-    fun addComment(user: User, comment: String) {
-        this.model.addComment(taskId, user, comment)
-        this.comments = model.loadTask(taskId).comments.toMutableStateList()
-    }
-     */
-
-    //REMOVE A COMPONENT
-    //ADD A COMPONENT
 
 
     var isConfirmDialogShow by mutableStateOf(false)
@@ -234,6 +217,36 @@ class ProjectViewModel(val model: Model, val projectId: String) : ViewModel() {
     fun toggleConfirmDialog()
     {
         isConfirmDialogShow= !isConfirmDialogShow
+    }
+
+    suspend fun updateProject(): Boolean {
+        validate()
+        Log.d("update", "$projectNameError, $projectDescriptionError")
+        if(projectNameError.isBlank() && projectDescriptionError.isBlank()) {
+            val project = Project(
+                projectId = projectId,
+                projectName = projectName,
+                projectColor = projectColor,
+                description = projectDescription,
+                endDate = projectEndDate.toTimestamp(),
+                teams = teams.map { it.teamId },
+                tasks = tasks.map { it.taskId },
+                feedbacks = feedbacks.map { it.feedbackId }
+            )
+            toggleConfirmDialog()
+
+            if(projectsViewModel.updateProject(projectId, project)) {
+                toggleEdit()
+                return true
+            }
+            else
+                return false
+        }
+        else {
+            Log.d("update", "here")
+            return false
+        }
+
     }
 
     fun checkAll()

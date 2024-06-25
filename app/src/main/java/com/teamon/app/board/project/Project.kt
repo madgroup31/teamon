@@ -542,6 +542,7 @@ fun LandscapeView(
                     LandscapeProjectInfoView(
                         actions = actions,
                         projectVM = projectVM,
+                        snackbarHostState = snackbarHostState
                     )
                 }
 
@@ -880,6 +881,7 @@ fun PortraitView(
                     PortraitProjectInfoView(
                         actions = actions,
                         projectVM = projectVM,
+                        snackbarHostState = snackbarHostState
                     )
                 }
 

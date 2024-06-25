@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,19 +52,22 @@ import androidx.core.net.toUri
 import com.teamon.app.Actions
 import com.teamon.app.R
 import com.teamon.app.profileViewModel
-import com.teamon.app.tasks.info.MyDatePickerDialog
 import com.teamon.app.utils.graphics.AnimatedItem
 import com.teamon.app.utils.graphics.SearchBar
 import com.teamon.app.utils.graphics.TeamOnImage
 import com.teamon.app.utils.graphics.asDate
 import com.teamon.app.utils.viewmodels.ProjectViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.log
 
 @Composable
 fun PortraitProjectInfoView(
     projectVM: ProjectViewModel,
-    actions: Actions
+    actions: Actions,
+    snackbarHostState: SnackbarHostState
 ) {
     projectVM.teams
     val users = projectVM.members.values.sortedBy { it.name + " " + it.surname }.toList()
@@ -601,8 +605,10 @@ fun PortraitProjectInfoView(
             confirmButton = {
                 Button(
                     onClick = {
-                        projectVM.validate()
-                        projectVM.toggleConfirmDialog()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            if (!projectVM.updateProject())
+                                snackbarHostState.showSnackbar("An error occurred. Please try again.")
+                        }
                     }
                 ) {
                     Text(text = "Confirm")
@@ -626,6 +632,7 @@ fun PortraitProjectInfoView(
     fun LandscapeProjectInfoView(
         projectVM: ProjectViewModel,
         actions: Actions,
+        snackbarHostState: SnackbarHostState
     ) {
 
         val users = projectVM.members.values.sortedBy { it.name + " " + it.surname }.toList()
@@ -1169,8 +1176,10 @@ fun PortraitProjectInfoView(
                 confirmButton = {
                     Button(
                         onClick = {
-                            projectVM.validate()
-                            projectVM.toggleConfirmDialog()
+                            CoroutineScope(Dispatchers.Main).launch {
+                                if (!projectVM.updateProject())
+                                    snackbarHostState.showSnackbar("An error occurred. Please try again.")
+                            }
                         }
                     ) {
                         Text(text = "Confirm")
