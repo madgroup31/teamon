@@ -66,7 +66,7 @@ fun RecursiveChatsBox(
     actions: Actions,
 ) {
     val team by teamsViewModel.getTeam(teamId).collectAsState(initial = Team())
-    val lastMessages by chatsViewModel.getLastMessages(teamId).distinctUntilChanged().collectAsState(initial = emptyMap())
+    val lastMessages by chatsViewModel.getLastMessages(teamId).collectAsState(initial = emptyMap())
 
     val animate = prefs.getBoolean("animate", true)
     var expanded by remember { mutableStateOf(false) }
@@ -214,6 +214,7 @@ fun RecursiveChatsBox(
                     if (expanded || lastMessages.values.size == 1)
                         PersonalChatCard(
                             chatId = it.chatId,
+                            initialLastMessage = it,
                             actions = actions,
                             team = team,
                             elevation = elevation,
@@ -221,6 +222,7 @@ fun RecursiveChatsBox(
                     else
                         PersonalChatCard(
                             chatId = it.chatId,
+                            initialLastMessage = it,
                             actions = actions,
                             team = team,
                             setView = { expanded = it },

@@ -101,7 +101,8 @@ class ChatsViewModel(val model: Model) : ViewModel() {
                     launch {
                         model.getLastChatMessage(chatId).collect {
                             lastMessages[chatId] = it
-                            send(lastMessages)
+                            if(lastMessages.size == chats.size)
+                                send(lastMessages)
                         }
                     }
                 }

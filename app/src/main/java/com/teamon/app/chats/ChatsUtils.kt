@@ -98,11 +98,12 @@ fun Chats(  //TODO: Move from here
 fun PersonalChatCard(
     actions: Actions,
     chatId: String,
+    initialLastMessage: Message,
     team: Team,
     setView: ((Boolean) -> Unit)? = null,
     elevation: Dp
 ) {
-    val lastMessage by chatsViewModel.getLastChatMessage(chatId).collectAsState(initial = Message())
+    val lastMessage by chatsViewModel.getLastChatMessage(chatId).collectAsState(initial = initialLastMessage)
     val unreadMessages by chatsViewModel.getUnreadMessagesInChat(chatId).collectAsState(initial = 0)
     val user by chatsViewModel.getCorrespondent(chatId).collectAsState(initial = User())
 
